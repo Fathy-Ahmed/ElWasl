@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
 import { CategoryService } from '../../../../core/services/category.service';
 import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.models';
 
@@ -21,7 +22,8 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatIconModule
   ],
   template: `
     <h2 mat-dialog-title>
@@ -57,11 +59,18 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
         </div>
 
         <!-- Row 3: Cover & Category -->
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>رابط صورة الغلاف / Cover Image URL</mat-label>
-            <input matInput formControlName="coverImageUrl">
-          </mat-form-field>
+        <div class="form-row image-upload-row">
+          <div class="image-upload-container">
+            <mat-form-field appearance="outline">
+              <mat-label>رابط صورة الغلاف / Cover Image URL</mat-label>
+              <input matInput formControlName="coverImageUrl">
+            </mat-form-field>
+            <button type="button" mat-stroked-button color="primary" class="upload-btn" (click)="fileInput.click()">
+              <mat-icon>cloud_upload</mat-icon>
+              رفع صورة / Upload
+            </button>
+            <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onImageUploaded($event)">
+          </div>
 
           <mat-form-field appearance="outline">
             <mat-label>التصنيف / Category</mat-label>
@@ -74,6 +83,19 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
             </mat-select>
           </mat-form-field>
         </div>
+
+        <!-- Image Preview Block -->
+        @if (form.get('coverImageUrl')?.value) {
+          <div class="image-preview-container">
+            <span class="preview-label">معاينة الغلاف / Cover Preview:</span>
+            <div class="image-preview">
+              <img [src]="form.get('coverImageUrl')?.value" alt="Preview" class="preview-img">
+              <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
 
         <!-- Row 4: Pricing & Stock -->
         <div class="form-row">
@@ -159,6 +181,53 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
     .form-row mat-form-field {
       flex: 1;
     }
+    .image-upload-row {
+      align-items: flex-start;
+    }
+    .image-upload-container {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+    .image-upload-container mat-form-field {
+      flex: 1;
+    }
+    .upload-btn {
+      height: 52px;
+      margin-top: 4px;
+    }
+    .image-preview-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .preview-label {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .image-preview {
+      position: relative;
+      display: inline-block;
+      max-width: 120px;
+      border: 1px dashed #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .preview-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .remove-img-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+    }
     .w-full {
       width: 100%;
     }
@@ -229,6 +298,26 @@ export class BookDialogComponent implements OnInit {
     if (lang === 'Arabic') return 1;
     if (lang === 'English') return 2;
     return 1;
+  }
+
+  onImageUploaded(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.form.patchValue({
+          coverImageUrl: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeImage(): void {
+    this.form.patchValue({
+      coverImageUrl: ''
+    });
   }
 
   onSubmit(): void {
