@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../../core/cart/cart.service';
 import { LocalizedTextPipe } from '../../pipes/localized-text.pipe';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 import { PriceTagComponent } from '../price-tag/price-tag.component';
 
 export interface Product {
@@ -35,7 +36,8 @@ export interface Product {
     MatButtonModule,
     MatIconModule,
     PriceTagComponent,
-    LocalizedTextPipe
+    LocalizedTextPipe,
+    ImageUrlPipe
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss']

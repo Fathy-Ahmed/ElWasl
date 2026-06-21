@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, inject } from '@angular/core';
+import { Component, Inject, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryService } from '../../../../core/services/category.service';
+import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.models';
 
 @Component({
@@ -23,7 +25,8 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
     MatSelectModule,
     MatButtonModule,
     MatCheckboxModule,
-    MatIconModule
+    MatIconModule,
+    ImageUrlPipe
   ],
   template: `
     <h2 mat-dialog-title>
@@ -65,9 +68,9 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
               <mat-label>رابط صورة الغلاف / Cover Image URL</mat-label>
               <input matInput formControlName="coverImageUrl">
             </mat-form-field>
-            <button type="button" mat-stroked-button color="primary" class="upload-btn" (click)="fileInput.click()">
+            <button type="button" mat-stroked-button color="primary" class="upload-btn" [disabled]="isUploading()" (click)="fileInput.click()">
               <mat-icon>cloud_upload</mat-icon>
-              رفع صورة / Upload
+              {{ isUploading() ? 'جاري الرفع...' : 'رفع صورة / Upload' }}
             </button>
             <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onImageUploaded($event)">
           </div>
@@ -89,7 +92,7 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
           <div class="image-preview-container">
             <span class="preview-label">معاينة الغلاف / Cover Preview:</span>
             <div class="image-preview">
-              <img [src]="form.get('coverImageUrl')?.value" alt="Preview" class="preview-img">
+              <img [src]="form.get('coverImageUrl')?.value | imageUrl" alt="Preview" class="preview-img">
               <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage()">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -161,7 +164,7 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
 
       <mat-dialog-actions align="end">
         <button type="button" mat-button mat-dialog-close>إلغاء / Cancel</button>
-        <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">حفظ / Save</button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isUploading()">حفظ / Save</button>
       </mat-dialog-actions>
     </form>
   `,
@@ -239,8 +242,11 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
 })
 export class BookDialogComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
+  private readonly adminApiService = inject(AdminApiService);
+  
   form!: FormGroup;
   categories: CategoryDto[] = [];
+  readonly isUploading = signal<boolean>(false);
 
   constructor(
     private readonly fb: FormBuilder,
@@ -304,13 +310,18 @@ export class BookDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.form.patchValue({
-          coverImageUrl: reader.result as string
-        });
-      };
-      reader.readAsDataURL(file);
+      this.isUploading.set(true);
+      this.adminApiService.uploadFile(file).subscribe({
+        next: (res) => {
+          this.form.patchValue({
+            coverImageUrl: res
+          });
+          this.isUploading.set(false);
+        },
+        error: () => {
+          this.isUploading.set(false);
+        }
+      });
     }
   }
 
