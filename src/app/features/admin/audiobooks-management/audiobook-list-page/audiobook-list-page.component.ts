@@ -4,12 +4,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { AudiobookDialogComponent } from '../audiobook-dialog/audiobook-dialog.component';
 
 @Component({
   selector: 'app-audiobook-list-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent],
+  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent, MatDialogModule],
   template: `
     <div class="management-page">
       <app-admin-page-header title="إدارة الكتب الصوتية / Audiobooks Management" 
@@ -32,6 +34,7 @@ import { AdminApiService } from '../../../../core/services/admin-api.service';
 export class AudiobookListPageComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -67,6 +70,12 @@ export class AudiobookListPageComponent implements OnInit {
           titleEn: a.titleEn || '',
           authorAr: a.narratorName || '',
           price: a.price,
+          durationMinutes: a.durationMinutes,
+          audioFileUrl: a.audioFileUrl,
+          bookId: a.bookId,
+          descriptionAr: a.descriptionAr,
+          descriptionEn: a.descriptionEn,
+          isActive: a.isActive,
           raw: a
         }));
         this.audiobooks.set(mapped);
@@ -75,17 +84,46 @@ export class AudiobookListPageComponent implements OnInit {
   }
 
   addNewAudiobook(): void {
-    this.snackBar.open('إضافة كتاب صوتي (سيتم دعم النموذج في النسخة القادمة) / Add form placeholder', 'إغلاق / Close', { duration: 3000 });
+    const dialogRef = this.dialog.open(AudiobookDialogComponent, {
+      width: '650px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.adminApiService.createAudiobook(result).subscribe({
+          next: () => {
+            this.loadAudiobooks();
+            this.snackBar.open('تم إضافة الكتاب الصوتي بنجاح / Audiobook added successfully', 'إغلاق / Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
     if (event.action === 'edit') {
-      this.snackBar.open(`تعديل كتاب صوتي: ${event.row.titleAr} / Edit action`, 'إغلاق / Close', { duration: 3000 });
+      const dialogRef = this.dialog.open(AudiobookDialogComponent, {
+        width: '650px',
+        data: { audiobook: event.row }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const updateCommand = { id: event.row.id, ...result };
+          this.adminApiService.updateAudiobook(event.row.id, updateCommand).subscribe({
+            next: () => {
+              this.loadAudiobooks();
+              this.snackBar.open('تم تحديث الكتاب الصوتي بنجاح / Audiobook updated successfully', 'إغلاق / Close', { duration: 3000 });
+            }
+          });
+        }
+      });
     } else if (event.action === 'delete') {
       this.adminApiService.deleteAudiobook(event.row.id).subscribe({
         next: () => {
           this.audiobooks.update(current => current.filter(b => b.id !== event.row.id));
-          this.snackBar.open(`تم حذف الكتاب الصوتي بنجاح / Audiobook deleted successfully`, 'إغلاق / Close', { duration: 3000 });
+          this.snackBar.open('تم حذف الكتاب الصوتي بنجاح / Audiobook deleted successfully', 'إغلاق / Close', { duration: 3000 });
         }
       });
     }

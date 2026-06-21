@@ -4,12 +4,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { GameDialogComponent } from '../game-dialog/game-dialog.component';
 
 @Component({
   selector: 'app-game-list-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent],
+  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent, MatDialogModule],
   template: `
     <div class="management-page">
       <app-admin-page-header title="إدارة ألعاب الورق / Card Games Management" 
@@ -32,6 +34,7 @@ import { AdminApiService } from '../../../../core/services/admin-api.service';
 export class GameListPageComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -67,6 +70,12 @@ export class GameListPageComponent implements OnInit {
           titleEn: g.nameEn || '',
           price: g.price,
           stock: g.stock,
+          categoryTag: g.categoryTag,
+          playerCountMin: g.playerCountMin,
+          playerCountMax: g.playerCountMax,
+          descriptionAr: g.descriptionAr,
+          descriptionEn: g.descriptionEn,
+          isActive: g.isActive,
           raw: g
         }));
         this.games.set(mapped);
@@ -75,17 +84,46 @@ export class GameListPageComponent implements OnInit {
   }
 
   addNewGame(): void {
-    this.snackBar.open('إضافة لعبة جديدة (سيتم دعم النموذج في النسخة القادمة) / Add form placeholder', 'إغلاق / Close', { duration: 3000 });
+    const dialogRef = this.dialog.open(GameDialogComponent, {
+      width: '650px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.adminApiService.createGame(result).subscribe({
+          next: () => {
+            this.loadGames();
+            this.snackBar.open('تم إضافة اللعبة بنجاح / Card game added successfully', 'إغلاق / Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
     if (event.action === 'edit') {
-      this.snackBar.open(`تعديل لعبة: ${event.row.titleAr} / Edit action`, 'إغلاق / Close', { duration: 3000 });
+      const dialogRef = this.dialog.open(GameDialogComponent, {
+        width: '650px',
+        data: { game: event.row }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const updateCommand = { id: event.row.id, ...result };
+          this.adminApiService.updateGame(event.row.id, updateCommand).subscribe({
+            next: () => {
+              this.loadGames();
+              this.snackBar.open('تم تحديث اللعبة بنجاح / Card game updated successfully', 'إغلاق / Close', { duration: 3000 });
+            }
+          });
+        }
+      });
     } else if (event.action === 'delete') {
       this.adminApiService.deleteGame(event.row.id).subscribe({
         next: () => {
           this.games.update(current => current.filter(g => g.id !== event.row.id));
-          this.snackBar.open(`تم حذف اللعبة بنجاح / Card game deleted successfully`, 'إغلاق / Close', { duration: 3000 });
+          this.snackBar.open('تم حذف اللعبة بنجاح / Card game deleted successfully', 'إغلاق / Close', { duration: 3000 });
         }
       });
     }
