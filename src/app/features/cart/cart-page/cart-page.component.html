@@ -1,0 +1,59 @@
+<div class="cart-page container" id="cart-view">
+  <h1 class="page-title">عربة التسوق / Shopping Cart</h1>
+
+  @if (cartService.items().length > 0) {
+    <div class="cart-layout">
+      <!-- Items list -->
+      <div class="items-list">
+        @for (item of cartService.items(); track (item.productId + item.productType)) {
+          <div class="cart-item" [id]="'cart-item-' + item.productId">
+            <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="item-img">
+            
+            <div class="item-details">
+              <span class="item-type-badge">{{ item.productType }}</span>
+              <h3 class="item-title">{{ item | localizedText:'title' }}</h3>
+              <p class="item-price">{{ item.price | currencyEgp }}</p>
+            </div>
+
+            <div class="item-quantity-controls">
+              <button mat-icon-button (click)="decreaseQty(item)" class="qty-btn" [id]="'dec-qty-' + item.productId"><mat-icon>remove</mat-icon></button>
+              <span class="qty-val">{{ item.quantity }}</span>
+              <button mat-icon-button (click)="increaseQty(item)" class="qty-btn" [id]="'inc-qty-' + item.productId"><mat-icon>add</mat-icon></button>
+            </div>
+
+            <p class="item-subtotal">{{ (item.price * item.quantity) | currencyEgp }}</p>
+
+            <button mat-icon-button color="warn" (click)="removeItem(item)" class="remove-btn" [id]="'remove-item-' + item.productId">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Summary panel -->
+      <div class="summary-panel">
+        <h2 class="summary-title">ملخص الطلب / Order Summary</h2>
+        
+        <div class="summary-row">
+          <span>عدد العناصر / Total Items</span>
+          <span class="val">{{ cartService.totalItemsCount() }}</span>
+        </div>
+        
+        <div class="summary-row total-row">
+          <span>المجموع الكلي / Grand Total</span>
+          <span class="val">{{ cartService.totalPrice() | currencyEgp }}</span>
+        </div>
+
+        <button mat-flat-button color="accent" class="checkout-btn" (click)="checkout()" id="cart-checkout-btn">
+          متابعة عملية الشراء / Proceed to Checkout
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-cart-state" id="cart-empty">
+      <mat-icon class="empty-icon">shopping_cart</mat-icon>
+      <p class="empty-text">عربة التسوق فارغة حالياً / Your shopping cart is empty.</p>
+      <a routerLink="/books" mat-flat-button color="primary" class="browse-btn">تصفح الكتب / Browse Books</a>
+    </div>
+  }
+</div>

@@ -1,0 +1,23 @@
+<div class="offers-page container" id="offers-view">
+  <div class="page-header">
+    <h1 class="page-title">العروض والخصومات / Offers & Discounts</h1>
+    <p class="page-desc">استفد من خصوماتنا الخاصة والحصرية على باقات الكتب المتميزة والألعاب الرائعة.</p>
+  </div>
+
+  <!-- Toggle buttons for offer types -->
+  <div class="controls-bar">
+    <mat-button-toggle-group [value]="selectedOfferType()" name="offerFilter" aria-label="Offer Filter" class="offer-toggle-group">
+      <mat-button-toggle value="all" (change)="setOfferType('all')" id="offer-all">الكل / All</mat-button-toggle>
+      <mat-button-toggle value="summer" (change)="setOfferType('summer')" id="offer-summer">عروض الصيف / Summer</mat-button-toggle>
+      <mat-button-toggle value="novel" (change)="setOfferType('novel')" id="offer-novel">خصومات الروايات / Novels</mat-button-toggle>
+      <mat-button-toggle value="winter" (change)="setOfferType('winter')" id="offer-winter">عروض الشتاء / Winter</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- Grid of discounted items -->
+  <div class="grid-layout">
+    @for (prod of filteredProducts(); track prod.id) {
+      <app-product-card [product]="prod"></app-product-card>
+    }
+  </div>
+</div>

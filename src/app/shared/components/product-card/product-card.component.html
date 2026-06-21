@@ -1,0 +1,43 @@
+<div class="card-wrapper" [routerLink]="getDetailsRoute()" [id]="'prod-card-' + product.id">
+  <!-- Image container with product type badge -->
+  <div class="image-container">
+    <img [src]="product.coverImage" [alt]="product | localizedText:'title'" class="product-cover" loading="lazy">
+    <span class="type-badge" [ngClass]="product.productType.toLowerCase()">
+      @if (product.productType === 'Book') {
+        {{ 'NAV.BOOKS' | translate }}
+      } @else if (product.productType === 'Audiobook') {
+        {{ 'NAV.AUDIOBOOKS' | translate }}
+      } @else {
+        {{ 'NAV.GAMES' | translate }}
+      }
+    </span>
+  </div>
+
+  <!-- Content container -->
+  <div class="card-content">
+    <h3 class="product-title" [title]="product | localizedText:'title'">
+      {{ product | localizedText:'title' }}
+    </h3>
+    
+    @if (product.authorAr || product.authorEn) {
+      <p class="product-author">
+        {{ product | localizedText:'author' }}
+      </p>
+    }
+
+    <div class="price-row">
+      <app-price-tag [price]="product.price" [originalPrice]="product.originalPrice"></app-price-tag>
+    </div>
+  </div>
+
+  <!-- Actions row -->
+  <div class="card-actions">
+    <button mat-stroked-button color="primary" class="btn-cart" (click)="addToCart($event)" [id]="'add-to-cart-' + product.id">
+      <mat-icon>add_shopping_cart</mat-icon>
+      <span>{{ 'COMMON.ADD_TO_CART' | translate }}</span>
+    </button>
+    <button mat-flat-button color="accent" class="btn-buy" (click)="buyNow($event)" [id]="'buy-now-' + product.id">
+      <span>{{ 'COMMON.BUY_NOW' | translate }}</span>
+    </button>
+  </div>
+</div>

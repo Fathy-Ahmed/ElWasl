@@ -1,0 +1,46 @@
+@if (isLoading()) {
+  <div class="loading-state container" style="display:flex; justify-content:center; align-items:center; min-height:300px;">
+    <p>جاري تحميل التفاصيل... / Loading Details...</p>
+  </div>
+} @else {
+  @if (game(); as item) {
+    <div class="detail-page container" id="game-detail-view">
+      <a routerLink="/games" class="back-link"><mat-icon class="mirror-rtl">arrow_back</mat-icon> {{ 'COMMON.BACK' | translate }}</a>
+      
+      <div class="product-layout">
+        <!-- Left side: image -->
+        <div class="visual-pane">
+          <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="cover-img">
+        </div>
+
+        <!-- Right side: details -->
+        <div class="info-pane">
+          <span class="type-badge">{{ 'NAV.GAMES' | translate }}</span>
+          <h1 class="title">{{ item | localizedText:'title' }}</h1>
+          <p class="author">الناشر / Publisher: <span>{{ item | localizedText:'author' }}</span></p>
+          
+          <div class="price-section">
+            @if (item.originalPrice) {
+              <span class="original-price">{{ item.originalPrice | currencyEgp }}</span>
+            }
+            <span class="price">{{ item.price | currencyEgp }}</span>
+          </div>
+
+          <p class="description">
+            {{ item | localizedText:'description' }}
+          </p>
+
+          <div class="actions">
+            <button mat-flat-button color="accent" class="action-btn buy-btn" (click)="buyNow()" id="game-buy-now">
+              {{ 'COMMON.BUY_NOW' | translate }}
+            </button>
+            <button mat-stroked-button color="primary" class="action-btn cart-btn" (click)="addToCart()" id="game-add-cart">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ 'COMMON.ADD_TO_CART' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}

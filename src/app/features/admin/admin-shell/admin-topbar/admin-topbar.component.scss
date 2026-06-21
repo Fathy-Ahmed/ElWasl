@@ -1,0 +1,88 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.topbar-wrapper {
+  height: 80px;
+  background-color: white;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.search-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: $bg-light;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  padding: 4px 12px;
+  width: 300px;
+  
+  mat-icon {
+    color: $text-muted;
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    font-family: inherit;
+    width: 100%;
+    color: $text-dark;
+  }
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  
+  // Custom language switcher coloring in light topbar
+  ::ng-deep app-language-switcher {
+    .lang-btn {
+      color: $text-dark;
+      border-color: $border-color;
+      
+      &:hover {
+        background-color: $bg-light;
+        border-color: $primary-light;
+      }
+    }
+  }
+}
+
+.profile-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 40px;
+  border-radius: 20px;
+  
+  .avatar-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: $primary-color;
+  }
+  
+  .admin-name {
+    font-weight: 600;
+    color: $text-dark;
+  }
+}

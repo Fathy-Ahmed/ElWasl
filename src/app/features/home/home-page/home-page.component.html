@@ -1,0 +1,99 @@
+<div class="home-wrapper" id="home-view">
+  <!-- Hero Section -->
+  <section class="hero-section" id="home-hero">
+    <div class="hero-content container">
+      <div class="hero-text-block">
+        <h1 class="hero-title">
+          <span class="arabic-hero-title">بوابتك لعوالم لا تنتهي</span>
+          <span class="latin-hero-title">Your Gateway to Endless Worlds</span>
+        </h1>
+        <p class="hero-desc">
+          اكتشف أفضل الروايات المكتوبة والكتب الصوتية المتميزة وألعاب الورق الإبداعية المناسبة لكل الأوقات.
+        </p>
+        <div class="hero-actions">
+          <a routerLink="/books" mat-flat-button color="accent" class="hero-btn primary" id="hero-browse-books">
+            {{ 'NAV.BOOKS' | translate }}
+          </a>
+          <a routerLink="/audiobooks" mat-stroked-button class="hero-btn secondary" id="hero-browse-audio">
+            {{ 'NAV.AUDIOBOOKS' | translate }}
+          </a>
+        </div>
+      </div>
+      <!-- Unsplash reading visual -->
+      <div class="hero-visual">
+        <div class="blob-bg"></div>
+        <img src="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=800" alt="Reading Books" class="hero-img">
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotions Banner -->
+  @for (promo of promotions; track promo.id) {
+    <section class="promo-banner" id="promo-banner">
+      <div class="container promo-container">
+        <div class="promo-info">
+          <mat-icon class="promo-icon">local_offer</mat-icon>
+          <div class="promo-texts">
+            <h4 class="promo-title">{{ promo.titleAr }} / {{ promo.titleEn }}</h4>
+            <p class="promo-desc">{{ promo.discountAr }} | {{ promo.discountEn }}</p>
+          </div>
+        </div>
+        <a [routerLink]="promo.link" mat-flat-button color="primary" class="promo-action-btn">
+          {{ 'COMMON.BUY_NOW' | translate }}
+        </a>
+      </div>
+    </section>
+  }
+
+  <!-- Featured Products Grid -->
+  <section class="featured-section container" id="home-featured">
+    <div class="section-header">
+      <h2 class="section-title">إصدارات متميزة / Featured Releases</h2>
+      <a routerLink="/books" class="view-all-link">عرض الكل / View All <mat-icon class="mirror-rtl">arrow_forward</mat-icon></a>
+    </div>
+    <div class="products-grid">
+      @for (prod of featuredProducts; track prod.id) {
+        <app-product-card [product]="prod"></app-product-card>
+      }
+    </div>
+  </section>
+
+  <!-- Exhibitions Spotlight -->
+  @for (ex of currentExhibitions; track ex.id) {
+    <section class="exhibition-spotlight" id="home-exhibitions">
+      <div class="container spotlight-container">
+        <div class="spotlight-visual">
+          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800" alt="Book Fair Exhibition" class="spotlight-img">
+        </div>
+        <div class="spotlight-content">
+          <span class="spotlight-badge">{{ 'NAV.EXHIBITIONS' | translate }}</span>
+          <h2 class="spotlight-title">{{ ex.titleAr }}</h2>
+          <h3 class="spotlight-subtitle">{{ ex.titleEn }}</h3>
+          <div class="spotlight-meta">
+            <p class="meta-item"><mat-icon>date_range</mat-icon> <span>{{ ex.dateAr }} | {{ ex.dateEn }}</span></p>
+            <p class="meta-item"><mat-icon>location_on</mat-icon> <span>{{ ex.locationAr }} / {{ ex.locationEn }}</span></p>
+          </div>
+          <p class="spotlight-desc">{{ ex.descriptionAr }}</p>
+          <p class="spotlight-desc">{{ ex.descriptionEn }}</p>
+          <a [routerLink]="['/exhibitions', ex.id]" mat-flat-button color="accent" class="spotlight-btn">
+            التفاصيل / Details
+          </a>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Newsletter Signup -->
+  <section class="newsletter-section" id="home-newsletter">
+    <div class="container newsletter-container">
+      <h2 class="newsletter-title">اشترك في نشرتنا الإخبارية / Subscribe to Our Newsletter</h2>
+      <p class="newsletter-desc">كن أول من يعلم بالإصدارات الجديدة والعروض الخاصة الحصرية.</p>
+      <form class="newsletter-form" id="newsletter-form" (submit)="$event.preventDefault()">
+        <input type="email" placeholder="البريد الإلكتروني / Email Address" class="newsletter-input" required id="newsletter-email">
+        <button mat-flat-button color="accent" type="submit" class="newsletter-btn" id="newsletter-submit">
+          اشترك / Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+</div>

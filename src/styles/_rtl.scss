@@ -1,0 +1,26 @@
+// ElWasl RTL Styles overrides
+
+@import 'variables';
+
+// Set typography based on html lang attribute
+html[lang="ar"] {
+  body {
+    font-family: $font-arabic;
+    letter-spacing: 0;
+  }
+}
+
+html[lang="en"] {
+  body {
+    font-family: $font-latin;
+  }
+}
+
+// Flip direct chevron/arrow icons when in RTL
+[dir="rtl"] {
+  .mirror-rtl {
+    transform: scaleX(-1);
+  }
+  
+  // Custom scrollbar RTL positioning or other adjustments if needed
+}

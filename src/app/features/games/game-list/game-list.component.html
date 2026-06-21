@@ -1,0 +1,40 @@
+<div class="catalog-page container" id="games-catalog">
+  <div class="page-header">
+    <h1 class="page-title">ألعاب الورق / Card Games</h1>
+    <p class="page-desc">مجموعة متميزة ومبتكرة من ألعاب التحدي والمعرفة المناسبة لجمعات العائلة والأصدقاء.</p>
+  </div>
+
+  <!-- Search and Filter bar -->
+  <div class="controls-bar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" 
+             [placeholder]="'COMMON.SEARCH' | translate" 
+             [value]="searchQuery()" 
+             (input)="onSearch($event)" 
+             class="search-input"
+             id="game-search">
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p class="loading-text">جاري تحميل ألعاب الورق... / Loading Card Games...</p>
+    </div>
+  } @else {
+    <!-- Games Grid -->
+    @if (games().length > 0) {
+      <div class="grid-layout">
+        @for (game of games(); track game.id) {
+          <app-product-card [product]="game"></app-product-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state-container" id="games-empty">
+        <mat-icon class="empty-icon">videogame_asset_off</mat-icon>
+        <p class="empty-text">{{ 'COMMON.EMPTY' | translate }}</p>
+      </div>
+    }
+  }
+</div>

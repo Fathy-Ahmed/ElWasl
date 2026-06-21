@@ -1,0 +1,124 @@
+<div class="dashboard-wrapper" id="dashboard-view">
+  <!-- Page Header -->
+  <app-admin-page-header title="لوحة التحكم / Admin Dashboard" 
+                         subtitle="أداء المتجر العام، سجل المبيعات، ومتابعة الطلبات الجارية.">
+  </app-admin-page-header>
+
+  <!-- KPI stats grid -->
+  <div class="stats-grid">
+    @for (card of stats(); track card.label) {
+      <app-stat-card [label]="card.label" 
+                     [value]="card.value" 
+                     [icon]="card.icon" 
+                     [trendValue]="card.trend" 
+                     [trendType]="card.trendType">
+      </app-stat-card>
+    }
+  </div>
+
+  <!-- Charts layout -->
+  <div class="charts-grid">
+    <!-- Sales Chart -->
+    <app-chart-card-wrapper title="سجل المبيعات الأسبوعي / Weekly Sales Trends" subtitle="قيمة المبيعات الكلية اليومية بالجنيه المصري">
+      <div class="svg-chart-container">
+        <svg viewBox="0 0 300 240" class="svg-line-chart">
+          <!-- Grids -->
+          <line x1="10" y1="40" x2="290" y2="40" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="10" y1="90" x2="290" y2="90" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="10" y1="140" x2="290" y2="140" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="10" y1="190" x2="290" y2="190" stroke="#f1f5f9" stroke-width="1"></line>
+          
+          <!-- Area Fill -->
+          <polygon [attr.points]="salesFillPoints" fill="url(#salesAreaGrad)" opacity="0.15"></polygon>
+          
+          <!-- Line -->
+          <polyline [attr.points]="salesPoints" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          
+          <!-- Glowing Gradients definitions -->
+          <defs>
+            <linearGradient id="salesAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6"></stop>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+
+          <!-- Label axes -->
+          <text x="10" y="230" fill="#94a3b8" font-size="8">Sat</text>
+          <text x="50" y="230" fill="#94a3b8" font-size="8">Sun</text>
+          <text x="90" y="230" fill="#94a3b8" font-size="8">Mon</text>
+          <text x="130" y="230" fill="#94a3b8" font-size="8">Tue</text>
+          <text x="170" y="230" fill="#94a3b8" font-size="8">Wed</text>
+          <text x="210" y="230" fill="#94a3b8" font-size="8">Thu</text>
+          <text x="250" y="230" fill="#94a3b8" font-size="8">Fri</text>
+        </svg>
+      </div>
+    </app-chart-card-wrapper>
+
+    <!-- Doughnut Category Chart -->
+    <app-chart-card-wrapper title="توزيع الإيرادات حسب الفئة / Revenue by Category" subtitle="مبيعات الكتب والروايات مقارنة بألعاب الورق">
+      <div class="doughnut-chart-container">
+        <!-- SVG Doughnut Chart -->
+        <svg viewBox="0 0 100 100" class="svg-doughnut-chart">
+          @for (cat of categoryBreakdown; track cat.name) {
+            <circle cx="50" cy="50" r="40" 
+                    fill="transparent" 
+                    [attr.stroke]="cat.color" 
+                    stroke-width="8" 
+                    [attr.stroke-dasharray]="getDashArray(cat.percent)"
+                    [attr.stroke-dashoffset]="getDashOffset(cat.percent, cat.offset)"
+                    transform="rotate(-90 50 50)"
+                    stroke-linecap="round">
+            </circle>
+          }
+        </svg>
+
+        <!-- Legend -->
+        <div class="doughnut-legend">
+          @for (cat of categoryBreakdown; track cat.name) {
+            <div class="legend-item">
+              <span class="legend-color-indicator" [ngStyle]="{'background-color': cat.color}"></span>
+              <span class="legend-label">{{ cat.name }} ({{ cat.percent }}%)</span>
+            </div>
+          }
+        </div>
+      </div>
+    </app-chart-card-wrapper>
+  </div>
+
+  <!-- Operational widgets lists -->
+  <div class="operational-grid">
+    <!-- Low Stock Alert Panel -->
+    <div class="ops-panel low-stock-panel">
+      <h3 class="panel-title">تنبيهات نقص المخزون / Low Stock Alerts</h3>
+      <div class="ops-list">
+        @for (item of lowStockItems(); track item.id) {
+          <div class="ops-item item-alert">
+            <mat-icon class="alert-icon">warning</mat-icon>
+            <div class="ops-details">
+              <h4>{{ item.titleAr }} / {{ item.titleEn }}</h4>
+              <p>الفئة / Type: {{ item.type }}</p>
+            </div>
+            <div class="ops-val val-danger">متبقي: {{ item.stock }} units</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Pending Action Requests Panel -->
+    <div class="ops-panel pending-actions-panel">
+      <h3 class="panel-title">إجراءات معلقة / Pending Actions</h3>
+      <div class="ops-list">
+        @for (act of pendingRequests(); track act.id) {
+          <div class="ops-item">
+            <mat-icon class="pending-icon">pending_actions</mat-icon>
+            <div class="ops-details">
+              <h4>{{ act.title }}</h4>
+              <p>تاريخ الطلب / Date: {{ act.date }}</p>
+            </div>
+            <app-status-badge status="pending" label="معلق"></app-status-badge>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+}
+
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 800;
+  color: $primary-color;
+  user-select: none;
+  
+  .logo-text {
+    font-size: 1.6rem;
+    font-family: $font-arabic;
+    line-height: 1.2;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .logo-subtext {
+    font-size: 0.75rem;
+    font-family: $font-latin;
+    letter-spacing: 2px;
+    margin-top: -2px;
+    color: $text-muted;
+  }
+}
+
+.nav-links {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+  
+  @include respond-to('lg') {
+    display: flex;
+  }
+  
+  a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: $text-dark;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: $transition-fast;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: $accent-color;
+      transition: $transition-fast;
+    }
+    
+    &:hover {
+      color: $primary-light;
+      &::after {
+        width: 100%;
+      }
+    }
+    
+    &.active {
+      color: $primary-color;
+      font-weight: 700;
+      &::after {
+        width: 100%;
+        background-color: $primary-color;
+      }
+    }
+  }
+}
+
+.actions-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cart-btn {
+  color: $text-dark;
+  transition: $transition-fast;
+  
+  &:hover {
+    color: $primary-light;
+  }
+}
+
+.login-btn, .profile-btn {
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: $shadow-sm;
+  transition: $transition-fast;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.logout-btn {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  @include flex-center;
+}

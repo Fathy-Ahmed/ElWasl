@@ -1,0 +1,42 @@
+{
+  "NAV": {
+    "HOME": "الرئيسية",
+    "BOOKS": "الكتب",
+    "AUDIOBOOKS": "الكتب الصوتية",
+    "GAMES": "ألعاب الورق",
+    "EXHIBITIONS": "المعارض",
+    "OFFERS": "العروض",
+    "CONTRACTING": "تعاقد معنا",
+    "CONTACT": "اتصل بنا",
+    "ABOUT": "من نحن",
+    "ADMIN": "لوحة التحكم",
+    "LOGIN": "تسجيل الدخول",
+    "REGISTER": "إنشاء حساب",
+    "LOGOUT": "تسجيل الخروج",
+    "PROFILE": "حسابي"
+  },
+  "COMMON": {
+    "ADD_TO_CART": "أضف إلى السلة",
+    "BUY_NOW": "شراء الآن",
+    "PRICE": "السعر",
+    "EGP": "ج.م",
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "SUBMIT": "إرسال",
+    "LOADING": "جاري التحميل...",
+    "EMPTY": "لم يتم العثور على عناصر.",
+    "SEARCH": "بحث...",
+    "FILTER": "تصفية",
+    "BACK": "عودة"
+  },
+  "AUTH": {
+    "TITLE_LOGIN": "تسجيل الدخول إلى الوصل",
+    "TITLE_REGISTER": "إنشاء حساب جديد",
+    "EMAIL": "البريد الإلكتروني",
+    "PASSWORD": "كلمة المرور",
+    "NAME": "الاسم الكامل",
+    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+    "DONT_HAVE_ACCOUNT": "ليس لديك حساب؟",
+    "ALREADY_HAVE_ACCOUNT": "لديك حساب بالفعل؟"
+  }
+}

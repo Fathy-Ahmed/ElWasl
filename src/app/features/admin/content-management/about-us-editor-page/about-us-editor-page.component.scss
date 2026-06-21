@@ -1,0 +1,62 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.cms-editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editor-card {
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.75rem;
+  
+  .label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $primary-dark;
+  }
+}
+
+.lang-toggle-group {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.editor-body {
+  padding: 0.5rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.save-btn {
+  height: 44px;
+  line-height: 42px;
+  border-radius: 22px;
+  font-weight: 600;
+  color: white;
+  align-self: flex-start;
+  padding: 0 24px;
+}

@@ -1,0 +1,52 @@
+@if (isLoading()) {
+  <div class="loading-state container" style="display:flex; justify-content:center; align-items:center; min-height:300px;">
+    <p>جاري تحميل التفاصيل... / Loading Details...</p>
+  </div>
+} @else {
+  @if (audiobook(); as item) {
+    <div class="detail-page container" id="audio-detail-view">
+      <a routerLink="/audiobooks" class="back-link"><mat-icon class="mirror-rtl">arrow_back</mat-icon> {{ 'COMMON.BACK' | translate }}</a>
+      
+      <div class="product-layout">
+        <!-- Left side: image -->
+        <div class="visual-pane">
+          <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="cover-img">
+        </div>
+
+        <!-- Right side: details -->
+        <div class="info-pane">
+          <span class="type-badge">{{ 'NAV.AUDIOBOOKS' | translate }}</span>
+          <h1 class="title">{{ item | localizedText:'title' }}</h1>
+          <p class="author">المؤلف / Author: <span>{{ item | localizedText:'author' }}</span></p>
+          
+          <div class="price-section">
+            @if (item.originalPrice) {
+              <span class="original-price">{{ item.originalPrice | currencyEgp }}</span>
+            }
+            <span class="price">{{ item.price | currencyEgp }}</span>
+          </div>
+
+          <p class="description">
+            {{ item | localizedText:'description' }}
+          </p>
+
+          <!-- Digital Entitlement Notification -->
+          <div class="entitlement-notice">
+            <mat-icon>info</mat-icon>
+            <span>هذا منتج رقمي (كتاب صوتي). سيتم إضافته إلى مكتبتك الخاصة بعد إتمام الشراء.</span>
+          </div>
+
+          <div class="actions">
+            <button mat-flat-button color="accent" class="action-btn buy-btn" (click)="buyNow()" id="audio-buy-now">
+              {{ 'COMMON.BUY_NOW' | translate }}
+            </button>
+            <button mat-stroked-button color="primary" class="action-btn cart-btn" (click)="addToCart()" id="audio-add-cart">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ 'COMMON.ADD_TO_CART' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}

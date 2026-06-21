@@ -1,0 +1,29 @@
+<aside class="sidebar-wrapper" id="admin-sidebar">
+  <div class="sidebar-brand">
+    <span class="logo-text">الْوَصْل - لوحة التحكم</span>
+    <span class="logo-subtext">EL WASL ADMIN</span>
+  </div>
+
+  <div class="sidebar-nav-scroll">
+    @for (group of navGroups; track group.label) {
+      <div class="nav-group">
+        <h4 class="group-title">{{ group.label }}</h4>
+        <div class="group-items">
+          @for (item of group.items; track item.route) {
+            <a [routerLink]="item.route" 
+               routerLinkActive="active" 
+               class="nav-link" 
+               [id]="'admin-nav-' + item.route.replace('/admin/', '')">
+              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+              <span class="nav-label">{{ item.label }}</span>
+              
+              @if (item.badgeSignal && getBadgeValue(item.badgeSignal) > 0) {
+                <span class="nav-badge">{{ getBadgeValue(item.badgeSignal) }}</span>
+              }
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</aside>

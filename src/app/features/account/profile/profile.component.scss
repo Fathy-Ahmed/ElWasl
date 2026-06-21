@@ -1,0 +1,214 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.profile-page {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.page-header {
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 1.5rem;
+  
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $primary-dark;
+  }
+  
+  .page-desc {
+    color: $text-muted;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  
+  @include respond-to('lg') {
+    grid-template-columns: 1.5fr 1fr;
+  }
+}
+
+.left-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-card {
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $primary-dark;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  
+  .label {
+    color: $text-muted;
+    font-weight: 500;
+  }
+  
+  .val {
+    color: $text-dark;
+    font-weight: 700;
+  }
+}
+
+// Digital Library
+.digital-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  
+  @include respond-to('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.digital-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1rem;
+  background-color: $bg-light;
+  
+  .lib-cover {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: $border-radius-sm;
+    box-shadow: $shadow-sm;
+  }
+  
+  .lib-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    .lib-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $text-dark;
+    }
+    
+    .play-btn {
+      align-self: flex-start;
+      border-radius: 16px;
+      height: 32px;
+      line-height: 30px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      
+      mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+}
+
+// Orders history
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-item {
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1rem;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: $transition-fast;
+  
+  &:hover {
+    border-color: $primary-light;
+  }
+  
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: $text-muted;
+    border-bottom: 1px dashed $border-color;
+    padding-bottom: 0.5rem;
+    
+    .order-id {
+      font-family: monospace;
+      font-weight: 700;
+      color: $primary-color;
+    }
+  }
+  
+  .order-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: relative;
+    
+    p {
+      font-size: 0.9rem;
+      color: $text-muted;
+      
+      span {
+        color: $text-dark;
+        font-weight: 600;
+      }
+    }
+    
+    .status-badge {
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      background-color: rgba($info, 0.1);
+      color: darken($info, 10%);
+    }
+  }
+}
+
+.empty-text {
+  font-size: 0.95rem;
+  color: $text-muted;
+  text-align: center;
+  padding: 1.5rem 0;
+}

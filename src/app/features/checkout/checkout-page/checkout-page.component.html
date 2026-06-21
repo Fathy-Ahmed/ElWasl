@@ -1,0 +1,115 @@
+<div class="checkout-page container" id="checkout-view">
+  <h1 class="page-title">إتمام الشراء / Checkout</h1>
+
+  <div class="checkout-layout">
+    <!-- Form side -->
+    <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" class="checkout-form" id="checkout-form">
+      <div class="form-section">
+        <h2 class="section-title">بيانات الشحن / Shipping details</h2>
+        
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>الاسم الكامل / Full Name</mat-label>
+            <input matInput formControlName="fullName" required id="checkout-name">
+            @if (checkoutForm.get('fullName')?.touched && checkoutForm.get('fullName')?.invalid) {
+              <mat-error>الاسم مطلوب / Name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>البريد الإلكتروني / Email Address</mat-label>
+            <input matInput type="email" formControlName="email" required id="checkout-email">
+            @if (checkoutForm.get('email')?.touched && checkoutForm.get('email')?.invalid) {
+              <mat-error>يرجى إدخال بريد إلكتروني صالح / Enter a valid email</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>رقم الهاتف / Phone Number</mat-label>
+            <input matInput placeholder="01xxxxxxxxx" formControlName="phone" required id="checkout-phone">
+            @if (checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.invalid) {
+              <mat-error>يرجى إدخال رقم هاتف مكون من ١١ رقماً / Enter a valid 11-digit phone number</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>المدينة / City</mat-label>
+            <input matInput formControlName="city" required id="checkout-city">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>العنوان بالتفصيل / Detailed Address</mat-label>
+          <textarea matInput formControlName="address" rows="3" required id="checkout-address"></textarea>
+          @if (checkoutForm.get('address')?.touched && checkoutForm.get('address')?.invalid) {
+            <mat-error>العنوان مطلوب / Address is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">طريقة الدفع / Payment Method</h2>
+        <mat-radio-group formControlName="paymentMethod" class="payment-radio-group">
+          <mat-radio-button value="cod" id="pay-cod">
+            <div class="radio-content">
+              <mat-icon>payments</mat-icon>
+              <div>
+                <strong>الدفع عند الاستلام / Cash on Delivery</strong>
+                <p>ادفع نقداً فور استلام طلبيتك</p>
+              </div>
+            </div>
+          </mat-radio-button>
+          
+          <mat-radio-button value="card" id="pay-card">
+            <div class="radio-content">
+              <mat-icon>credit_card</mat-icon>
+              <div>
+                <strong>بطاقة الائتمان / Credit Card (Paymob/Stripe)</strong>
+                <p>ادفع بأمان وسهولة عبر الإنترنت</p>
+              </div>
+            </div>
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <button mat-flat-button color="accent" type="submit" class="submit-btn" [disabled]="isSubmitting() || cartService.items().length === 0" id="place-order-btn">
+        @if (isSubmitting()) {
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          تأكيد الطلب / Place Order ({{ cartService.totalPrice() | currencyEgp }})
+        }
+      </button>
+    </form>
+
+    <!-- Side Summary -->
+    <div class="order-summary-sidebar">
+      <h2 class="sidebar-title">طلبيتك / Your Order</h2>
+      <div class="summary-items">
+        @for (item of cartService.items(); track (item.productId + item.productType)) {
+          <div class="summary-item">
+            <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="item-img">
+            <div class="item-details">
+              <h4 class="item-title">{{ item | localizedText:'title' }}</h4>
+              <p class="item-qty-price">{{ item.quantity }} × {{ item.price | currencyEgp }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pricing-block">
+        <div class="price-row">
+          <span>المجموع / Subtotal</span>
+          <span>{{ cartService.totalPrice() | currencyEgp }}</span>
+        </div>
+        <div class="price-row">
+          <span>الشحن / Shipping</span>
+          <span>مجاني / Free</span>
+        </div>
+        <div class="price-row grand-total">
+          <span>المجموع الكلي / Total</span>
+          <span>{{ cartService.totalPrice() | currencyEgp }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,125 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.card-wrapper {
+  background-color: $bg-card;
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  @include hover-lift;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 130%; // Aspect ratio for books
+  background-color: #f1f5f9;
+  overflow: hidden;
+  
+  .product-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  &:hover .product-cover {
+    transform: scale(1.05);
+  }
+}
+
+.type-badge {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: $border-radius-sm;
+  color: white;
+  box-shadow: $shadow-sm;
+  text-transform: uppercase;
+  z-index: 10;
+  
+  &.book {
+    background-color: $primary-color;
+  }
+  
+  &.audiobook {
+    background-color: $accent-color;
+  }
+  
+  &.game {
+    background-color: $info;
+  }
+}
+
+.card-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 0.5rem;
+}
+
+.product-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: $text-dark;
+  line-height: 1.4;
+  @include truncate-text(2);
+  min-height: 2.8rem;
+}
+
+.product-author {
+  font-size: 0.85rem;
+  color: $text-muted;
+  @include truncate-text(1);
+}
+
+.price-row {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.card-actions {
+  display: flex;
+  flex-direction: column; // Stack buttons vertically to ensure text never wraps
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  
+  button {
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 600;
+    height: 38px;
+    line-height: 36px;
+    border-radius: 20px;
+    @include flex-center;
+    gap: 0.5rem;
+    
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+  
+  .btn-cart {
+    padding: 0 8px;
+  }
+  
+  .btn-buy {
+    color: white;
+    background-color: $accent-color !important;
+  }
+}

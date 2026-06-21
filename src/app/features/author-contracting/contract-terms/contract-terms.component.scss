@@ -1,0 +1,178 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.contracting-page {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.page-header {
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 1.5rem;
+  
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $primary-dark;
+  }
+  
+  .page-desc {
+    color: $text-muted;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.contracting-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  
+  @include respond-to('lg') {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.request-form {
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $primary-dark;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  
+  @include respond-to('sm') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.full-width {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+.file-upload-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px dashed $border-color;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  background-color: $bg-light;
+  
+  .file-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-dark;
+  }
+}
+
+.upload-btn-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  
+  .upload-btn {
+    border-radius: 20px;
+    height: 38px;
+    line-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .file-name {
+    font-size: 0.85rem;
+    color: $primary-color;
+    font-weight: 600;
+  }
+}
+
+.submit-btn {
+  height: 44px;
+  line-height: 42px;
+  border-radius: 22px;
+  font-weight: 600;
+  color: white;
+  align-self: flex-start;
+  padding: 0 24px;
+}
+
+// Sidebar
+.terms-sidebar {
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: $shadow-sm;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $primary-dark;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  
+  .step-num {
+    background-color: $primary-color;
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    @include flex-center;
+  }
+  
+  strong {
+    display: block;
+    font-size: 0.95rem;
+    color: $text-dark;
+  }
+  
+  p {
+    font-size: 0.85rem;
+    color: $text-muted;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+}

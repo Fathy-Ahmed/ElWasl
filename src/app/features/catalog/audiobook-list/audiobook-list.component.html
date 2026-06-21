@@ -1,0 +1,40 @@
+<div class="catalog-page container" id="audiobook-catalog">
+  <div class="page-header">
+    <h1 class="page-title">الكتب الصوتية / Audiobooks</h1>
+    <p class="page-desc">استمع إلى كتبك المفضلة بصوت نخبة من الرواة والمؤديين المحترفين.</p>
+  </div>
+
+  <!-- Search and Filter bar -->
+  <div class="controls-bar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" 
+             [placeholder]="'COMMON.SEARCH' | translate" 
+             [value]="searchQuery()" 
+             (input)="onSearch($event)" 
+             class="search-input"
+             id="audio-search">
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p class="loading-text">جاري تحميل الكتب الصوتية... / Loading Audiobooks...</p>
+    </div>
+  } @else {
+    <!-- Audiobooks Grid -->
+    @if (audiobooks().length > 0) {
+      <div class="grid-layout">
+        @for (audio of audiobooks(); track audio.id) {
+          <app-product-card [product]="audio"></app-product-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state-container" id="audio-empty">
+        <mat-icon class="empty-icon">volume_off</mat-icon>
+        <p class="empty-text">{{ 'COMMON.EMPTY' | translate }}</p>
+      </div>
+    }
+  }
+</div>

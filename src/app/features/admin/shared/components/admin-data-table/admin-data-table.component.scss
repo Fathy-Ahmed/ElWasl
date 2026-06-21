@@ -1,0 +1,108 @@
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
+.table-outer-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+  
+  thead {
+    background-color: $bg-light;
+    border-bottom: 2px solid $border-color;
+    
+    th {
+      padding: 1rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: inherit;
+    }
+    
+    .actions-header {
+      text-align: end;
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: $transition-fast;
+      
+      &:hover {
+        background-color: rgba($primary-light, 0.02);
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    
+    td {
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      color: $text-dark;
+      vertical-align: middle;
+      text-align: inherit;
+    }
+  }
+}
+
+.val-currency {
+  font-weight: 700;
+  color: $primary-color;
+}
+
+.val-date {
+  color: $text-muted;
+  font-family: monospace;
+}
+
+.val-image {
+  width: 40px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: $border-radius-sm;
+  box-shadow: $shadow-sm;
+}
+
+.actions-cell {
+  text-align: end;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.empty-table-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: $text-muted;
+  
+  mat-icon {
+    font-size: 3.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}

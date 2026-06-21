@@ -1,0 +1,42 @@
+{
+  "NAV": {
+    "HOME": "Home",
+    "BOOKS": "Books",
+    "AUDIOBOOKS": "Audiobooks",
+    "GAMES": "Card Games",
+    "EXHIBITIONS": "Exhibitions",
+    "OFFERS": "Offers",
+    "CONTRACTING": "Publish with Us",
+    "CONTACT": "Contact Us",
+    "ABOUT": "About Us",
+    "ADMIN": "Admin",
+    "LOGIN": "Login",
+    "REGISTER": "Register",
+    "LOGOUT": "Logout",
+    "PROFILE": "My Account"
+  },
+  "COMMON": {
+    "ADD_TO_CART": "Add to Cart",
+    "BUY_NOW": "Buy Now",
+    "PRICE": "Price",
+    "EGP": "EGP",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "SUBMIT": "Submit",
+    "LOADING": "Loading...",
+    "EMPTY": "No items found.",
+    "SEARCH": "Search...",
+    "FILTER": "Filter",
+    "BACK": "Back"
+  },
+  "AUTH": {
+    "TITLE_LOGIN": "Sign In to ElWasl",
+    "TITLE_REGISTER": "Create an Account",
+    "EMAIL": "Email Address",
+    "PASSWORD": "Password",
+    "NAME": "Full Name",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "DONT_HAVE_ACCOUNT": "Don't have an account?",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account?"
+  }
+}

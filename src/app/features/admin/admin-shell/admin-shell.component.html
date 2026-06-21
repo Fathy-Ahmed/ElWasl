@@ -1,0 +1,13 @@
+<div class="admin-shell-container" id="admin-shell-view">
+  <!-- Static sidebar nav -->
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <!-- Right side: Topbar + Main scrollable routed content -->
+  <div class="admin-main-pane">
+    <app-admin-topbar></app-admin-topbar>
+    
+    <main class="admin-content-pane" id="admin-router-outlet-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

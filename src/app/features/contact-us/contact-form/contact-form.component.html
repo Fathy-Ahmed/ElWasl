@@ -1,0 +1,81 @@
+<div class="contact-page container" id="contact-view">
+  <div class="page-header">
+    <h1 class="page-title">اتصل بنا / Contact Us</h1>
+    <p class="page-desc">نرحب دائماً باقتراحاتكم واستفساراتكم. تواصلوا معنا وسنقوم بالرد في أقرب وقت.</p>
+  </div>
+
+  <div class="contact-layout">
+    <!-- Form -->
+    <form [formGroup]="contactForm" (ngSubmit)="submitForm()" class="contact-form" id="contact-form">
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>الاسم الكامل / Name</mat-label>
+          <input matInput formControlName="name" required id="contact-name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>البريد الإلكتروني / Email</mat-label>
+          <input matInput type="email" formControlName="email" required id="contact-email">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>نوع الرسالة / Message Type</mat-label>
+          <mat-select formControlName="type" id="contact-type">
+            <mat-option value="general">استفسار عام / General Inquiry</mat-option>
+            <mat-option value="suggestion">اقتراح / Suggestion</mat-option>
+            <mat-option value="complaint">شكوى / Complaint</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>الموضوع / Subject</mat-label>
+          <input matInput formControlName="subject" required id="contact-subject">
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>الرسالة / Message</mat-label>
+        <textarea matInput formControlName="message" rows="5" required id="contact-message"></textarea>
+      </mat-form-field>
+
+      <button mat-flat-button color="accent" type="submit" class="submit-btn" [disabled]="isSubmitting()" id="contact-submit-btn">
+        @if (isSubmitting()) {
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          إرسال الرسالة / Send Message
+        }
+      </button>
+    </form>
+
+    <!-- Info side -->
+    <div class="contact-info-panel">
+      <h2>معلومات التواصل / Info</h2>
+      
+      <div class="info-items">
+        <div class="info-item">
+          <mat-icon>email</mat-icon>
+          <div>
+            <strong>البريد الإلكتروني / Email</strong>
+            <p>info&#64;elwasl.com</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>phone</mat-icon>
+          <div>
+            <strong>الهاتف / Phone</strong>
+            <p>+20 2 1234567</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <strong>الموقع / Location</strong>
+            <p>القاهرة، جمهورية مصر العربية</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

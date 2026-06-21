@@ -1,0 +1,58 @@
+<div class="table-outer-wrapper">
+  @if (data.length > 0) {
+    <table class="premium-table">
+      <thead>
+        <tr>
+          @for (col of columns; track col.key) {
+            <th>{{ col.label }}</th>
+          }
+          @if (actions.length > 0) {
+            <th class="actions-header">خيارات / Actions</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of data; track row.id; let idx = $index) {
+          <tr [id]="'table-row-' + (row.id || idx)">
+            @for (col of columns; track col.key) {
+              <td>
+                <!-- Format column values based on type -->
+                @if (col.type === 'currency') {
+                  <span class="val-currency">{{ row[col.key] | currencyEgp }}</span>
+                } @else if (col.type === 'date') {
+                  <span class="val-date">{{ row[col.key] | date:'yyyy-MM-dd' }}</span>
+                } @else if (col.type === 'badge') {
+                  <app-status-badge [status]="row[col.key]" [label]="col.badgeLabelKey ? row[col.badgeLabelKey] : undefined"></app-status-badge>
+                } @else if (col.type === 'image') {
+                  <img [src]="row[col.key]" alt="cover" class="val-image">
+                } @else {
+                  <span class="val-text">{{ row[col.key] }}</span>
+                }
+              </td>
+            }
+            @if (actions.length > 0) {
+              <td class="actions-cell">
+                <div class="actions-row">
+                  @for (act of actions; track act.name) {
+                    <button mat-icon-button 
+                            [color]="act.color || 'primary'" 
+                            (click)="actionClick.emit({ action: act.name, row: row })"
+                            [id]="(act.idPrefix || 'act-') + (row.id || idx)"
+                            [attr.aria-label]="act.name">
+                      <mat-icon>{{ act.icon }}</mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="empty-table-state">
+      <mat-icon>inbox</mat-icon>
+      <p>لا توجد بيانات متوفرة / No data available</p>
+    </div>
+  }
+</div>

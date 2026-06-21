@@ -1,0 +1,46 @@
+<div class="cms-editor-page container" id="about-cms-view">
+  <app-admin-page-header title="تعديل صفحة من نحن / Edit About Us Page" 
+                         subtitle="تحديث نصوص الوصف العام والرسالة الثقافية للدار."
+                         [breadcrumbs]="breadcrumbs">
+  </app-admin-page-header>
+
+  <form [formGroup]="editorForm" (ngSubmit)="saveContent()" class="editor-form" id="about-cms-form">
+    <div class="editor-card">
+      <div class="editor-header">
+        <span class="label">نص الصفحة / Page Body</span>
+        
+        <!-- Arabic/English field pair tab toggle -->
+        <mat-button-toggle-group [value]="activeLangTab()" name="langTab" class="lang-toggle-group">
+          <mat-button-toggle value="ar" (change)="setLangTab('ar')" id="about-cms-ar-btn">العربية / AR</mat-button-toggle>
+          <mat-button-toggle value="en" (change)="setLangTab('en')" id="about-cms-en-btn">English / EN</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="editor-body">
+        <!-- Render Arabic editor field if active tab is ar -->
+        @if (activeLangTab() === 'ar') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>محتوى من نحن باللغة العربية / About Us Content (AR)</mat-label>
+            <textarea matInput formControlName="aboutAr" rows="12" required id="about-cms-ar-text"></textarea>
+          </mat-form-field>
+        }
+
+        <!-- Render English editor field if active tab is en -->
+        @if (activeLangTab() === 'en') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>محتوى من نحن باللغة الإنجليزية / About Us Content (EN)</mat-label>
+            <textarea matInput formControlName="aboutEn" rows="12" required id="about-cms-en-text" dir="ltr"></textarea>
+          </mat-form-field>
+        }
+      </div>
+    </div>
+
+    <button mat-flat-button color="accent" type="submit" class="save-btn" [disabled]="isSaving() || editorForm.invalid" id="about-cms-save-btn">
+      @if (isSaving()) {
+        {{ 'COMMON.LOADING' | translate }}
+      } @else {
+        حفظ التغييرات / Save Changes
+      }
+    </button>
+  </form>
+</div>

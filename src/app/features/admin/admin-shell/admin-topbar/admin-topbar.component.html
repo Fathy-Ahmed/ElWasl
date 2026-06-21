@@ -1,0 +1,34 @@
+<header class="topbar-wrapper" id="admin-topbar">
+  <div class="topbar-left">
+    <!-- Placeholder or simple search bar -->
+    <div class="search-indicator">
+      <mat-icon>search</mat-icon>
+      <input type="text" placeholder="البحث في لوحة التحكم... / Search..." class="search-input" id="admin-global-search">
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <!-- Language Selector -->
+    <app-language-switcher></app-language-switcher>
+
+    <!-- Admin Profile Dropdown -->
+    @if (authService.currentUser(); as admin) {
+      <button mat-button [matMenuTriggerFor]="profileMenu" class="profile-menu-btn" id="admin-profile-dropdown">
+        <mat-icon class="avatar-icon">account_circle</mat-icon>
+        <span class="admin-name">{{ admin.name }}</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #profileMenu="matMenu" xPosition="before" class="admin-menu">
+        <a routerLink="/" mat-menu-item>
+          <mat-icon>storefront</mat-icon>
+          <span>عرض الموقع / View Storefront</span>
+        </a>
+        <button mat-menu-item (click)="logout()" id="admin-logout-btn">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>تسجيل الخروج / Logout</span>
+        </button>
+      </mat-menu>
+    }
+  </div>
+</header>

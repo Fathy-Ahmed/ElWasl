@@ -1,0 +1,51 @@
+<div class="catalog-page container" id="book-catalog">
+  <div class="page-header">
+    <h1 class="page-title">الكتب المطبوعة / Printed Books</h1>
+    <p class="page-desc">تصفح مجموعتنا الواسعة من الروايات المتميزة والكتب الفكرية والتاريخية.</p>
+  </div>
+
+  <!-- Search and Filter bar -->
+  <div class="controls-bar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" 
+             [placeholder]="'COMMON.SEARCH' | translate" 
+             [value]="searchQuery()" 
+             (input)="onSearch($event)" 
+             class="search-input"
+             id="book-search">
+    </div>
+
+    <div class="filters">
+      <mat-button-toggle-group [value]="selectedCategory()" name="categoryFilter" aria-label="Category Filter" class="category-toggle-group">
+        <mat-button-toggle value="all" (change)="setCategory('all')" id="filter-all">الكل / All</mat-button-toggle>
+        @for (cat of categories(); track cat.id) {
+          <mat-button-toggle [value]="cat.id" (change)="setCategory(cat.id)" [id]="'filter-' + cat.slug">
+            {{ cat | localizedText:'name' }}
+          </mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p class="loading-text">جاري تحميل الكتب... / Loading Books...</p>
+    </div>
+  } @else {
+    <!-- Books Grid -->
+    @if (books().length > 0) {
+      <div class="grid-layout">
+        @for (book of books(); track book.id) {
+          <app-product-card [product]="book"></app-product-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state-container" id="books-empty">
+        <mat-icon class="empty-icon">find_in_page</mat-icon>
+        <p class="empty-text">{{ 'COMMON.EMPTY' | translate }}</p>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,37 @@
+<div class="exhibitions-page container" id="exhibitions-view">
+  <div class="page-header">
+    <h1 class="page-title">معارض الكتاب / Exhibitions</h1>
+    <p class="page-desc">تابعوا جولاتنا الثقافية وشاركوا معنا في معارض الكتاب المحلية والدولية.</p>
+  </div>
+
+  <div class="exhibitions-list">
+    @for (ex of exhibitions(); track ex.id) {
+      <div class="exhibition-card" [id]="'exhibition-card-' + ex.id">
+        <div class="visual-pane">
+          <img [src]="ex.image" [alt]="ex | localizedText:'title'" class="ex-img">
+        </div>
+        
+        <div class="info-pane">
+          <span class="status-badge" [ngClass]="ex.status">
+            @if (ex.status === 'active') {
+              جارٍ حالياً / Active
+            } @else if (ex.status === 'upcoming') {
+              قادم قريباً / Upcoming
+            } @else {
+              معرض سابق / Past
+            }
+          </span>
+
+          <h2 class="ex-title">{{ ex | localizedText:'title' }}</h2>
+          
+          <div class="meta-row">
+            <p class="meta-item"><mat-icon>date_range</mat-icon> <span>{{ ex | localizedText:'date' }}</span></p>
+            <p class="meta-item"><mat-icon>location_on</mat-icon> <span>{{ ex | localizedText:'location' }}</span></p>
+          </div>
+
+          <p class="ex-desc">{{ ex | localizedText:'description' }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

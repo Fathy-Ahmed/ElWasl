@@ -1,0 +1,43 @@
+<div class="cms-editor-page container" id="terms-cms-view">
+  <app-admin-page-header title="تعديل شروط التعاقد والنشر / Edit Publishing Terms" 
+                         subtitle="تحديث معايير النشر وخطوات مراجعة مسودات الكتب."
+                         [breadcrumbs]="breadcrumbs">
+  </app-admin-page-header>
+
+  <form [formGroup]="editorForm" (ngSubmit)="saveContent()" class="editor-form" id="terms-cms-form">
+    <div class="editor-card">
+      <div class="editor-header">
+        <span class="label">نص الشروط والخطوات / Terms & Steps Body</span>
+        
+        <mat-button-toggle-group [value]="activeLangTab()" name="langTab" class="lang-toggle-group">
+          <mat-button-toggle value="ar" (change)="setLangTab('ar')" id="terms-cms-ar-btn">العربية / AR</mat-button-toggle>
+          <mat-button-toggle value="en" (change)="setLangTab('en')" id="terms-cms-en-btn">English / EN</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="editor-body">
+        @if (activeLangTab() === 'ar') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>شروط النشر باللغة العربية / Publishing Terms (AR)</mat-label>
+            <textarea matInput formControlName="termsAr" rows="12" required id="terms-cms-ar-text"></textarea>
+          </mat-form-field>
+        }
+
+        @if (activeLangTab() === 'en') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>شروط النشر باللغة الإنجليزية / Publishing Terms (EN)</mat-label>
+            <textarea matInput formControlName="termsEn" rows="12" required id="terms-cms-en-text" dir="ltr"></textarea>
+          </mat-form-field>
+        }
+      </div>
+    </div>
+
+    <button mat-flat-button color="accent" type="submit" class="save-btn" [disabled]="isSaving() || editorForm.invalid" id="terms-cms-save-btn">
+      @if (isSaving()) {
+        {{ 'COMMON.LOADING' | translate }}
+      } @else {
+        حفظ التغييرات / Save Changes
+      }
+    </button>
+  </form>
+</div>

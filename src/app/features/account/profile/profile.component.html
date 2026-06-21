@@ -1,0 +1,83 @@
+<div class="profile-page container" id="profile-view">
+  @if (user(); as currentUser) {
+    <div class="page-header">
+      <h1 class="page-title">حسابي / My Account</h1>
+      <p class="page-desc">مرحباً بك مجدداً، {{ currentUser.name }} ({{ currentUser.role }})</p>
+    </div>
+
+    <div class="profile-layout">
+      <!-- Left side: User details & Digital Library -->
+      <div class="left-pane">
+        <!-- User info block -->
+        <div class="profile-card info-card">
+          <h2 class="card-title">بيانات الحساب / Account Details</h2>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="label">الاسم / Name</span>
+              <span class="val">{{ currentUser.name }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">البريد الإلكتروني / Email</span>
+              <span class="val">{{ currentUser.email }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">نوع الحساب / Role</span>
+              <span class="val">{{ currentUser.role }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digital Library block -->
+        <div class="profile-card library-card">
+          <h2 class="card-title">مكتبتي الرقمية / My Digital Library</h2>
+          @if (digitalLibrary().length > 0) {
+            <div class="digital-grid">
+              @for (item of digitalLibrary(); track item.id) {
+                <div class="digital-item" [id]="'library-item-' + item.id">
+                  <img [src]="item.coverImage" [alt]="item.titleEn" class="lib-cover">
+                  <div class="lib-details">
+                    <h4 class="lib-title">{{ item.titleAr }} / {{ item.titleEn }}</h4>
+                    <!-- Entitlement placeholder action -->
+                    <button mat-stroked-button color="primary" class="play-btn" id="play-btn-placeholder">
+                      <mat-icon>play_circle</mat-icon>
+                      <span>تشغيل / Play</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-text">لا توجد كتب صوتية مشتراة حالياً.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Right side: Order History -->
+      <div class="right-pane">
+        <div class="profile-card history-card">
+          <h2 class="card-title">سجل الطلبات / Order History</h2>
+          @if (orders().length > 0) {
+            <div class="orders-list">
+              @for (order of orders(); track order.id) {
+                <div class="order-item" [id]="'order-item-' + order.id">
+                  <div class="order-header">
+                    <span class="order-id">{{ order.id }}</span>
+                    <span class="order-date">{{ order.date }}</span>
+                  </div>
+                  
+                  <div class="order-body">
+                    <p class="order-count">العناصر / Items: <span>{{ order.itemsCount }}</span></p>
+                    <p class="order-total">المجموع / Total: <span>{{ order.total | currencyEgp }}</span></p>
+                    <span class="status-badge shipped">{{ order.statusAr }} / {{ order.statusEn }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-text">لا يوجد طلبات سابقة.</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

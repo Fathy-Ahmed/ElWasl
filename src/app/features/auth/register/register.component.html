@@ -1,0 +1,46 @@
+<div class="auth-page container" id="register-view">
+  <div class="auth-card">
+    <h1 class="auth-title">{{ 'AUTH.TITLE_REGISTER' | translate }}</h1>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form" id="register-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'AUTH.NAME' | translate }}</mat-label>
+        <input matInput formControlName="name" required id="register-name">
+        @if (registerForm.get('name')?.touched && registerForm.get('name')?.invalid) {
+          <mat-error>الاسم مطلوب / Name is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'AUTH.EMAIL' | translate }}</mat-label>
+        <input matInput type="email" formControlName="email" required id="register-email">
+        @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+          <mat-error>بريد إلكتروني غير صالح / Invalid email address</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
+        <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" required id="register-password">
+        <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button" aria-label="Toggle Password Visibility">
+          <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+          <mat-error>كلمة المرور يجب أن لا تقل عن ٦ أحرف / Min 6 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="button" (click)="onSubmit()" class="submit-btn" [disabled]="isSubmitting()" id="register-submit-btn">
+        @if (isSubmitting()) {
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          {{ 'NAV.REGISTER' | translate }}
+        }
+      </button>
+
+      <div class="auth-footer">
+        <p>{{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }} <a routerLink="/auth/login"><strong>{{ 'NAV.LOGIN' | translate }}</strong></a></p>
+      </div>
+    </form>
+  </div>
+</div>

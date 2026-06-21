@@ -1,0 +1,64 @@
+<header class="glass-header" id="app-header">
+  <div class="header-container container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo-area" id="nav-logo">
+      <span class="logo-text">الْوَصْل</span>
+      <span class="logo-subtext">EL WASL</span>
+    </a>
+
+    <!-- Navigation links -->
+    <nav class="nav-links" id="main-nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">
+        {{ 'NAV.HOME' | translate }}
+      </a>
+      <a routerLink="/books" routerLinkActive="active" id="nav-books">
+        {{ 'NAV.BOOKS' | translate }}
+      </a>
+      <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">
+        {{ 'NAV.AUDIOBOOKS' | translate }}
+      </a>
+      <a routerLink="/games" routerLinkActive="active" id="nav-games">
+        {{ 'NAV.GAMES' | translate }}
+      </a>
+      <a routerLink="/exhibitions" routerLinkActive="active" id="nav-exhibitions">
+        {{ 'NAV.EXHIBITIONS' | translate }}
+      </a>
+      <a routerLink="/offers" routerLinkActive="active" id="nav-offers">
+        {{ 'NAV.OFFERS' | translate }}
+      </a>
+      <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">
+        {{ 'NAV.CONTRACTING' | translate }}
+      </a>
+    </nav>
+
+    <!-- Actions Area -->
+    <div class="actions-area">
+      <!-- Language Switcher -->
+      <app-language-switcher></app-language-switcher>
+
+      <!-- Cart Button -->
+      <a routerLink="/cart" mat-icon-button class="cart-btn" id="nav-cart-btn" aria-label="Shopping Cart">
+        <mat-icon [matBadge]="cartService.totalItemsCount()" 
+                  [matBadgeHidden]="cartService.totalItemsCount() === 0" 
+                  matBadgeColor="accent">
+          shopping_cart
+        </mat-icon>
+      </a>
+
+      <!-- Profile/Login Action -->
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/account" mat-flat-button color="primary" class="profile-btn" id="nav-profile-btn">
+          <mat-icon>account_circle</mat-icon>
+          <span class="btn-text">{{ 'NAV.PROFILE' | translate }}</span>
+        </a>
+        <button mat-stroked-button color="warn" (click)="logout()" class="logout-btn" id="nav-logout-btn">
+          <mat-icon>exit_to_app</mat-icon>
+        </button>
+      } @else {
+        <a routerLink="/auth/login" mat-flat-button color="primary" class="login-btn" id="nav-login-btn">
+          {{ 'NAV.LOGIN' | translate }}
+        </a>
+      }
+    </div>
+  </div>
+</header>

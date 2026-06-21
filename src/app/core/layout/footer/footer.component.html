@@ -1,0 +1,63 @@
+<footer class="app-footer" id="app-footer">
+  <div class="footer-container container">
+    <div class="footer-grid">
+      <!-- Brand column -->
+      <div class="footer-col brand-col">
+        <a routerLink="/" class="footer-logo">
+          <span class="logo-text">الْوَصْل</span>
+          <span class="logo-subtext">EL WASL</span>
+        </a>
+        <p class="brand-desc">
+          دار الوصل للنشر والتوزيع - بوابتكم لعوالم لا تنتهي من الروايات والكتب والكتب الصوتية المتميزة وألعاب الورق المبتكرة.
+        </p>
+        <div class="social-icons">
+          <a href="#" mat-icon-button aria-label="Facebook"><mat-icon>facebook</mat-icon></a>
+          <a href="#" mat-icon-button aria-label="Twitter"><mat-icon>share</mat-icon></a>
+          <a href="#" mat-icon-button aria-label="Instagram"><mat-icon>photo_camera</mat-icon></a>
+        </div>
+      </div>
+
+      <!-- Links column -->
+      <div class="footer-col">
+        <h3 class="col-title">{{ 'NAV.BOOKS' | translate }} & {{ 'NAV.AUDIOBOOKS' | translate }}</h3>
+        <ul class="col-links">
+          <li><a routerLink="/books">{{ 'NAV.BOOKS' | translate }}</a></li>
+          <li><a routerLink="/audiobooks">{{ 'NAV.AUDIOBOOKS' | translate }}</a></li>
+          <li><a routerLink="/games">{{ 'NAV.GAMES' | translate }}</a></li>
+          <li><a routerLink="/offers">{{ 'NAV.OFFERS' | translate }}</a></li>
+        </ul>
+      </div>
+
+      <!-- Company column -->
+      <div class="footer-col">
+        <h3 class="col-title">الشركة</h3>
+        <ul class="col-links">
+          <li><a routerLink="/about-us">{{ 'NAV.ABOUT' | translate }}</a></li>
+          <li><a routerLink="/contract-with-us">{{ 'NAV.CONTRACTING' | translate }}</a></li>
+          <li><a routerLink="/contact-us">{{ 'NAV.CONTACT' | translate }}</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact column -->
+      <div class="footer-col contact-col">
+        <h3 class="col-title">تواصل معنا</h3>
+        <p class="contact-item">
+          <mat-icon>email</mat-icon>
+          <span>info&#64;elwasl.com</span>
+        </p>
+        <p class="contact-item">
+          <mat-icon>phone</mat-icon>
+          <span>+20 2 1234567</span>
+        </p>
+        <p class="contact-item">
+          <mat-icon>location_on</mat-icon>
+          <span>القاهرة، جمهورية مصر العربية</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} ElWasl. جميع الحقوق محفوظة.</p>
+    </div>
+  </div>
+</footer>

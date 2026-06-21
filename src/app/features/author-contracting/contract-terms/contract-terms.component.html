@@ -1,0 +1,81 @@
+<div class="contracting-page container" id="contracting-view">
+  <div class="page-header">
+    <h1 class="page-title">انشر معنا / Publish with Us</h1>
+    <p class="page-desc">هل لديك مسودة كتاب أو رواية مميزة؟ تقدم بطلب تعاقد للنشر الورقي والصوتي وسيتصل بك فريقنا.</p>
+  </div>
+
+  <div class="contracting-layout">
+    <!-- Form -->
+    <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" class="request-form" id="contracting-form">
+      <h2 class="section-title">طلب فحص عمل أدبي / Manuscript Submission Form</h2>
+      
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>اسم الكاتب / Author Name</mat-label>
+          <input matInput formControlName="authorName" required id="contract-author">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>البريد الإلكتروني / Email</mat-label>
+          <input matInput type="email" formControlName="email" required id="contract-email">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>عنوان العمل المقترح / Proposed Book Title</mat-label>
+          <input matInput formControlName="bookTitle" required id="contract-title">
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>ملخص العمل (٥٠ حرفاً على الأقل) / Summary (Min 50 chars)</mat-label>
+        <textarea matInput formControlName="summary" rows="4" required id="contract-summary"></textarea>
+      </mat-form-field>
+
+      <!-- Custom file upload -->
+      <div class="file-upload-block">
+        <span class="file-label">إرفاق مسودة العمل (PDF) * / Attach Manuscript</span>
+        <div class="upload-btn-wrapper">
+          <button mat-stroked-button type="button" class="upload-btn" (click)="fileInput.click()">
+            <mat-icon>cloud_upload</mat-icon>
+            <span>اختيار ملف / Choose File</span>
+          </button>
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" id="contract-file">
+          @if (selectedFile(); as file) {
+            <span class="file-name" id="contract-file-name">{{ file.name }}</span>
+          }
+        </div>
+      </div>
+
+      <button mat-flat-button color="accent" type="submit" class="submit-btn" [disabled]="isSubmitting()" id="contract-submit-btn">
+        @if (isSubmitting()) {
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          تقديم طلب النشر / Submit Request
+        }
+      </button>
+    </form>
+
+    <!-- Terms -->
+    <div class="terms-sidebar">
+      <h2>شروط ومراحل النشر / Publishing Terms</h2>
+      
+      <div class="steps-list">
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <div>
+            <strong>فحص العمل / Review</strong>
+            <p>يتم تقييم مسودة الكتاب من قبل لجنة قراءة مختصة للتحقق من جودة المحتوى وملاءمته الأدبية والفكرية.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <div>
+            <strong>التعاقد والإنتاج / Contracting</strong>
+            <p>عند الموافقة، يتم توقيع عقد ملكية فكرية وعقد إنتاج وتوزيع للنسخ المطبوعة والصوتية.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
