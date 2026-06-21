@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AuthService, User } from '../../../core/auth/auth.service';
 import { OrderService } from '../../../core/services/order.service';
 import { CurrencyEgpPipe } from '../../../shared/pipes/currency-egp.pipe';
+import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 
 interface OrderItemDisplay {
   id: string;
@@ -26,7 +27,7 @@ interface LibraryItemDisplay {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, TranslateModule, MatButtonModule, MatIconModule, CurrencyEgpPipe],
+  imports: [CommonModule, TranslateModule, MatButtonModule, MatIconModule, CurrencyEgpPipe, ImageUrlPipe],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })

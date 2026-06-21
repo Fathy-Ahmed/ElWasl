@@ -88,11 +88,11 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
         </div>
 
         <!-- Image Preview Block -->
-        @if (form.get('coverImageUrl')?.value) {
+        @if (localPreviewUrl() || form.get('coverImageUrl')?.value) {
           <div class="image-preview-container">
             <span class="preview-label">معاينة الغلاف / Cover Preview:</span>
             <div class="image-preview">
-              <img [src]="form.get('coverImageUrl')?.value | imageUrl" alt="Preview" class="preview-img">
+              <img [src]="localPreviewUrl() || (form.get('coverImageUrl')?.value | imageUrl)" alt="Preview" class="preview-img">
               <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage()">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -247,6 +247,7 @@ export class BookDialogComponent implements OnInit {
   form!: FormGroup;
   categories: CategoryDto[] = [];
   readonly isUploading = signal<boolean>(false);
+  readonly localPreviewUrl = signal<string>('');
 
   constructor(
     private readonly fb: FormBuilder,
@@ -310,6 +311,11 @@ export class BookDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      
+      // Create local object URL for instant preview
+      const previewUrl = URL.createObjectURL(file);
+      this.localPreviewUrl.set(previewUrl);
+      
       this.isUploading.set(true);
       this.adminApiService.uploadFile(file).subscribe({
         next: (res) => {
@@ -320,12 +326,15 @@ export class BookDialogComponent implements OnInit {
         },
         error: () => {
           this.isUploading.set(false);
+          // Revert preview on upload error
+          this.localPreviewUrl.set('');
         }
       });
     }
   }
 
   removeImage(): void {
+    this.localPreviewUrl.set('');
     this.form.patchValue({
       coverImageUrl: ''
     });

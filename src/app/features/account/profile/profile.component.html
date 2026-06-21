@@ -34,7 +34,7 @@
             <div class="digital-grid">
               @for (item of digitalLibrary(); track item.id) {
                 <div class="digital-item" [id]="'library-item-' + item.id">
-                  <img [src]="item.coverImage" [alt]="item.titleEn" class="lib-cover">
+                  <img [src]="item.coverImage | imageUrl" [alt]="item.titleEn" class="lib-cover">
                   <div class="lib-details">
                     <h4 class="lib-title">{{ item.titleAr }} / {{ item.titleEn }}</h4>
                     <!-- Entitlement placeholder action -->

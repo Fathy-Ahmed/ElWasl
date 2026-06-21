@@ -67,11 +67,11 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
         </div>
 
         <!-- Image Preview Block -->
-        @if (form.get('imageUrl')?.value) {
+        @if (localPreviewUrl() || form.get('imageUrl')?.value) {
           <div class="image-preview-container">
             <span class="preview-label">معاينة الصورة / Image Preview:</span>
             <div class="image-preview">
-              <img [src]="form.get('imageUrl')?.value | imageUrl" alt="Preview" class="preview-img">
+              <img [src]="localPreviewUrl() || (form.get('imageUrl')?.value | imageUrl)" alt="Preview" class="preview-img">
               <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage()">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -206,6 +206,7 @@ export class GameDialogComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   form!: FormGroup;
   readonly isUploading = signal<boolean>(false);
+  readonly localPreviewUrl = signal<string>('');
 
   constructor(
     private readonly fb: FormBuilder,
@@ -234,6 +235,11 @@ export class GameDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      
+      // Create local object URL for instant preview
+      const previewUrl = URL.createObjectURL(file);
+      this.localPreviewUrl.set(previewUrl);
+      
       this.isUploading.set(true);
       this.adminApiService.uploadFile(file).subscribe({
         next: (res) => {
@@ -244,12 +250,15 @@ export class GameDialogComponent implements OnInit {
         },
         error: () => {
           this.isUploading.set(false);
+          // Revert preview on upload error
+          this.localPreviewUrl.set('');
         }
       });
     }
   }
 
   removeImage(): void {
+    this.localPreviewUrl.set('');
     this.form.patchValue({
       imageUrl: ''
     });
