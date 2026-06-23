@@ -10,27 +10,13 @@
 
 .logo-area {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  font-weight: 800;
-  color: $primary-color;
+  align-items: center;
   user-select: none;
   
-  .logo-text {
-    font-size: 1.6rem;
-    font-family: $font-arabic;
-    line-height: 1.2;
-    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  .logo-subtext {
-    font-size: 0.75rem;
-    font-family: $font-latin;
-    letter-spacing: 2px;
-    margin-top: -2px;
-    color: $text-muted;
+  .header-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
   }
 }
 

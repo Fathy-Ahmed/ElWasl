@@ -83,3 +83,68 @@ button {
   @include glass-card(rgba(255, 255, 255, 0.8));
   box-shadow: $shadow-sm;
 }
+
+// Override Angular Material theme colors with our variables
+.mat-primary {
+  --mdc-theme-primary: #{$primary-color};
+  --mdc-theme-on-primary: #ffffff;
+  color: #{$primary-color} !important;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  background-color: $primary-color !important;
+  color: white !important;
+}
+
+.mat-mdc-unelevated-button.mat-accent,
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-flat-button.mat-accent {
+  background-color: $primary-color !important; // Use orange for flat accent buttons as well
+  color: white !important;
+}
+
+.mat-mdc-outlined-button.mat-primary {
+  border-color: $primary-color !important;
+  color: $primary-color !important;
+}
+
+.mat-mdc-button.mat-primary {
+  color: $primary-color !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+
+.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked ~ .mdc-radio__background .mdc-radio__outer-circle {
+  border-color: $primary-color !important;
+}
+
+.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked ~ .mdc-radio__background .mdc-radio__inner-circle {
+  background-color: $primary-color !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {
+  color: $primary-color !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: $primary-color !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: $primary-color !important;
+}
+
+.mat-badge-content {
+  background-color: $primary-color !important;
+}
+
+.mat-badge-accent .mat-badge-content {
+  background-color: $primary-light !important;
+}

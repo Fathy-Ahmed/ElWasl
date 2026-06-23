@@ -29,25 +29,12 @@
 .brand-col {
   .footer-logo {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    font-weight: 800;
+    align-items: center;
     
-    .logo-text {
-      font-size: 1.8rem;
-      font-family: $font-arabic;
-      line-height: 1.2;
-      background: linear-gradient(135deg, $accent-light 0%, $accent-color 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .logo-subtext {
-      font-size: 0.8rem;
-      font-family: $font-latin;
-      letter-spacing: 2px;
-      margin-top: -2px;
-      color: $text-muted;
+    .footer-logo-img {
+      height: 70px;
+      width: auto;
+      object-fit: contain;
     }
   }
 
