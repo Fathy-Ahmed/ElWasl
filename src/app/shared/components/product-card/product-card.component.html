@@ -15,7 +15,7 @@
 
   <!-- Content container -->
   <div class="card-content">
-    <h3 class="product-title" [title]="product | localizedText:'title'">
+    <h3 class="product-title" [title]="product | localizedText:'title'" [class.neon-text]="product.productType === 'Audiobook'">
       {{ product | localizedText:'title' }}
     </h3>
     

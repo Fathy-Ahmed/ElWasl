@@ -77,6 +77,13 @@
   line-height: 1.4;
   @include truncate-text(2);
   min-height: 2.8rem;
+  transition: $transition-fast;
+  
+  &.neon-text {
+    color: #e65100;
+    text-shadow: 0 0 8px rgba(230, 81, 0, 0.4), 0 0 15px rgba(230, 81, 0, 0.2);
+    font-weight: 800;
+  }
 }
 
 .product-author {
