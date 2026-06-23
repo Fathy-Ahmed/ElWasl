@@ -108,7 +108,7 @@ export class BookListPageComponent implements OnInit {
     if (event.action === 'edit') {
       const dialogRef = this.dialog.open(BookDialogComponent, {
         width: '650px',
-        data: { book: event.row }
+        data: { book: event.row.raw || event.row }
       });
 
       dialogRef.afterClosed().subscribe((result) => {

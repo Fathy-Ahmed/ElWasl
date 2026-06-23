@@ -279,7 +279,15 @@ export class AudiobookDialogComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      const val = { ...this.form.value };
+      if (!val.coverImageUrl) val.coverImageUrl = null;
+      if (!val.audioFileUrl) val.audioFileUrl = null;
+      if (val.bookId === '' || val.bookId === null || val.bookId === undefined) {
+        val.bookId = null;
+      }
+      if (!val.descriptionAr) val.descriptionAr = null;
+      if (!val.descriptionEn) val.descriptionEn = null;
+      this.dialogRef.close(val);
     }
   }
 }

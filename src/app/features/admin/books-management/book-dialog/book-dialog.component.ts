@@ -276,12 +276,12 @@ export class BookDialogComponent implements OnInit {
     this.form = this.fb.group({
       titleAr: [b?.titleAr || '', Validators.required],
       titleEn: [b?.titleEn || '', Validators.required],
-      authorName: [b?.authorName || '', Validators.required],
+      authorName: [b?.authorName || b?.authorAr || '', Validators.required],
       isbn: [b?.isbn || ''],
-      coverImageUrl: [b?.coverImageUrl || ''],
+      coverImageUrl: [b?.coverImageUrl || b?.coverImage || ''],
       categoryId: [b?.categoryId || '', Validators.required],
       price: [b?.price || 0, [Validators.required, Validators.min(0)]],
-      discountPrice: [b?.discountPrice || null, Validators.min(0)],
+      discountPrice: [b?.discountPrice !== undefined && b?.discountPrice !== null ? b.discountPrice : null, Validators.min(0)],
       stock: [b?.stock || 0, [Validators.required, Validators.min(0)]],
       format: [formatValue, Validators.required],
       language: [langValue, Validators.required],
@@ -342,7 +342,29 @@ export class BookDialogComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      const val = { ...this.form.value };
+      
+      // Clean up empty strings to null for nullable properties
+      if (!val.isbn) val.isbn = null;
+      if (!val.coverImageUrl) val.coverImageUrl = null;
+      if (val.discountPrice === '' || val.discountPrice === null || val.discountPrice === undefined) {
+        val.discountPrice = null;
+      }
+      if (!val.descriptionAr) val.descriptionAr = null;
+      if (!val.descriptionEn) val.descriptionEn = null;
+      
+      // Convert publishedDate to full ISO string or null
+      if (val.publishedDate) {
+        try {
+          val.publishedDate = new Date(val.publishedDate).toISOString();
+        } catch {
+          val.publishedDate = null;
+        }
+      } else {
+        val.publishedDate = null;
+      }
+      
+      this.dialogRef.close(val);
     }
   }
 }

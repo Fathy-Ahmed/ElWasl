@@ -105,7 +105,7 @@ export class AudiobookListPageComponent implements OnInit {
     if (event.action === 'edit') {
       const dialogRef = this.dialog.open(AudiobookDialogComponent, {
         width: '650px',
-        data: { audiobook: event.row }
+        data: { audiobook: event.row.raw || event.row }
       });
 
       dialogRef.afterClosed().subscribe((result) => {

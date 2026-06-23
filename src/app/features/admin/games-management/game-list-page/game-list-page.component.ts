@@ -105,7 +105,7 @@ export class GameListPageComponent implements OnInit {
     if (event.action === 'edit') {
       const dialogRef = this.dialog.open(GameDialogComponent, {
         width: '650px',
-        data: { game: event.row }
+        data: { game: event.row.raw || event.row }
       });
 
       dialogRef.afterClosed().subscribe((result) => {

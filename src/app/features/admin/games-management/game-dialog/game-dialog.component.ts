@@ -266,7 +266,12 @@ export class GameDialogComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      const val = { ...this.form.value };
+      if (!val.categoryTag) val.categoryTag = null;
+      if (!val.imageUrl) val.imageUrl = null;
+      if (!val.descriptionAr) val.descriptionAr = null;
+      if (!val.descriptionEn) val.descriptionEn = null;
+      this.dialogRef.close(val);
     }
   }
 }
