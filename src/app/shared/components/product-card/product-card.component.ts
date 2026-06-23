@@ -21,6 +21,8 @@ export interface Product {
   authorEn?: string;
   slug: string;
   category?: string;
+  genreAr?: string;
+  genreEn?: string;
   descriptionAr?: string;
   descriptionEn?: string;
 }

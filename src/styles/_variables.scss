@@ -1,27 +1,29 @@
 // ElWasl Premium Design System Variables
 
 // Fonts
-$font-arabic: 'Cairo', 'Tajawal', sans-serif;
+$font-arabic: 'Almarai', 'Tajawal', 'Cairo', sans-serif;
 $font-latin: 'Inter', 'Outfit', sans-serif;
 
 // Color Palette
-$primary-color: #e65100;       // Brand Orange
-$primary-light: #ff7d33;       // Vibrant Light Orange
-$primary-dark: #b33e00;        // Deep Orange
+$primary-color: #F57C00;       // Brand Orange (Vibrant)
+$primary-light: #ff9800;       // Light Orange
+$primary-dark: #e65100;        // Deep Orange
 
-$accent-color: #1e3a8a;        // Deep Navy (for premium contrast)
-$accent-light: #3b82f6;        // Vibrant Blue
-$accent-dark: #172554;         // Navy Dark
+$accent-color: #D4A017;        // Brand Gold Accent
+$accent-light: #ffd700;        // Vibrant Gold
+$accent-dark: #aa7c11;         // Deep Gold
+
+$brown-text: #5D4037;          // Warm Brown for Navigation Text
 
 // Neutral Colors
-$bg-light: #f8fafc;            // Slate 50
+$bg-light: #FEF9F0;            // Clean warm cream background
 $bg-card: #ffffff;
-$bg-dark: #000000;             // Solid Black
-$bg-dark-card: #121212;        // Dark Gray/Black
+$bg-dark: #121212;             // Solid Dark Grey/Black for footer
+$bg-dark-card: #1e1e1e;        // Dark Card
 
-$text-dark: #0f172a;           // High contrast slate
-$text-muted: #64748b;          // Slate 500
-$text-light: #f8fafc;
+$text-dark: #2c1a04;           // Dark brown/black for warm typography contrast
+$text-muted: #795548;          // Warm muted brown/slate
+$text-light: #FEF9F0;
 
 $border-color: #e2e8f0;        // Slate 200
 $border-dark: #334155;         // Slate 700

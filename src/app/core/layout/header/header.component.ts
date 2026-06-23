@@ -33,4 +33,8 @@ export class HeaderComponent {
     this.authService.logout();
     this.router.navigate(['/']);
   }
+
+  isHomePage(): boolean {
+    return this.router.url === '/' || this.router.url === '' || this.router.url.split('?')[0] === '/';
+  }
 }

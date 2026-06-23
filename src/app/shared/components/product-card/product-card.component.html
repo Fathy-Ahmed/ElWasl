@@ -25,6 +25,12 @@
       </p>
     }
 
+    @if (product.genreAr || product.genreEn) {
+      <div class="genre-tag-row">
+        <span class="genre-tag">{{ product | localizedText:'genre' }}</span>
+      </div>
+    }
+
     <div class="price-row">
       <app-price-tag [price]="product.price" [originalPrice]="product.originalPrice"></app-price-tag>
     </div>
