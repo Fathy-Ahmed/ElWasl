@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Product, ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { BookService } from '../../../core/services/book.service';
+import { LocaleService } from '../../../core/i18n/locale.service';
+import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 
 @Component({
   selector: 'app-home-page',
@@ -16,13 +18,15 @@ import { BookService } from '../../../core/services/book.service';
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    ProductCardComponent
+    ProductCardComponent,
+    LocalizedTextPipe
   ],
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
 })
 export class HomePageComponent implements OnInit {
   private readonly bookService = inject(BookService);
+  readonly localeService = inject(LocaleService);
 
   featuredProducts: Product[] = [];
 
@@ -194,23 +198,32 @@ export class HomePageComponent implements OnInit {
   readonly newsItems = [
     {
       id: 'n1',
-      title: 'دار الوصل تفوز بجائزة أفضل ناشر عربي لعام 2025',
-      date: '15 يونيو 2026',
-      desc: 'حصدت الدار الجائزة الذهبية لجمعية الناشرين للتميز الأدبي ودورها الريادي في تقديم محتوى روائي متميز يدعم الوجوه الشابة.',
+      titleAr: 'دار الوصل تفوز بجائزة أفضل ناشر عربي لعام 2025',
+      titleEn: 'Dar ElWasl Wins Best Arab Publisher Award for 2025',
+      dateAr: '15 يونيو 2026',
+      dateEn: 'June 15, 2026',
+      descAr: 'حصدت الدار الجائزة الذهبية لجمعية الناشرين للتميز الأدبي ودورها الريادي في تقديم محتوى روائي متميز يدعم الوجوه الشابة.',
+      descEn: 'The publishing house won the Publishers Association Golden Award for literary excellence and its leading role in providing outstanding novel content supporting young authors.',
       imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=300'
     },
     {
       id: 'n2',
-      title: 'إطلاق شراكة حصرية مع منصة إنتاج وتوزيع الكتب الصوتية',
-      date: '8 يونيو 2026',
-      desc: 'يسر دار الوصل الإعلان عن توفير جميع إصداراتها الروائية بصيغة صوتية عبر شراكة استراتيجية تبدأ هذا الشهر بصوت نخبة من الفنانين.',
+      titleAr: 'إطلاق شراكة حصرية مع منصة إنتاج وتوزيع الكتب الصوتية',
+      titleEn: 'Exclusive Partnership with Audiobooks Production & Distribution Platform',
+      dateAr: '8 يونيو 2026',
+      dateEn: 'June 8, 2026',
+      descAr: 'يسر دار الوصل الإعلان عن توفير جميع إصداراتها الروائية بصيغة صوتية عبر شراكة استراتيجية تبدأ هذا الشهر بصوت نخبة من الفنانين.',
+      descEn: 'Dar ElWasl is pleased to announce that all its novel releases will be available in audio format starting this month through a strategic partnership.',
       imageUrl: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&q=80&w=300'
     },
     {
       id: 'n3',
-      title: 'توقيع رواية "أرض الإله" للكاتب أحمد مراد في مقر الدار',
-      date: '28 مايو 2026',
-      desc: 'شهد حفل التوقيع إقبالاً كبيراً من القراء، وتحدث الكاتب عن كواليس العمل والبحث التاريخي الطويل وراء الرواية.',
+      titleAr: 'توقيع رواية "أرض الإله" للكاتب أحمد مراد في مقر الدار',
+      titleEn: 'Book Signing of "Land of God" by Ahmed Mourad at the Headquarters',
+      dateAr: '28 مايو 2026',
+      dateEn: 'May 28, 2026',
+      descAr: 'شهد حفل التوقيع إقبالاً كبيراً من القراء، وتحدث الكاتب عن كواليس العمل والبحث التاريخي الطويل وراء الرواية.',
+      descEn: 'The book signing ceremony saw great turnout from readers. The author spoke about behind-the-scenes work and the extensive historical research.',
       imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=300'
     }
   ];
@@ -221,44 +234,60 @@ export class HomePageComponent implements OnInit {
   // Mock authors with detailed portrait images
   readonly authors = [
     {
-      name: 'نجيب محفوظ',
+      nameAr: 'نجيب محفوظ',
+      nameEn: 'Naguib Mahfouz',
       photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150',
-      count: '42 رواية'
+      countAr: '42 رواية',
+      countEn: '42 Novels'
     },
     {
-      name: 'أحمد مراد',
+      nameAr: 'أحمد مراد',
+      nameEn: 'Ahmed Mourad',
       photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150',
-      count: '9 روايات'
+      countAr: '9 روايات',
+      countEn: '9 Novels'
     },
     {
-      name: 'رضوى عاشور',
+      nameAr: 'رضوى عاشور',
+      nameEn: 'Radwa Ashour',
       photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150',
-      count: '15 كتاباً'
+      countAr: '15 كتاباً',
+      countEn: '15 Books'
     },
     {
-      name: 'الطيب صالح',
+      nameAr: 'الطيب صالح',
+      nameEn: 'Tayeb Salih',
       photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150',
-      count: '6 روايات'
+      countAr: '6 روايات',
+      countEn: '6 Novels'
     },
     {
-      name: 'أحمد خالد توفيق',
+      nameAr: 'أحمد خالد توفيق',
+      nameEn: 'Ahmed Khaled Towfik',
       photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=150',
-      count: '80 كتاباً'
+      countAr: '80 كتاباً',
+      countEn: '80 Books'
     },
     {
-      name: 'خولة حمدي',
+      nameAr: 'خولة حمدي',
+      nameEn: 'Khawla Hamdi',
       photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150',
-      count: '7 روايات'
+      countAr: '7 روايات',
+      countEn: '7 Novels'
     },
     {
-      name: 'يوسف زيدان',
+      nameAr: 'يوسف زيدان',
+      nameEn: 'Youssef Ziedan',
       photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150',
-      count: '18 كتاباً'
+      countAr: '18 كتاباً',
+      countEn: '18 Books'
     },
     {
-      name: 'إليف شافاق',
+      nameAr: 'إليف شافاق',
+      nameEn: 'Elif Shafak',
       photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150',
-      count: '12 رواية'
+      countAr: '12 رواية',
+      countEn: '12 Novels'
     }
   ];
 

@@ -8,13 +8,13 @@
 
       <!-- Right Navigation Menu (Arabic text, RTL aligned) -->
       <nav class="nav-links" id="main-nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">الرئيسية</a>
-        <a routerLink="/books" routerLinkActive="active" id="nav-books">إصداراتنا</a>
-        <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">الكتب الصوتية</a>
-        <a routerLink="/games" routerLinkActive="active" id="nav-games">ألعاب الورق</a>
-        <a routerLink="/about-us" routerLinkActive="active" id="nav-about">عن الدار</a>
-        <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">للمؤلفين</a>
-        <a routerLink="/contact-us" routerLinkActive="active" id="nav-contact">تواصل معنا</a>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">{{ 'NAV.HOME' | translate }}</a>
+        <a routerLink="/books" routerLinkActive="active" id="nav-books">{{ 'NAV.BOOKS' | translate }}</a>
+        <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">{{ 'NAV.AUDIOBOOKS' | translate }}</a>
+        <a routerLink="/games" routerLinkActive="active" id="nav-games">{{ 'NAV.GAMES' | translate }}</a>
+        <a routerLink="/about-us" routerLinkActive="active" id="nav-about">{{ 'NAV.ABOUT' | translate }}</a>
+        <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">{{ 'NAV.CONTRACTING' | translate }}</a>
+        <a routerLink="/contact-us" routerLinkActive="active" id="nav-contact">{{ 'NAV.CONTACT' | translate }}</a>
       </nav>
     </div>
 
@@ -47,7 +47,7 @@
         </button>
       } @else {
         <a routerLink="/auth/login" mat-flat-button color="primary" class="login-btn" id="nav-login-btn">
-          تسجيل الدخول
+          {{ 'NAV.LOGIN' | translate }}
         </a>
       }
     </div>
@@ -58,11 +58,11 @@
     <div class="lower-header-bar">
       <div class="container lower-header-container">
         <div class="lower-header-right">
-          <h2 class="lower-headline">اكتشف عوالم جديدة مع دار الوصل</h2>
+          <h2 class="lower-headline">{{ 'NAV.SUBHEADER_TEXT' | translate }}</h2>
         </div>
         <div class="lower-header-left">
           <a routerLink="/books" mat-flat-button class="lower-cta-btn" id="lower-browse-btn">
-            تصفح الروايات الآن
+            {{ 'NAV.BROWSE_NOW' | translate }}
           </a>
         </div>
       </div>
