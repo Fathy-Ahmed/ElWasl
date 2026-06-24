@@ -153,3 +153,10 @@ button {
 .mat-badge-accent .mat-badge-content {
   background-color: $primary-light !important;
 }
+
+// Ensure all focus states globally have custom rounded outlines that match elements
+*:focus-visible {
+  outline: 2px dashed $primary-color !important;
+  outline-offset: 3px;
+  border-radius: inherit;
+}

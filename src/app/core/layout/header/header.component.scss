@@ -29,6 +29,8 @@
   display: flex;
   align-items: center;
   user-select: none;
+  border-radius: 12px;
+  padding: 2px;
   
   .header-logo-img {
     height: 76px;
@@ -56,7 +58,8 @@
     font-size: 1rem;
     font-weight: 700; // Premium bold Arabic look
     color: $brown-text; // Use brown text as requested
-    padding: 0.5rem 0;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
     position: relative;
     transition: $transition-fast;
     font-family: $font-arabic;
@@ -99,6 +102,7 @@
 .search-btn, .cart-btn, .profile-btn, .logout-btn {
   color: $brown-text;
   transition: $transition-fast;
+  border-radius: 50%;
   
   &:hover {
     color: $primary-color;
