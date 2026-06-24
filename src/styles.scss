@@ -154,9 +154,21 @@ button {
   background-color: $primary-light !important;
 }
 
-// Ensure all focus states globally have custom rounded rings that match element shapes
-*:focus,
-*:focus-visible {
+// Ensure only keyboard-focused interactive elements have custom rounded focus rings
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.5) !important;
+}
+
+// Disable default focus outlines on mouse click for clean aesthetics
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
 }
