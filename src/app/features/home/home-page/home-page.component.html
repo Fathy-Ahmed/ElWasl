@@ -1,97 +1,261 @@
-<div class="home-wrapper" id="home-view">
+<div class="home-wrapper" id="home-view" dir="rtl">
   <!-- Hero Section -->
   <section class="hero-section" id="home-hero">
     <div class="hero-content container">
+      <!-- Right Side: Text & Welcome Messages (RTL) -->
       <div class="hero-text-block">
+        <span class="hero-badge">بوابتك لعوالم لا تنتهي</span>
         <h1 class="hero-title">
-          <span class="arabic-hero-title">بوابتك لعوالم لا تنتهي</span>
-          <span class="latin-hero-title">Your Gateway to Endless Worlds</span>
+          اكتشف روائع الأدب العربي والعالمي
         </h1>
         <p class="hero-desc">
-          اكتشف أفضل الروايات المكتوبة والكتب الصوتية المتميزة وألعاب الورق الإبداعية المناسبة لكل الأوقات.
+          نحن في دار الوصل نؤمن بقوة الكلمة وتأثير القراءة. نقدم لكم أحدث الروايات المتميزة، الكتب الصوتية الفاخرة، وألعاب الورق الإبداعية المناسبة لكل أفراد العائلة.
         </p>
         <div class="hero-actions">
-          <a routerLink="/books" mat-flat-button color="accent" class="hero-btn primary" id="hero-browse-books">
-            {{ 'NAV.BOOKS' | translate }}
+          <a routerLink="/books" mat-flat-button class="hero-btn primary" id="hero-browse-books">
+            تصفح إصداراتنا الورقية
           </a>
           <a routerLink="/audiobooks" mat-stroked-button class="hero-btn secondary" id="hero-browse-audio">
-            {{ 'NAV.AUDIOBOOKS' | translate }}
+            استمع للكتب الصوتية
           </a>
         </div>
       </div>
-      <!-- Unsplash reading visual -->
+
+      <!-- Left Side: Cinematic 3D Stack of Novels and Open Book -->
       <div class="hero-visual">
-        <div class="blob-bg"></div>
-        <img src="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=800" alt="Reading Books" class="hero-img">
+        <div class="glow-backdrop"></div>
+        
+        <!-- Logo Image replacing the 3D book stack -->
+        <div class="hero-logo-container">
+          <img src="/logo.png" alt="Dar ElWasl Logo" class="hero-logo-large">
+        </div>
+
+        <!-- Open Book mockup with legible Arabic text -->
+        <div class="open-book-mockup">
+          <div class="book-spine-center"></div>
+          <div class="book-page right-page">
+            <p class="page-text">
+              كانت غرناطة تتنفس ببطء تحت وطأة الحصار، كأنها تخشى أن تنقضي اللحظات الأخيرة من تاريخها العريق، حيث كانت البيوت المفتوحة تهمس للغابرين...
+            </p>
+            <span class="page-num">١٢٤</span>
+          </div>
+          <div class="book-page left-page">
+            <p class="page-text">
+              ...ولكن الجدران العتيقة كانت تهمس دائمًا بوعود البقاء، وتخبئ في طياتها حكايات حب عتيقة ومخطوطات سرية لا تطالها نيران الفناء أو النسيان.
+            </p>
+            <span class="page-num">١٢٥</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Promotions Banner -->
+  <!-- Promotions Banner (Dynamic Carousel Style) -->
   @for (promo of promotions; track promo.id) {
-    <section class="promo-banner" id="promo-banner">
+    <section class="promo-banner-section" id="promo-banner">
       <div class="container promo-container">
         <div class="promo-info">
           <mat-icon class="promo-icon">local_offer</mat-icon>
           <div class="promo-texts">
-            <h4 class="promo-title">{{ promo.titleAr }} / {{ promo.titleEn }}</h4>
-            <p class="promo-desc">{{ promo.discountAr }} | {{ promo.discountEn }}</p>
+            <h4 class="promo-title">{{ promo.titleAr }}</h4>
+            <p class="promo-desc">{{ promo.discountAr }}</p>
           </div>
         </div>
-        <a [routerLink]="promo.link" mat-flat-button color="primary" class="promo-action-btn">
-          {{ 'COMMON.BUY_NOW' | translate }}
+        <a [routerLink]="promo.link" mat-flat-button class="promo-action-btn">
+          تسوق العروض الآن
         </a>
       </div>
     </section>
   }
 
-  <!-- Featured Products Grid -->
-  <section class="featured-section container" id="home-featured">
+  <!-- Book/Product Grid (Mid Section, 5x2 grid) -->
+  <section class="featured-grid-section container" id="home-featured">
     <div class="section-header">
-      <h2 class="section-title">إصدارات متميزة / Featured Releases</h2>
-      <a routerLink="/books" class="view-all-link">عرض الكل / View All <mat-icon class="mirror-rtl">arrow_forward</mat-icon></a>
+      <div class="header-titles">
+        <span class="sub-section-title">إصداراتنا المتميزة</span>
+        <h2 class="section-title">جديد روايات دار الوصل</h2>
+      </div>
+      <a routerLink="/books" class="view-all-link">عرض كافة الإصدارات <mat-icon class="mirror-rtl">arrow_forward</mat-icon></a>
     </div>
-    <div class="products-grid">
+    
+    <!-- 5x2 Grid container -->
+    <div class="products-grid-5x2">
       @for (prod of featuredProducts; track prod.id) {
-        <app-product-card [product]="prod"></app-product-card>
+        <app-product-card [product]="prod" class="grid-card-item"></app-product-card>
       }
     </div>
   </section>
 
-  <!-- Exhibitions Spotlight -->
-  @for (ex of currentExhibitions; track ex.id) {
-    <section class="exhibition-spotlight" id="home-exhibitions">
-      <div class="container spotlight-container">
-        <div class="spotlight-visual">
-          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800" alt="Book Fair Exhibition" class="spotlight-img">
-        </div>
-        <div class="spotlight-content">
-          <span class="spotlight-badge">{{ 'NAV.EXHIBITIONS' | translate }}</span>
-          <h2 class="spotlight-title">{{ ex.titleAr }}</h2>
-          <h3 class="spotlight-subtitle">{{ ex.titleEn }}</h3>
-          <div class="spotlight-meta">
-            <p class="meta-item"><mat-icon>date_range</mat-icon> <span>{{ ex.dateAr }} | {{ ex.dateEn }}</span></p>
-            <p class="meta-item"><mat-icon>location_on</mat-icon> <span>{{ ex.locationAr }} / {{ ex.locationEn }}</span></p>
+  <!-- Detailed Services Section -->
+  <section class="services-section" id="home-services">
+    <div class="container">
+      <div class="section-header center">
+        <span class="sub-section-title">خدمات متميزة للقرّاء والكتّاب</span>
+        <h2 class="section-title">استكشف خدماتنا الشاملة</h2>
+      </div>
+
+      <div class="services-grid">
+        <!-- Service 1: Novel E-Shop -->
+        <div class="service-card" id="service-eshop">
+          <div class="service-icon-box">
+            <mat-icon class="service-icon">shopping_bag</mat-icon>
           </div>
-          <p class="spotlight-desc">{{ ex.descriptionAr }}</p>
-          <p class="spotlight-desc">{{ ex.descriptionEn }}</p>
-          <a [routerLink]="['/exhibitions', ex.id]" mat-flat-button color="accent" class="spotlight-btn">
-            التفاصيل / Details
-          </a>
+          <h3 class="service-title">متجر الروايات الإلكتروني</h3>
+          <p class="service-desc">
+            تصفح مكتبتنا الإلكترونية الشاملة، واشترِ الروايات والكتب الورقية والألعاب المبتكرة مباشرةً مع خيارات دفع آمنة وتوصيل سريع لباب منزلك.
+          </p>
+          <!-- Book mockups illustration inside the panel -->
+          <div class="service-visual-mockup eshop-visual">
+            <div class="mini-book book-red"></div>
+            <div class="mini-book book-blue"></div>
+            <div class="mini-book book-green"></div>
+          </div>
+        </div>
+
+        <!-- Service 2: Author Services & Publishing -->
+        <div class="service-card" id="service-publishing">
+          <div class="service-icon-box">
+            <mat-icon class="service-icon">auto_stories</mat-icon>
+          </div>
+          <h3 class="service-title">خدمات المؤلفين والطباعة</h3>
+          <p class="service-desc">
+            هل لديك رواية أو كتاب جاهز للنشر؟ نقدم خدمات تحرير وتنسيق احترافية وتصميم أغلفة مبهرة بالإضافة لطباعة ورقية وتوزيع عربي شامل وعالمي.
+          </p>
+          <div class="service-visual-mockup publishing-visual">
+            <a routerLink="/contract-with-us" mat-flat-button class="publish-btn-orange">
+              انشر معنا
+            </a>
+          </div>
+        </div>
+
+        <!-- Service 3: Points of Sale & Fairs -->
+        <div class="service-card" id="service-fairs">
+          <div class="service-icon-box">
+            <mat-icon class="service-icon">map</mat-icon>
+          </div>
+          <h3 class="service-title">منافذ البيع والمعارض</h3>
+          <p class="service-desc">
+            تتواجد كتب وروايات دار الوصل في كبرى المكتبات العربية، ونشارك سنويًا في المعارض الدولية (القاهرة، الرياض، الشارقة، أبوظبي).
+          </p>
+          <!-- Mini map thumbnail with sales points -->
+          <div class="service-visual-mockup fairs-visual">
+            <div class="mini-world-map">
+              <span class="pin-point p1"></span>
+              <span class="pin-point p2"></span>
+              <span class="pin-point p3"></span>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
-  }
+    </div>
+  </section>
 
-  <!-- Newsletter Signup -->
+  <!-- Community and Community News Section -->
+  <section class="community-news-section" id="home-community">
+    <div class="container community-grid-container">
+      
+      <!-- Right Side: Community News (حدث من الدار) -->
+      <div class="news-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">حدث من الدار</h3>
+          <span class="line-decorator"></span>
+        </div>
+        
+        <div class="news-list">
+          @for (item of newsItems; track item.id) {
+            <div class="news-card">
+              <div class="news-img-box">
+                <img [src]="item.imageUrl" [alt]="item.title" class="news-img">
+              </div>
+              <div class="news-content">
+                <span class="news-date"><mat-icon>calendar_month</mat-icon> {{ item.date }}</span>
+                <h4 class="news-card-title">{{ item.title }}</h4>
+                <p class="news-desc">{{ item.desc }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Left Side: Community Data & Authors Panel -->
+      <div class="community-data-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">عائلة دار الوصل</h3>
+          <span class="line-decorator"></span>
+        </div>
+
+        <div class="community-card-body">
+          <div class="stat-bubble">
+            <span class="stat-number">374</span>
+            <span class="stat-label">من مؤلفين دار الوصل</span>
+          </div>
+
+          <!-- Small detailed author profile photos grid -->
+          <div class="authors-faces-grid">
+            @for (author of authors; track author.name) {
+              <div class="author-face-card" [title]="author.name">
+                <img [src]="author.photo" [alt]="author.name" class="author-photo">
+                <div class="author-tooltip">
+                  <p class="tooltip-name">{{ author.name }}</p>
+                  <p class="tooltip-count">{{ author.count }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Interactive Sale Points World Map -->
+          <div class="world-map-container">
+            <h4 class="map-title"><mat-icon>language</mat-icon> منافذ توزيعنا حول العالم</h4>
+            <div class="interactive-world-map">
+              <!-- Background abstract map lines -->
+              <svg class="map-svg" viewBox="0 0 400 200">
+                <!-- Simple outline representing land masses -->
+                <path d="M50,70 Q70,40 100,50 T130,40 T150,70 T200,60 T250,70 T300,50 T330,80 T350,110 T300,140 T250,130 T200,120 T150,150 T100,120 Z" fill="rgba(245, 124, 0, 0.05)" stroke="rgba(212, 160, 23, 0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <!-- Points of sale locations with pulsing glow -->
+                <circle cx="170" cy="95" r="4" class="map-dot map-dot-pulse" title="القاهرة - المقر الرئيسي"/>
+                <circle cx="190" cy="102" r="3" class="map-dot" title="الرياض"/>
+                <circle cx="205" cy="98" r="3" class="map-dot" title="دبي"/>
+                <circle cx="162" cy="70" r="3" class="map-dot" title="لندن"/>
+                <circle cx="120" cy="110" r="2.5" class="map-dot" title="نيويورك"/>
+              </svg>
+              <div class="map-locations-labels">
+                <span>القاهرة</span> • <span>الرياض</span> • <span>دبي</span> • <span>لندن</span> • <span>نيويورك</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bestsellers Slider Section -->
+  <section class="bestsellers-section container" id="home-bestsellers">
+    <div class="section-header">
+      <div class="header-titles">
+        <span class="sub-section-title">الأكثر طلباً ورواجاً</span>
+        <h2 class="section-title">الكتب الأكثر مبيعاً</h2>
+      </div>
+    </div>
+    
+    <!-- Bestseller Horizontal Slider -->
+    <div class="bestsellers-slider-wrapper">
+      <div class="bestsellers-slider">
+        @for (prod of bestsellers; track prod.id) {
+          <app-product-card [product]="prod" class="slider-card-item"></app-product-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Signup (Retained with premium cream/gold accents) -->
   <section class="newsletter-section" id="home-newsletter">
     <div class="container newsletter-container">
-      <h2 class="newsletter-title">اشترك في نشرتنا الإخبارية / Subscribe to Our Newsletter</h2>
-      <p class="newsletter-desc">كن أول من يعلم بالإصدارات الجديدة والعروض الخاصة الحصرية.</p>
+      <h2 class="newsletter-title">اشترك في نشرتنا الإخبارية</h2>
+      <p class="newsletter-desc">كن أول من يعلم بالإصدارات الجديدة، وحفلات التوقيع، والعروض الخاصة الحصرية.</p>
       <form class="newsletter-form" id="newsletter-form" (submit)="$event.preventDefault()">
-        <input type="email" placeholder="البريد الإلكتروني / Email Address" class="newsletter-input" required id="newsletter-email">
-        <button mat-flat-button color="accent" type="submit" class="newsletter-btn" id="newsletter-submit">
-          اشترك / Subscribe
+        <input type="email" placeholder="أدخل بريدك الإلكتروني هنا..." class="newsletter-input" required id="newsletter-email">
+        <button mat-flat-button type="submit" class="newsletter-btn" id="newsletter-submit">
+          اشترك الآن
         </button>
       </form>
     </div>

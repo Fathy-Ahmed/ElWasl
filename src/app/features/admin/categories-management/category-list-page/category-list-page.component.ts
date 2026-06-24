@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CategoryService } from '../../../../core/services/category.service';
+import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { CategoryDialogComponent } from '../category-dialog/category-dialog.component';
+import { CategoryDto } from '../../../../core/models/api.models';
 
 @Component({
   selector: 'app-category-list-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent],
+  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent, MatDialogModule],
   template: `
     <div class="management-page">
       <app-admin-page-header title="إدارة التصنيفات والمجالات / Category Management" 
@@ -28,8 +33,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   `,
   styles: []
 })
-export class CategoryListPageComponent {
-  constructor(private snackBar: MatSnackBar) {}
+export class CategoryListPageComponent implements OnInit {
+  private readonly categoryService = inject(CategoryService);
+  private readonly adminApiService = inject(AdminApiService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -48,22 +56,63 @@ export class CategoryListPageComponent {
     { name: 'delete', icon: 'delete', color: 'warn', idPrefix: 'del-cat-' }
   ];
 
-  readonly categories = signal([
-    { id: 'cat-1', nameAr: 'روايات / Novels', nameEn: 'Novels', slug: 'novel' },
-    { id: 'cat-2', nameAr: 'تاريخ / History', nameEn: 'History', slug: 'history' },
-    { id: 'cat-3', nameAr: 'رعب / Horror', nameEn: 'Horror', slug: 'horror' }
-  ]);
+  readonly categories = signal<CategoryDto[]>([]);
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (res) => {
+        this.categories.set(res || []);
+      }
+    });
+  }
 
   addNewCategory(): void {
-    this.snackBar.open('إضافة تصنيف جديد (سيتم دعم النموذج في النسخة القادمة) / Add form placeholder', 'إغلاق / Close', { duration: 3000 });
+    const dialogRef = this.dialog.open(CategoryDialogComponent, {
+      width: '600px',
+      data: { categories: this.categories() }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.adminApiService.createCategory(result).subscribe({
+          next: () => {
+            this.loadCategories();
+            this.snackBar.open('تم إضافة التصنيف بنجاح / Category added successfully', 'إغلاق / Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
     if (event.action === 'edit') {
-      this.snackBar.open(`تعديل التصنيف: ${event.row.nameAr} / Edit action`, 'إغلاق / Close', { duration: 3000 });
+      const dialogRef = this.dialog.open(CategoryDialogComponent, {
+        width: '600px',
+        data: { category: event.row, categories: this.categories() }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const updateCommand = { id: event.row.id, ...result };
+          this.adminApiService.updateCategory(event.row.id, updateCommand).subscribe({
+            next: () => {
+              this.loadCategories();
+              this.snackBar.open('تم تحديث التصنيف بنجاح / Category updated successfully', 'إغلاق / Close', { duration: 3000 });
+            }
+          });
+        }
+      });
     } else if (event.action === 'delete') {
-      this.categories.update(current => current.filter(c => c.id !== event.row.id));
-      this.snackBar.open(`تم حذف التصنيف بنجاح / Category deleted successfully`, 'إغلاق / Close', { duration: 3000 });
+      this.adminApiService.deleteCategory(event.row.id).subscribe({
+        next: () => {
+          this.categories.update(current => current.filter(c => c.id !== event.row.id));
+          this.snackBar.open('تم حذف التصنيف بنجاح / Category deleted successfully', 'إغلاق / Close', { duration: 3000 });
+        }
+      });
     }
   }
 }

@@ -7,7 +7,7 @@
       <div class="items-list">
         @for (item of cartService.items(); track (item.productId + item.productType)) {
           <div class="cart-item" [id]="'cart-item-' + item.productId">
-            <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="item-img">
+            <img [src]="item.coverImage | imageUrl" [alt]="item | localizedText:'title'" class="item-img">
             
             <div class="item-details">
               <span class="item-type-badge">{{ item.productType }}</span>

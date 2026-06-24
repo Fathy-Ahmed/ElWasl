@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyEgpPipe } from '../../../../../shared/pipes/currency-egp.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
+import { ImageUrlPipe } from '../../../../../shared/pipes/image-url.pipe';
 
 export interface TableColumn {
   key: string;
@@ -22,7 +23,8 @@ export interface TableColumn {
     MatButtonModule,
     MatIconModule,
     CurrencyEgpPipe,
-    StatusBadgeComponent
+    StatusBadgeComponent,
+    ImageUrlPipe
   ],
   templateUrl: './admin-data-table.component.html',
   styleUrls: ['./admin-data-table.component.scss']

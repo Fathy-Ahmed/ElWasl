@@ -18,19 +18,17 @@
 .sidebar-brand {
   height: 80px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   border-bottom: 1px solid $border-dark;
   
-  .logo-text {
-    font-family: $font-arabic;
-    font-size: 1.15rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, $accent-light 0%, $accent-color 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .sidebar-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
   }
   
   .logo-subtext {
@@ -38,7 +36,6 @@
     font-size: 0.7rem;
     letter-spacing: 1px;
     color: $text-muted;
-    margin-top: 2px;
   }
 }
 

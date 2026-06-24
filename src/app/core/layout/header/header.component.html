@@ -1,40 +1,29 @@
 <header class="glass-header" id="app-header">
   <div class="header-container container">
-    <!-- Logo -->
-    <a routerLink="/" class="logo-area" id="nav-logo">
-      <span class="logo-text">الْوَصْل</span>
-      <span class="logo-subtext">EL WASL</span>
-    </a>
+    <!-- Top Right Group: Logo & Navigation Menu -->
+    <div class="right-header-group">
+      <a routerLink="/" class="logo-area" id="nav-logo">
+        <img src="/logo.png" alt="Dar ElWasl Logo" class="header-logo-img">
+      </a>
 
-    <!-- Navigation links -->
-    <nav class="nav-links" id="main-nav">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">
-        {{ 'NAV.HOME' | translate }}
-      </a>
-      <a routerLink="/books" routerLinkActive="active" id="nav-books">
-        {{ 'NAV.BOOKS' | translate }}
-      </a>
-      <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">
-        {{ 'NAV.AUDIOBOOKS' | translate }}
-      </a>
-      <a routerLink="/games" routerLinkActive="active" id="nav-games">
-        {{ 'NAV.GAMES' | translate }}
-      </a>
-      <a routerLink="/exhibitions" routerLinkActive="active" id="nav-exhibitions">
-        {{ 'NAV.EXHIBITIONS' | translate }}
-      </a>
-      <a routerLink="/offers" routerLinkActive="active" id="nav-offers">
-        {{ 'NAV.OFFERS' | translate }}
-      </a>
-      <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">
-        {{ 'NAV.CONTRACTING' | translate }}
-      </a>
-    </nav>
+      <!-- Right Navigation Menu (Arabic text, RTL aligned) -->
+      <nav class="nav-links" id="main-nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">الرئيسية</a>
+        <a routerLink="/books" routerLinkActive="active" id="nav-books">إصداراتنا</a>
+        <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">الكتب الصوتية</a>
+        <a routerLink="/games" routerLinkActive="active" id="nav-games">ألعاب الورق</a>
+        <a routerLink="/about-us" routerLinkActive="active" id="nav-about">عن الدار</a>
+        <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">للمؤلفين</a>
+        <a routerLink="/contact-us" routerLinkActive="active" id="nav-contact">تواصل معنا</a>
+      </nav>
+    </div>
 
-    <!-- Actions Area -->
-    <div class="actions-area">
-      <!-- Language Switcher -->
-      <app-language-switcher></app-language-switcher>
+    <!-- Top Left Group: Search, Cart & User Account -->
+    <div class="left-header-group">
+      <!-- Search Button -->
+      <button mat-icon-button class="search-btn" id="nav-search-btn" aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
 
       <!-- Cart Button -->
       <a routerLink="/cart" mat-icon-button class="cart-btn" id="nav-cart-btn" aria-label="Shopping Cart">
@@ -45,20 +34,38 @@
         </mat-icon>
       </a>
 
-      <!-- Profile/Login Action -->
+      <!-- Language switcher -->
+      <app-language-switcher class="lang-switcher-widget"></app-language-switcher>
+
+      <!-- Profile/Logout -->
       @if (authService.isAuthenticated()) {
-        <a routerLink="/account" mat-flat-button color="primary" class="profile-btn" id="nav-profile-btn">
+        <a routerLink="/account" mat-icon-button class="profile-btn" id="nav-profile-btn" aria-label="Profile">
           <mat-icon>account_circle</mat-icon>
-          <span class="btn-text">{{ 'NAV.PROFILE' | translate }}</span>
         </a>
-        <button mat-stroked-button color="warn" (click)="logout()" class="logout-btn" id="nav-logout-btn">
+        <button mat-icon-button color="warn" (click)="logout()" class="logout-btn" id="nav-logout-btn" aria-label="Logout">
           <mat-icon>exit_to_app</mat-icon>
         </button>
       } @else {
         <a routerLink="/auth/login" mat-flat-button color="primary" class="login-btn" id="nav-login-btn">
-          {{ 'NAV.LOGIN' | translate }}
+          تسجيل الدخول
         </a>
       }
     </div>
   </div>
+
+  <!-- Lower Header: Headline & CTA Button (Homepage only) -->
+  @if (isHomePage()) {
+    <div class="lower-header-bar">
+      <div class="container lower-header-container">
+        <div class="lower-header-right">
+          <h2 class="lower-headline">اكتشف عوالم جديدة مع دار الوصل</h2>
+        </div>
+        <div class="lower-header-left">
+          <a routerLink="/books" mat-flat-button class="lower-cta-btn" id="lower-browse-btn">
+            تصفح الروايات الآن
+          </a>
+        </div>
+      </div>
+    </div>
+  }
 </header>

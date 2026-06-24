@@ -1,7 +1,7 @@
 <div class="card-wrapper" [routerLink]="getDetailsRoute()" [id]="'prod-card-' + product.id">
   <!-- Image container with product type badge -->
   <div class="image-container">
-    <img [src]="product.coverImage" [alt]="product | localizedText:'title'" class="product-cover" loading="lazy">
+    <img [src]="product.coverImage | imageUrl" [alt]="product | localizedText:'title'" class="product-cover" loading="lazy">
     <span class="type-badge" [ngClass]="product.productType.toLowerCase()">
       @if (product.productType === 'Book') {
         {{ 'NAV.BOOKS' | translate }}
@@ -15,7 +15,7 @@
 
   <!-- Content container -->
   <div class="card-content">
-    <h3 class="product-title" [title]="product | localizedText:'title'">
+    <h3 class="product-title" [title]="product | localizedText:'title'" [class.neon-text]="product.productType === 'Audiobook'">
       {{ product | localizedText:'title' }}
     </h3>
     
@@ -23,6 +23,19 @@
       <p class="product-author">
         {{ product | localizedText:'author' }}
       </p>
+    }
+
+    @if (product.format) {
+      <p class="product-format-label">
+        <span class="format-label">التنسيق / Format:</span>
+        <span class="format-val">{{ getLocalizedFormat(product.format) }}</span>
+      </p>
+    }
+
+    @if (product.genreAr || product.genreEn) {
+      <div class="genre-tag-row">
+        <span class="genre-tag">{{ product | localizedText:'genre' }}</span>
+      </div>
     }
 
     <div class="price-row">

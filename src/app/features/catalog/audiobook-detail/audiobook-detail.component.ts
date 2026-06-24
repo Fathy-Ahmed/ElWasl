@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../../core/cart/cart.service';
 import { CurrencyEgpPipe } from '../../../shared/pipes/currency-egp.pipe';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
+import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 import { Product } from '../../../shared/components/product-card/product-card.component';
 import { AudiobookService } from '../../../core/services/audiobook.service';
 
@@ -20,7 +21,8 @@ import { AudiobookService } from '../../../core/services/audiobook.service';
     MatButtonModule,
     MatIconModule,
     CurrencyEgpPipe,
-    LocalizedTextPipe
+    LocalizedTextPipe,
+    ImageUrlPipe
   ],
   templateUrl: './audiobook-detail.component.html',
   styleUrls: ['./audiobook-detail.component.scss']

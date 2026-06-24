@@ -77,12 +77,53 @@
   line-height: 1.4;
   @include truncate-text(2);
   min-height: 2.8rem;
+  transition: $transition-fast;
+  
+  &.neon-text {
+    color: #e65100;
+    text-shadow: 0 0 8px rgba(230, 81, 0, 0.4), 0 0 15px rgba(230, 81, 0, 0.2);
+    font-weight: 800;
+  }
 }
 
 .product-author {
   font-size: 0.85rem;
   color: $text-muted;
   @include truncate-text(1);
+}
+
+.product-format-label {
+  font-size: 0.78rem;
+  color: $text-muted;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 0.1rem;
+  
+  .format-label {
+    font-weight: 500;
+  }
+  
+  .format-val {
+    font-weight: 600;
+    color: $primary-color;
+  }
+}
+
+.genre-tag-row {
+  display: flex;
+  margin-top: 0.25rem;
+}
+
+.genre-tag {
+  display: inline-block;
+  background-color: rgba(245, 124, 0, 0.08); // Semi-transparent vibrant orange
+  color: $primary-color;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 124, 0, 0.18);
 }
 
 .price-row {
@@ -120,6 +161,6 @@
   
   .btn-buy {
     color: white;
-    background-color: $accent-color !important;
+    background-color: $primary-color !important;
   }
 }

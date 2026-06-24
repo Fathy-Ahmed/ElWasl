@@ -87,7 +87,7 @@
       <div class="summary-items">
         @for (item of cartService.items(); track (item.productId + item.productType)) {
           <div class="summary-item">
-            <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="item-img">
+            <img [src]="item.coverImage | imageUrl" [alt]="item | localizedText:'title'" class="item-img">
             <div class="item-details">
               <h4 class="item-title">{{ item | localizedText:'title' }}</h4>
               <p class="item-qty-price">{{ item.quantity }} × {{ item.price | currencyEgp }}</p>

@@ -30,6 +30,13 @@ export class AdminApiService {
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/admin`;
   private readonly categoryUrl = `${API_CONFIG.baseUrl}/api/v1/Categories`;
 
+  // === Admin File Upload ===
+  uploadFile(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<string>(`${this.baseUrl}/files/upload`, formData);
+  }
+
   // === Admin Books ===
   getBooks(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<AdminBookDtoAdminPaginatedDto> {
     let params = new HttpParams()

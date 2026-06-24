@@ -54,7 +54,8 @@ export class BookService {
       slug: book.id, // Routing by ID
       category: book.categoryNameEn || book.categoryId,
       descriptionAr: book.descriptionAr || '',
-      descriptionEn: book.descriptionEn || ''
+      descriptionEn: book.descriptionEn || '',
+      format: book.format || undefined
     };
   }
 }

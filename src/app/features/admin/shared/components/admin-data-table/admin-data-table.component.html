@@ -24,7 +24,7 @@
                 } @else if (col.type === 'badge') {
                   <app-status-badge [status]="row[col.key]" [label]="col.badgeLabelKey ? row[col.badgeLabelKey] : undefined"></app-status-badge>
                 } @else if (col.type === 'image') {
-                  <img [src]="row[col.key]" alt="cover" class="val-image">
+                  <img [src]="row[col.key] | imageUrl" alt="cover" class="val-image">
                 } @else {
                   <span class="val-text">{{ row[col.key] }}</span>
                 }

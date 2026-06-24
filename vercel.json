@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://elwasl.runasp.net/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://elwasl.runasp.net/uploads/:path*"
+    }
+  ]
+}

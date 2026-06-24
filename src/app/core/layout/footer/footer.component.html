@@ -1,63 +1,75 @@
-<footer class="app-footer" id="app-footer">
+<footer class="app-footer" id="app-footer" dir="rtl">
   <div class="footer-container container">
     <div class="footer-grid">
-      <!-- Brand column -->
-      <div class="footer-col brand-col">
+      <!-- Right Side: Brand Logo, Description & Contact info -->
+      <div class="footer-col contact-col">
         <a routerLink="/" class="footer-logo">
-          <span class="logo-text">الْوَصْل</span>
-          <span class="logo-subtext">EL WASL</span>
+          <img src="/logo-dark.png" alt="Dar ElWasl Logo" class="footer-logo-img">
         </a>
         <p class="brand-desc">
-          دار الوصل للنشر والتوزيع - بوابتكم لعوالم لا تنتهي من الروايات والكتب والكتب الصوتية المتميزة وألعاب الورق المبتكرة.
+          دار الوصل للنشر والتوزيع - بوابتكم لعوالم لا تنتهي من المعرفة والخيال الأدبي المتميز وألعاب الورق المبتكرة.
         </p>
-        <div class="social-icons">
-          <a href="#" mat-icon-button aria-label="Facebook"><mat-icon>facebook</mat-icon></a>
-          <a href="#" mat-icon-button aria-label="Twitter"><mat-icon>share</mat-icon></a>
-          <a href="#" mat-icon-button aria-label="Instagram"><mat-icon>photo_camera</mat-icon></a>
-        </div>
-      </div>
-
-      <!-- Links column -->
-      <div class="footer-col">
-        <h3 class="col-title">{{ 'NAV.BOOKS' | translate }} & {{ 'NAV.AUDIOBOOKS' | translate }}</h3>
-        <ul class="col-links">
-          <li><a routerLink="/books">{{ 'NAV.BOOKS' | translate }}</a></li>
-          <li><a routerLink="/audiobooks">{{ 'NAV.AUDIOBOOKS' | translate }}</a></li>
-          <li><a routerLink="/games">{{ 'NAV.GAMES' | translate }}</a></li>
-          <li><a routerLink="/offers">{{ 'NAV.OFFERS' | translate }}</a></li>
-        </ul>
-      </div>
-
-      <!-- Company column -->
-      <div class="footer-col">
-        <h3 class="col-title">الشركة</h3>
-        <ul class="col-links">
-          <li><a routerLink="/about-us">{{ 'NAV.ABOUT' | translate }}</a></li>
-          <li><a routerLink="/contract-with-us">{{ 'NAV.CONTRACTING' | translate }}</a></li>
-          <li><a routerLink="/contact-us">{{ 'NAV.CONTACT' | translate }}</a></li>
-        </ul>
-      </div>
-
-      <!-- Contact column -->
-      <div class="footer-col contact-col">
-        <h3 class="col-title">تواصل معنا</h3>
+        
+        <h3 class="col-title contact-heading">تواصل معنا</h3>
         <p class="contact-item">
           <mat-icon>email</mat-icon>
-          <span>info&#64;elwasl.com</span>
+          <span>elwaslbook2023&#64;gmail.com</span>
         </p>
         <p class="contact-item">
           <mat-icon>phone</mat-icon>
-          <span>+20 2 1234567</span>
+          <span>+201118440716</span>
         </p>
         <p class="contact-item">
           <mat-icon>location_on</mat-icon>
-          <span>القاهرة، جمهورية مصر العربية</span>
+          <span>١٦٥ شارع محمد فريد - وسط البلد - القاهرة</span>
         </p>
+        
+        <div class="social-icons">
+          <a href="#" class="social-link" aria-label="Facebook"><mat-icon>facebook</mat-icon></a>
+          <a href="#" class="social-link" aria-label="Twitter"><mat-icon>share</mat-icon></a>
+          <a href="#" class="social-link" aria-label="Instagram"><mat-icon>photo_camera</mat-icon></a>
+        </div>
+      </div>
+
+      <!-- Left Side: Comprehensive Navigation Columns (RTL aligned) -->
+      <div class="footer-nav-columns">
+        <div class="footer-col">
+          <h3 class="col-title">إصداراتنا</h3>
+          <ul class="col-links">
+            <li><a routerLink="/books">الروايات المطبوعة</a></li>
+            <li><a routerLink="/audiobooks">الكتب الصوتية</a></li>
+            <li><a routerLink="/games">ألعاب الورق</a></li>
+            <li><a routerLink="/offers">آخر العروض والخصومات</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="col-title">عن الدار</h3>
+          <ul class="col-links">
+            <li><a routerLink="/about-us">من نحن</a></li>
+            <li><a routerLink="/contract-with-us">للمؤلفين والطباعة</a></li>
+            <li><a routerLink="/contact-us">تواصل معنا</a></li>
+            <li><a routerLink="/exhibitions">المعارض الدولية</a></li>
+          </ul>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="footer-bottom">
-      <p>&copy; {{ currentYear }} ElWasl. جميع الحقوق محفوظة.</p>
+  <!-- Bottom grey bar -->
+  <div class="footer-bottom-bar">
+    <div class="container bottom-container">
+      <!-- Copyright Notice -->
+      <div class="bottom-right">
+        <p class="copyright-text">© دار الوصل للنشر والتوزيع - 2024</p>
+      </div>
+      
+      <!-- Payment Logos -->
+      <div class="bottom-left payment-logos-group">
+        <span class="payment-icon visa" title="Visa"></span>
+        <span class="payment-icon mastercard" title="Mastercard"></span>
+        <span class="payment-icon amex" title="American Express"></span>
+      </div>
     </div>
   </div>
 </footer>

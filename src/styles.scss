@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 @import 'styles/variables';
@@ -17,6 +17,11 @@ html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
 
 body {
   background-color: $bg-light;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1440 800' preserveAspectRatio='none'%3E%3Cpath d='M-100,150 C300,50 500,350 900,180 C1200,80 1350,220 1600,120 M-100,550 C200,400 600,700 1000,500 C1300,350 1450,550 1600,450' fill='none' stroke='%23F57C00' stroke-width='1.8' stroke-opacity='0.07'/%3E%3Cpath d='M-100,280 C250,380 600,120 1000,280 C1300,400 1400,200 1600,300 M-100,420 C350,250 700,580 1100,380 C1350,250 1500,450 1600,350' fill='none' stroke='%23D4A017' stroke-width='1.2' stroke-opacity='0.06'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
   color: $text-dark;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -82,4 +87,88 @@ button {
   z-index: 50;
   @include glass-card(rgba(255, 255, 255, 0.8));
   box-shadow: $shadow-sm;
+}
+
+// Override Angular Material theme colors with our variables
+.mat-primary {
+  --mdc-theme-primary: #{$primary-color};
+  --mdc-theme-on-primary: #ffffff;
+  color: #{$primary-color} !important;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  background-color: $primary-color !important;
+  color: white !important;
+}
+
+.mat-mdc-unelevated-button.mat-accent,
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-flat-button.mat-accent {
+  background-color: $primary-color !important; // Use orange for flat accent buttons as well
+  color: white !important;
+}
+
+.mat-mdc-outlined-button.mat-primary {
+  border-color: $primary-color !important;
+  color: $primary-color !important;
+}
+
+.mat-mdc-button.mat-primary {
+  color: $primary-color !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+
+.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked ~ .mdc-radio__background .mdc-radio__outer-circle {
+  border-color: $primary-color !important;
+}
+
+.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked ~ .mdc-radio__background .mdc-radio__inner-circle {
+  background-color: $primary-color !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {
+  color: $primary-color !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: $primary-color !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: $primary-color !important;
+}
+
+.mat-badge-content {
+  background-color: $primary-color !important;
+}
+
+.mat-badge-accent .mat-badge-content {
+  background-color: $primary-light !important;
+}
+
+// Ensure only keyboard-focused interactive elements have custom rounded focus rings
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.5) !important;
+}
+
+// Disable default focus outlines on mouse click for clean aesthetics
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
 }

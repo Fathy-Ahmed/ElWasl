@@ -1,0 +1,14 @@
+{
+  "/api": {
+    "target": "https://elwasl.runasp.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "https://elwasl.runasp.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

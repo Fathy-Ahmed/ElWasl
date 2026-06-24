@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CartItem, CartService } from '../../../core/cart/cart.service';
 import { CurrencyEgpPipe } from '../../../shared/pipes/currency-egp.pipe';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
+import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-cart-page',
@@ -18,7 +19,8 @@ import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
     MatButtonModule,
     MatIconModule,
     CurrencyEgpPipe,
-    LocalizedTextPipe
+    LocalizedTextPipe,
+    ImageUrlPipe
   ],
   templateUrl: './cart-page.component.html',
   styleUrls: ['./cart-page.component.scss']

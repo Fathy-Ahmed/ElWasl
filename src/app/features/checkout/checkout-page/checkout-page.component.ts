@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../../core/cart/cart.service';
 import { CurrencyEgpPipe } from '../../../shared/pipes/currency-egp.pipe';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
+import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 import { AuthService } from '../../../core/auth/auth.service';
 import { OrderService } from '../../../core/services/order.service';
 import { ProductType, PaymentProvider } from '../../../core/models/api.models';
@@ -29,7 +30,8 @@ import { ProductType, PaymentProvider } from '../../../core/models/api.models';
     MatRadioModule,
     MatIconModule,
     CurrencyEgpPipe,
-    LocalizedTextPipe
+    LocalizedTextPipe,
+    ImageUrlPipe
   ],
   templateUrl: './checkout-page.component.html',
   styleUrls: ['./checkout-page.component.scss']
