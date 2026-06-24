@@ -16,7 +16,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         errorMessage = `Error: ${error.error.message}`;
       } else {
         // Server-side error
-        errorMessage = error.error?.message || `Error Code: ${error.status}\nMessage: ${error.message}`;
+        if (error.status === 401) {
+          errorMessage = 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى / Session expired, please log in again';
+        } else {
+          errorMessage = error.error?.message || `Error Code: ${error.status}\nMessage: ${error.message}`;
+        }
       }
 
       // Display to user via Material Snackbar

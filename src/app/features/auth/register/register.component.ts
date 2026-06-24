@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -31,11 +31,13 @@ export class RegisterComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
 
   registerForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
   readonly hidePassword = signal<boolean>(true);
+  private returnUrl: string = '/';
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -43,6 +45,8 @@ export class RegisterComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   onSubmit(): void {
@@ -88,13 +92,13 @@ export class RegisterComponent implements OnInit {
           next: (loginRes) => {
             console.log('Login API Success:', loginRes);
             this.isSubmitting.set(false);
-            this.router.navigate(['/']);
+            this.router.navigateByUrl(this.returnUrl);
           },
           error: (loginErr) => {
             console.error('Login API Error:', loginErr);
             this.isSubmitting.set(false);
             this.snackBar.open('فشل تسجيل الدخول التلقائي. يرجى تسجيل الدخول يدوياً / Automatic login failed. Please sign in manually.', 'إغلاق / Close', { duration: 5000 });
-            this.router.navigate(['/auth/login']);
+            this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.returnUrl } });
           }
         });
       },

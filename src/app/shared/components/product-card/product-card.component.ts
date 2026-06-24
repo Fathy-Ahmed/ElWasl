@@ -67,7 +67,7 @@ export class ProductCardComponent {
 
   buyNow(event: Event): void {
     event.stopPropagation();
-    this.cartService.addToCart({
+    const added = this.cartService.addToCart({
       productId: this.product.id,
       productType: this.product.productType,
       titleAr: this.product.titleAr,
@@ -75,7 +75,9 @@ export class ProductCardComponent {
       price: this.product.price,
       coverImage: this.product.coverImage
     });
-    this.router.navigate(['/cart']);
+    if (added) {
+      this.router.navigate(['/cart']);
+    }
   }
 
   getDetailsRoute(): string {

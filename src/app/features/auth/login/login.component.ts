@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
   readonly hidePassword = signal<boolean>(true);
-  private returnUrl: string = '/';
+  returnUrl: string = '/';
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({

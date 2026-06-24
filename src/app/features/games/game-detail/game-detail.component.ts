@@ -54,10 +54,10 @@ export class GameDetailComponent implements OnInit {
     });
   }
 
-  addToCart(): void {
+  addToCart(): boolean {
     const item = this.game();
     if (item) {
-      this.cartService.addToCart({
+      return this.cartService.addToCart({
         productId: item.id,
         productType: item.productType,
         titleAr: item.titleAr,
@@ -66,10 +66,12 @@ export class GameDetailComponent implements OnInit {
         coverImage: item.coverImage
       });
     }
+    return false;
   }
 
   buyNow(): void {
-    this.addToCart();
-    this.router.navigate(['/cart']);
+    if (this.addToCart()) {
+      this.router.navigate(['/cart']);
+    }
   }
 }

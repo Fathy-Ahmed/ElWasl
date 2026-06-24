@@ -31,7 +31,7 @@
       </button>
 
       <div class="auth-footer">
-        <p>{{ 'AUTH.DONT_HAVE_ACCOUNT' | translate }} <a routerLink="/auth/register"><strong>{{ 'AUTH.TITLE_REGISTER' | translate }}</strong></a></p>
+        <p>{{ 'AUTH.DONT_HAVE_ACCOUNT' | translate }} <a [routerLink]="['/auth/register']" [queryParams]="{ returnUrl: returnUrl }"><strong>{{ 'AUTH.TITLE_REGISTER' | translate }}</strong></a></p>
       </div>
     </form>
   </div>

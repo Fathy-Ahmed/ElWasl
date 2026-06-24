@@ -56,10 +56,10 @@ export class BookDetailComponent implements OnInit {
     });
   }
 
-  addToCart(): void {
+  addToCart(): boolean {
     const item = this.book();
     if (item) {
-      this.cartService.addToCart({
+      return this.cartService.addToCart({
         productId: item.id,
         productType: item.productType,
         titleAr: item.titleAr,
@@ -68,11 +68,13 @@ export class BookDetailComponent implements OnInit {
         coverImage: item.coverImage
       });
     }
+    return false;
   }
 
   buyNow(): void {
-    this.addToCart();
-    this.router.navigate(['/cart']);
+    if (this.addToCart()) {
+      this.router.navigate(['/cart']);
+    }
   }
 
   getLocalizedFormat(format: string | undefined): string {

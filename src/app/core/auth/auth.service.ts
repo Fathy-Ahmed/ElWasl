@@ -26,11 +26,14 @@ export class AuthService {
   private readonly cartService = inject(CartService);
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Auth`;
 
+  // Token state signal
+  readonly accessToken = signal<string | null>(localStorage.getItem('access_token'));
+
   // Current user state signal
   readonly currentUser = signal<User | null>(this.getStoredUser());
   
   // Computed helpers
-  readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  readonly isAuthenticated = computed(() => this.currentUser() !== null && this.accessToken() !== null);
   readonly isAdmin = computed(() => {
     const role = this.currentUser()?.role;
     return role === 'Admin' || role === 'admin';
@@ -38,7 +41,7 @@ export class AuthService {
 
   constructor() {
     // If a token exists but user profile is not loaded or we want to verify it
-    const token = localStorage.getItem('access_token');
+    const token = this.accessToken();
     if (token) {
       this.fetchProfile().subscribe({
         error: () => {
@@ -46,6 +49,14 @@ export class AuthService {
           this.logout();
         }
       });
+    } else {
+      // Clear stale user info if token is missing
+      if (this.currentUser() !== null) {
+        this.currentUser.set(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('refresh_token');
+      }
+      this.cartService.loadUserCart(null);
     }
   }
 
@@ -54,6 +65,7 @@ export class AuthService {
       tap(res => {
         if (res.accessToken) {
           localStorage.setItem('access_token', res.accessToken);
+          this.accessToken.set(res.accessToken);
         }
         if (res.refreshToken) {
           localStorage.setItem('refresh_token', res.refreshToken);
@@ -95,6 +107,7 @@ export class AuthService {
         };
         this.currentUser.set(user);
         localStorage.setItem('user', JSON.stringify(user));
+        this.cartService.loadUserCart(profile.id);
       })
     );
   }
@@ -109,6 +122,7 @@ export class AuthService {
       tap(res => {
         if (res.accessToken) {
           localStorage.setItem('access_token', res.accessToken);
+          this.accessToken.set(res.accessToken);
         }
         if (res.refreshToken) {
           localStorage.setItem('refresh_token', res.refreshToken);
@@ -123,10 +137,11 @@ export class AuthService {
 
   logout(): void {
     this.currentUser.set(null);
+    this.accessToken.set(null);
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    this.cartService.clearCart();
+    this.cartService.loadUserCart(null);
   }
 
   private getStoredUser(): User | null {

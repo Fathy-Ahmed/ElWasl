@@ -7,6 +7,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
+import { tokenRefreshInterceptor } from './core/http/token-refresh.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
 
 // Factory for HTTP translation loader
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor])
+      withInterceptors([authInterceptor, tokenRefreshInterceptor, errorInterceptor])
     ),
     importProvidersFrom(
       TranslateModule.forRoot({
