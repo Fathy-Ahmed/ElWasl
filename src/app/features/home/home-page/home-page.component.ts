@@ -216,13 +216,7 @@ export class HomePageComponent implements OnInit {
   ];
 
   // Bestsellers mock data (subset for slider)
-  readonly bestsellers: Product[] = [
-    this.featuredProducts[1], // الفيل الأزرق
-    this.featuredProducts[3], // ثلاثية غرناطة
-    this.featuredProducts[7], // تراب الماس
-    this.featuredProducts[2], // قواعد العشق الأربعون
-    this.featuredProducts[9]  // في قلبي أنثى عبرية
-  ];
+  bestsellers: Product[] = [];
 
   // Mock authors with detailed portrait images
   readonly authors = [
@@ -270,6 +264,7 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.featuredProducts = this.defaultProducts; // Initialize with fallback data
+    this.updateBestsellers();
     this.loadFeaturedProducts();
   }
 
@@ -278,11 +273,30 @@ export class HomePageComponent implements OnInit {
       next: (products) => {
         if (products && products.length > 0) {
           this.featuredProducts = products.slice(0, 10);
+          this.updateBestsellers();
         }
       },
       error: (err) => {
         console.warn('Could not load books from backend database, using static fallback.', err);
+        this.updateBestsellers();
       }
     });
+  }
+
+  private updateBestsellers(): void {
+    if (this.featuredProducts && this.featuredProducts.length > 0) {
+      const indices = [1, 3, 7, 2, 9];
+      const selected = indices
+        .map(i => this.featuredProducts[i])
+        .filter(p => p !== undefined && p !== null);
+      
+      if (selected.length > 0) {
+        this.bestsellers = selected;
+      } else {
+        this.bestsellers = [...this.featuredProducts];
+      }
+    } else {
+      this.bestsellers = [];
+    }
   }
 }

@@ -18,6 +18,9 @@
           <span class="type-badge">{{ 'NAV.BOOKS' | translate }}</span>
           <h1 class="title">{{ item | localizedText:'title' }}</h1>
           <p class="author">الكاتب / Author: <span>{{ item | localizedText:'author' }}</span></p>
+          @if (item.format) {
+            <p class="format">تنسيق الكتاب / Format: <span>{{ getLocalizedFormat(item.format) }}</span></p>
+          }
           
           <div class="price-section">
             @if (item.originalPrice) {

@@ -10,6 +10,7 @@ import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 import { Product } from '../../../shared/components/product-card/product-card.component';
 import { BookService } from '../../../core/services/book.service';
+import { LocaleService } from '../../../core/i18n/locale.service';
 
 @Component({
   selector: 'app-book-detail',
@@ -33,6 +34,7 @@ export class BookDetailComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly bookService = inject(BookService);
   private readonly router = inject(Router);
+  private readonly localeService = inject(LocaleService);
 
   readonly book = signal<Product | null>(null);
   readonly isLoading = signal<boolean>(true);
@@ -71,5 +73,25 @@ export class BookDetailComponent implements OnInit {
   buyNow(): void {
     this.addToCart();
     this.router.navigate(['/cart']);
+  }
+
+  getLocalizedFormat(format: string | undefined): string {
+    if (!format) return '';
+    const isAr = this.localeService.currentLocale() === 'ar';
+    const fmtLower = format.toLowerCase();
+    
+    if (fmtLower.includes('hardcover')) {
+      return isAr ? 'غلاف ورقي سميك (مجلد)' : 'Hardcover';
+    }
+    if (fmtLower.includes('paperback')) {
+      return isAr ? 'غلاف ورقي عادي' : 'Paperback';
+    }
+    if (fmtLower.includes('ebook') || fmtLower.includes('e-book')) {
+      return isAr ? 'كتاب إلكتروني' : 'E-Book';
+    }
+    if (fmtLower.includes('digital')) {
+      return isAr ? 'نسخة رقمية' : 'Digital Edition';
+    }
+    return format;
   }
 }

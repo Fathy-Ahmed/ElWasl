@@ -8,6 +8,7 @@ import { CartService } from '../../../core/cart/cart.service';
 import { LocalizedTextPipe } from '../../pipes/localized-text.pipe';
 import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 import { PriceTagComponent } from '../price-tag/price-tag.component';
+import { LocaleService } from '../../../core/i18n/locale.service';
 
 export interface Product {
   id: string;
@@ -25,6 +26,7 @@ export interface Product {
   genreEn?: string;
   descriptionAr?: string;
   descriptionEn?: string;
+  format?: string;
 }
 
 
@@ -49,6 +51,7 @@ export class ProductCardComponent {
 
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
+  private readonly localeService = inject(LocaleService);
 
   addToCart(event: Event): void {
     event.stopPropagation(); // Avoid navigating to details page
@@ -82,5 +85,25 @@ export class ProductCardComponent {
       return `/audiobooks/${this.product.slug}`;
     }
     return `/games/${this.product.slug}`;
+  }
+
+  getLocalizedFormat(format: string | undefined): string {
+    if (!format) return '';
+    const isAr = this.localeService.currentLocale() === 'ar';
+    const fmtLower = format.toLowerCase();
+    
+    if (fmtLower.includes('hardcover')) {
+      return isAr ? 'غلاف ورقي سميك (مجلد)' : 'Hardcover';
+    }
+    if (fmtLower.includes('paperback')) {
+      return isAr ? 'غلاف ورقي عادي' : 'Paperback';
+    }
+    if (fmtLower.includes('ebook') || fmtLower.includes('e-book')) {
+      return isAr ? 'كتاب إلكتروني' : 'E-Book';
+    }
+    if (fmtLower.includes('digital')) {
+      return isAr ? 'نسخة رقمية' : 'Digital Edition';
+    }
+    return format;
   }
 }

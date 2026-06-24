@@ -11,7 +11,7 @@ export class ImageUrlPipe implements PipeTransform {
     if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    const baseUrl = API_CONFIG.baseUrl;
+    const baseUrl = API_CONFIG.baseUrl || 'https://elwasl.runasp.net';
     return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 }

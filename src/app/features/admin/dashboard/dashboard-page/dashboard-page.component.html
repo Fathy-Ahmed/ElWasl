@@ -99,6 +99,9 @@
               <p>الفئة / Type: {{ item.type }}</p>
             </div>
             <div class="ops-val val-danger">متبقي: {{ item.stock }} units</div>
+            <a [routerLink]="item.type === 'Book' ? '/admin/books' : '/admin/games'" class="action-link" style="margin-inline-start: 10px; color: #1e3a8a;" [id]="'edit-low-stock-' + item.id">
+              <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;">edit</mat-icon>
+            </a>
           </div>
         }
       </div>
@@ -116,6 +119,9 @@
               <p>تاريخ الطلب / Date: {{ act.date }}</p>
             </div>
             <app-status-badge status="pending" label="معلق"></app-status-badge>
+            <a [routerLink]="act.type === 'Contract Request' ? '/admin/contract-requests' : '/admin/contact-messages'" class="action-link" style="margin-inline-start: 10px; color: #1e3a8a;" [id]="'view-pending-' + act.id">
+              <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;">visibility</mat-icon>
+            </a>
           </div>
         }
       </div>

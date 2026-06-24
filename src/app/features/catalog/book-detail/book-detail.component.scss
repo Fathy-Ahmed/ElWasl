@@ -86,6 +86,20 @@
     }
   }
   
+  .format {
+    font-size: 1rem;
+    color: $text-muted;
+    font-weight: 500;
+    
+    span {
+      color: $primary-color;
+      font-weight: 700;
+      background-color: rgba($primary-light, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  }
+  
   .price-section {
     display: flex;
     align-items: center;

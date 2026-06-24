@@ -25,6 +25,13 @@
       </p>
     }
 
+    @if (product.format) {
+      <p class="product-format-label">
+        <span class="format-label">التنسيق / Format:</span>
+        <span class="format-val">{{ getLocalizedFormat(product.format) }}</span>
+      </p>
+    }
+
     @if (product.genreAr || product.genreEn) {
       <div class="genre-tag-row">
         <span class="genre-tag">{{ product | localizedText:'genre' }}</span>

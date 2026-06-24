@@ -92,6 +92,24 @@
   @include truncate-text(1);
 }
 
+.product-format-label {
+  font-size: 0.78rem;
+  color: $text-muted;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 0.1rem;
+  
+  .format-label {
+    font-weight: 500;
+  }
+  
+  .format-val {
+    font-weight: 600;
+    color: $primary-color;
+  }
+}
+
 .genre-tag-row {
   display: flex;
   margin-top: 0.25rem;
