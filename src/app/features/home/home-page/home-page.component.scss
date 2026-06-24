@@ -133,116 +133,34 @@
   }
 }
 
-.novel-stack-container {
-  position: relative;
-  width: 300px;
-  height: 250px;
-  transform-style: preserve-3d;
-  transform: rotateX(15deg) rotateY(-20deg);
-  z-index: 2;
+.hero-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+  height: 230px;
   margin-bottom: 2rem;
+  z-index: 2;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.08));
+  animation: floatLogo 6s ease-in-out infinite;
+
+  .hero-logo-large {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
 }
 
-.novel-book {
-  position: absolute;
-  width: 170px;
-  height: 230px;
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
-  box-shadow: -10px 15px 30px rgba(0, 0, 0, 0.25);
-
-  .book-cover {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 4px 12px 12px 4px;
-    background: #5d4037;
-    transform-style: preserve-3d;
-    overflow: hidden;
-
-    .book-spine {
-      position: absolute;
-      top: 0;
-      inset-inline-start: 0;
-      width: 15px;
-      height: 100%;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.35) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(0, 0, 0, 0.25) 100%);
-      z-index: 5;
-      border-inline-end: 1px solid rgba(0, 0, 0, 0.2);
-    }
+@keyframes floatLogo {
+  0% {
+    transform: translateY(0px) rotate(0deg);
   }
-
-  .cover-design {
-    width: 100%;
-    height: 100%;
-    padding: 1.5rem 1rem 1rem 1.75rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-family: $font-arabic;
-    color: white;
-
-    .book-tag {
-      align-self: flex-start;
-      font-size: 0.7rem;
-      background-color: rgba(255, 255, 255, 0.2);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-
-    .book-name {
-      font-size: 1.15rem;
-      font-weight: 800;
-      line-height: 1.3;
-      margin-top: auto;
-      margin-bottom: 0.25rem;
-    }
-
-    .author-name {
-      font-size: 0.8rem;
-      opacity: 0.85;
-    }
-
-    &.design-a {
-      background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%); // Granada green
-      border-inline-start: 4px solid #0d5302;
-    }
-
-    &.design-b {
-      background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); // Blue Elephant
-      border-inline-start: 4px solid #042562;
-    }
-
-    &.design-c {
-      background: linear-gradient(135deg, #b71c1c 0%, #e53935 100%); // Naguib red
-      border-inline-start: 4px solid #5a0202;
-    }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
   }
-
-  // Stack ordering and offsets
-  &.book-1 {
-    transform: translate3d(50px, 0, 20px) rotateY(-5deg);
-    z-index: 3;
-    &:hover {
-      transform: translate3d(50px, -15px, 40px) rotateY(-10deg);
-    }
-  }
-
-  &.book-2 {
-    transform: translate3d(0, 10px, 0) rotateY(2deg);
-    z-index: 2;
-    &:hover {
-      transform: translate3d(0, -5px, 20px) rotateY(-5deg);
-    }
-  }
-
-  &.book-3 {
-    transform: translate3d(-50px, 20px, -20px) rotateY(8deg);
-    z-index: 1;
-    &:hover {
-      transform: translate3d(-50px, 5px, 0) rotateY(2deg);
-    }
+  100% {
+    transform: translateY(0px) rotate(0deg);
   }
 }
 
