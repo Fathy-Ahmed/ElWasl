@@ -151,7 +151,7 @@ export class HomePageComponent {
       titleEn: 'In My Heart an Hebrew Female',
       price: 140,
       originalPrice: 170,
-      coverImage: 'https://images.unsplash.com/photo-1518373714866-3f1478910b85?auto=format&fit=crop&q=80&w=600',
+      coverImage: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=600',
       authorAr: 'خولة حمدي',
       authorEn: 'Khawla Hamdi',
       genreAr: 'دراما ورومانسية',
