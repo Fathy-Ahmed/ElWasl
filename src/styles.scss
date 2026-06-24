@@ -154,9 +154,9 @@ button {
   background-color: $primary-light !important;
 }
 
-// Ensure all focus states globally have custom rounded outlines that match elements
+// Ensure all focus states globally have custom rounded rings that match element shapes
+*:focus,
 *:focus-visible {
-  outline: 2px dashed $primary-color !important;
-  outline-offset: 3px;
-  border-radius: inherit;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.5) !important;
 }
