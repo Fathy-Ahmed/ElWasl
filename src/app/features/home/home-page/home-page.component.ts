@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Product, ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
+import { BookService } from '../../../core/services/book.service';
 
 @Component({
   selector: 'app-home-page',
@@ -20,9 +21,13 @@ import { Product, ProductCardComponent } from '../../../shared/components/produc
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
 })
-export class HomePageComponent {
+export class HomePageComponent implements OnInit {
+  private readonly bookService = inject(BookService);
+
+  featuredProducts: Product[] = [];
+
   // Premium mock data for landing page
-  readonly featuredProducts: Product[] = [
+  readonly defaultProducts: Product[] = [
     {
       id: 'b1',
       productType: 'Book',
@@ -262,4 +267,22 @@ export class HomePageComponent {
       count: '12 رواية'
     }
   ];
+
+  ngOnInit(): void {
+    this.featuredProducts = this.defaultProducts; // Initialize with fallback data
+    this.loadFeaturedProducts();
+  }
+
+  private loadFeaturedProducts(): void {
+    this.bookService.getBooksAsProducts().subscribe({
+      next: (products) => {
+        if (products && products.length > 0) {
+          this.featuredProducts = products.slice(0, 10);
+        }
+      },
+      error: (err) => {
+        console.warn('Could not load books from backend database, using static fallback.', err);
+      }
+    });
+  }
 }
