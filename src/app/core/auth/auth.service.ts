@@ -9,6 +9,7 @@ import {
   CurrentUserDto, 
   Language 
 } from '../models/api.models';
+import { CartService } from '../cart/cart.service';
 
 export interface User {
   id: string;
@@ -22,6 +23,7 @@ export interface User {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly cartService = inject(CartService);
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Auth`;
 
   // Current user state signal
@@ -124,6 +126,7 @@ export class AuthService {
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    this.cartService.clearCart();
   }
 
   private getStoredUser(): User | null {
