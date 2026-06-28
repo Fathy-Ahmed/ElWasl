@@ -193,7 +193,7 @@
           <!-- Small detailed author profile photos grid -->
           <div class="authors-faces-grid">
             @for (author of authors; track author.nameAr) {
-              <div class="author-face-card" [attr.title]="author | localizedText:'name'">
+              <div class="author-face-card clickable-author-face" [attr.title]="author | localizedText:'name'" (click)="openAuthorDetail(author)">
                 <img [src]="author.photo" [alt]="author | localizedText:'name'" class="author-photo">
                 <div class="author-tooltip">
                   <p class="tooltip-name">{{ author | localizedText:'name' }}</p>
@@ -212,11 +212,11 @@
                 <!-- Simple outline representing land masses -->
                 <path d="M50,70 Q70,40 100,50 T130,40 T150,70 T200,60 T250,70 T300,50 T330,80 T350,110 T300,140 T250,130 T200,120 T150,150 T100,120 Z" fill="rgba(245, 124, 0, 0.05)" stroke="rgba(212, 160, 23, 0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
                 <!-- Points of sale locations with pulsing glow -->
-                <circle cx="170" cy="95" r="4" class="map-dot map-dot-pulse" [attr.title]="'HOME.CAIRO_HQ' | translate"/>
-                <circle cx="190" cy="102" r="3" class="map-dot" [attr.title]="'HOME.RIYADH_BRANCH' | translate"/>
-                <circle cx="205" cy="98" r="3" class="map-dot" [attr.title]="'HOME.DUBAI_BRANCH' | translate"/>
-                <circle cx="162" cy="70" r="3" class="map-dot" [attr.title]="'HOME.LONDON_BRANCH' | translate"/>
-                <circle cx="120" cy="110" r="2.5" class="map-dot" [attr.title]="'HOME.NEWYORK_BRANCH' | translate"/>
+                @for (dist of distributors; track dist.id) {
+                  <circle [attr.cx]="dist.cx" [attr.cy]="dist.cy" [attr.r]="dist.r" 
+                          [class]="dist.class + ' clickable-map-dot'" (click)="openDistributorDetail(dist)" 
+                          [attr.title]="dist | localizedText:'name'"/>
+                }
               </svg>
               <div class="map-locations-labels">
                 <span>{{ 'HOME.LOC_CAIRO' | translate }}</span> • <span>{{ 'HOME.LOC_RIYADH' | translate }}</span> • <span>{{ 'HOME.LOC_DUBAI' | translate }}</span> • <span>{{ 'HOME.LOC_LONDON' | translate }}</span> • <span>{{ 'HOME.LOC_NEWYORK' | translate }}</span>
