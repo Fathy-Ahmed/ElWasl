@@ -43,11 +43,14 @@ export class AuthService {
     // If a token exists but user profile is not loaded or we want to verify it
     const token = this.accessToken();
     if (token) {
-      this.fetchProfile().subscribe({
-        error: () => {
-          // If profile fetch fails (e.g. token expired), try to refresh token or logout
-          this.logout();
-        }
+      // Delay execution to let constructor finish and prevent cyclic dependency in interceptors
+      setTimeout(() => {
+        this.fetchProfile().subscribe({
+          error: () => {
+            // If profile fetch fails (e.g. token expired), try to refresh token or logout
+            this.logout();
+          }
+        });
       });
     } else {
       // Clear stale user info if token is missing

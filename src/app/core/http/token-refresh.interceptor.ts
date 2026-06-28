@@ -1,12 +1,12 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 
 export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
   const router = inject(Router);
+  const injector = inject(Injector);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -18,8 +18,9 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
         !req.url.includes('/Auth/login') &&
         !req.url.includes('/Auth/register')
       ) {
+        const authService = injector.get(AuthService);
         return authService.refreshToken().pipe(
-          switchMap((res) => {
+          switchMap((res: any) => {
             if (res.accessToken) {
               // Clone the request with the new access token
               const newReq = req.clone({
