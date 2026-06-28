@@ -545,6 +545,7 @@
   border: 1px solid rgba(212, 160, 23, 0.12);
   transition: $transition-normal;
   box-shadow: $shadow-sm;
+  cursor: pointer;
 
   @include respond-to('sm') {
     flex-direction: row;

@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Product, ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { BookService } from '../../../core/services/book.service';
 import { LocaleService } from '../../../core/i18n/locale.service';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
+import { NewsDialogComponent } from './news-dialog.component';
 
 @Component({
   selector: 'app-home-page',
@@ -18,6 +20,7 @@ import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
     TranslateModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     ProductCardComponent,
     LocalizedTextPipe
   ],
@@ -27,6 +30,7 @@ import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 export class HomePageComponent implements OnInit {
   private readonly bookService = inject(BookService);
   readonly localeService = inject(LocaleService);
+  private readonly dialog = inject(MatDialog);
 
   featuredProducts: Product[] = [];
 
@@ -327,5 +331,13 @@ export class HomePageComponent implements OnInit {
     } else {
       this.bestsellers = [];
     }
+  }
+
+  openNewsDetail(item: any): void {
+    this.dialog.open(NewsDialogComponent, {
+      data: item,
+      width: '600px',
+      maxWidth: '90vw'
+    });
   }
 }

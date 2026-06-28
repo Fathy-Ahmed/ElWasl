@@ -163,7 +163,7 @@
         
         <div class="news-list">
           @for (item of newsItems; track item.id) {
-            <div class="news-card">
+            <div class="news-card clickable-news-card" (click)="openNewsDetail(item)">
               <div class="news-img-box">
                 <img [src]="item.imageUrl" [alt]="item | localizedText:'title'" class="news-img">
               </div>
