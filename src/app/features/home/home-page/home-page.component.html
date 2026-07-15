@@ -80,57 +80,45 @@
       </div>
 
       <div class="services-grid">
-        <!-- Service 1: Novel E-Shop -->
-        <div class="service-card" id="service-eshop">
-          <div class="service-icon-box">
-            <mat-icon class="service-icon">shopping_bag</mat-icon>
-          </div>
-          <h3 class="service-title">{{ 'HOME.SERVICE_SHOP_TITLE' | translate }}</h3>
-          <p class="service-desc">
-            {{ 'HOME.SERVICE_SHOP_DESC' | translate }}
-          </p>
-          <!-- Book mockups illustration inside the panel -->
-          <div class="service-visual-mockup eshop-visual">
-            <div class="mini-book book-red"></div>
-            <div class="mini-book book-blue"></div>
-            <div class="mini-book book-green"></div>
-          </div>
-        </div>
-
-        <!-- Service 2: Author Services & Publishing -->
-        <div class="service-card" id="service-publishing">
-          <div class="service-icon-box">
-            <mat-icon class="service-icon">auto_stories</mat-icon>
-          </div>
-          <h3 class="service-title">{{ 'HOME.SERVICE_PUB_TITLE' | translate }}</h3>
-          <p class="service-desc">
-            {{ 'HOME.SERVICE_PUB_DESC' | translate }}
-          </p>
-          <div class="service-visual-mockup publishing-visual">
-            <a routerLink="/contract-with-us" mat-flat-button class="publish-btn-orange">
-              {{ 'HOME.SERVICE_PUB_BUTTON' | translate }}
-            </a>
-          </div>
-        </div>
-
-        <!-- Service 3: Points of Sale & Fairs -->
-        <div class="service-card" id="service-fairs">
-          <div class="service-icon-box">
-            <mat-icon class="service-icon">map</mat-icon>
-          </div>
-          <h3 class="service-title">{{ 'HOME.SERVICE_FAIRS_TITLE' | translate }}</h3>
-          <p class="service-desc">
-            {{ 'HOME.SERVICE_FAIRS_DESC' | translate }}
-          </p>
-          <!-- Mini map thumbnail with sales points -->
-          <div class="service-visual-mockup fairs-visual">
-            <div class="mini-world-map">
-              <span class="pin-point p1"></span>
-              <span class="pin-point p2"></span>
-              <span class="pin-point p3"></span>
+        @for (srv of services; track srv.id) {
+          <div class="service-card" [id]="'service-' + srv.id">
+            <div class="service-icon-box">
+              <mat-icon class="service-icon">{{ srv.icon }}</mat-icon>
             </div>
+            <h3 class="service-title">{{ srv | localizedText:'title' }}</h3>
+            <p class="service-desc">
+              {{ srv | localizedText:'desc' }}
+            </p>
+            
+            <!-- Service Visual Mockup -->
+            @if (srv.visualType === 'eshop') {
+              <div class="service-visual-mockup eshop-visual">
+                <div class="mini-book book-red"></div>
+                <div class="mini-book book-blue"></div>
+                <div class="mini-book book-green"></div>
+              </div>
+            } @else if (srv.visualType === 'publishing') {
+              <div class="service-visual-mockup publishing-visual">
+                <a routerLink="/contract-with-us" mat-flat-button class="publish-btn-orange">
+                  {{ srv | localizedText:'buttonText' }}
+                </a>
+              </div>
+            } @else if (srv.visualType === 'fairs') {
+              <div class="service-visual-mockup fairs-visual">
+                <div class="mini-world-map">
+                  <span class="pin-point p1"></span>
+                  <span class="pin-point p2"></span>
+                  <span class="pin-point p3"></span>
+                </div>
+              </div>
+            } @else {
+              <!-- Default visual for newly added custom services -->
+              <div class="service-visual-mockup default-visual" style="display: flex; align-items: center; justify-content: center; background-color: #faf6eb; border-radius: 6px; width: 100%; height: 80px; border: 1px solid rgba(212, 160, 23, 0.08);">
+                <mat-icon style="font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: #D4A017;">{{ srv.icon }}</mat-icon>
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
     </div>
   </section>
@@ -171,7 +159,7 @@
 
         <div class="community-card-body">
           <div class="stat-bubble">
-            <span class="stat-number">374</span>
+            <span class="stat-number">{{ authorCount }}</span>
             <span class="stat-label">{{ 'HOME.AUTHORS_LABEL' | translate }}</span>
           </div>
 

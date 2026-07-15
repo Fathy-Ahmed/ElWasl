@@ -64,6 +64,10 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./content-management/contract-terms-editor-page/contract-terms-editor-page.component').then(m => m.ContractTermsEditorPageComponent)
       },
       {
+        path: 'content/homepage',
+        loadComponent: () => import('./content-management/homepage-editor-page/homepage-editor-page.component').then(m => m.HomepageEditorPageComponent)
+      },
+      {
         path: 'audit-logs',
         loadComponent: () => import('./audit-logs/audit-log-list-page/audit-log-list-page.component').then(m => m.AuditLogListPageComponent)
       }

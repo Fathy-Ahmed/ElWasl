@@ -1,0 +1,276 @@
+<div class="cms-editor-page container" id="homepage-cms-view">
+  <app-admin-page-header title="تعديل الصفحة الرئيسية / Edit Homepage Content" 
+                         subtitle="تحديث بطاقات الخدمات الشاملة، وإحصائيات المؤلفين وخريطة الموزعين."
+                         [breadcrumbs]="breadcrumbs">
+  </app-admin-page-header>
+
+  <!-- Control Actions -->
+  <div class="cms-action-bar">
+    <mat-button-toggle-group [value]="activeTab()" name="activeTab" class="lang-toggle-group">
+      <mat-button-toggle value="services" (change)="setTab('services')" id="tab-services">الخدمات الشاملة / Services</mat-button-toggle>
+      <mat-button-toggle value="family" (change)="setTab('family')" id="tab-family">المؤلفون / Authors & Stats</mat-button-toggle>
+      <mat-button-toggle value="distributors" (change)="setTab('distributors')" id="tab-distributors">خريطة الموزعين / Map & Branches</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <div class="global-actions">
+      <button mat-stroked-button color="warn" (click)="resetDefaults()" id="btn-reset-defaults">
+        <mat-icon>restore</mat-icon> استعادة الافتراضي / Reset Defaults
+      </button>
+      <button mat-flat-button color="accent" (click)="saveAll()" [disabled]="isSaving()" id="btn-save-all" class="save-all-btn">
+        <mat-icon>save</mat-icon>
+        @if (isSaving()) {
+          جاري الحفظ... / Saving...
+        } @else {
+          حفظ الكل / Save All
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs body -->
+  <div class="editor-content-area">
+    
+    <!-- Tab 1: Services -->
+    @if (activeTab() === 'services') {
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>أقسام الخدمات الشاملة / Services Partitions</h3>
+          <button mat-flat-button color="primary" (click)="addService()" id="btn-add-service">
+            <mat-icon>add</mat-icon> إضافة خدمة / Add Service
+          </button>
+        </div>
+
+        <div class="items-grid">
+          @for (srv of services; track srv.id; let idx = $index) {
+            <div class="item-edit-card">
+              <div class="card-title-bar">
+                <span>الخدمة #{{ idx + 1 }} (ID: {{ srv.id }})</span>
+                <button mat-icon-button color="warn" (click)="deleteService(idx)" [id]="'btn-delete-service-' + idx">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="card-form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>العنوان (عربي) / Title (AR)</mat-label>
+                  <input matInput [(ngModel)]="srv.titleAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Title (EN)</mat-label>
+                  <input matInput [(ngModel)]="srv.titleEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>أيقونة Material Icon / Icon Name</mat-label>
+                  <input matInput [(ngModel)]="srv.icon" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>نوع التصميم / Visual Mockup Type</mat-label>
+                  <mat-select [(ngModel)]="srv.visualType">
+                    <mat-option value="eshop">Novel E-Shop (كتب)</mat-option>
+                    <mat-option value="publishing">Author Services (نشر)</mat-option>
+                    <mat-option value="fairs">Points of Sale (خريطة مصغرة)</mat-option>
+                    <mat-option value="default">Default / أيقونة عادية</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                @if (srv.visualType === 'publishing') {
+                  <mat-form-field appearance="outline">
+                    <mat-label>نص زر النشر (عربي)</mat-label>
+                    <input matInput [(ngModel)]="srv.buttonTextAr">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Publish Button Text (EN)</mat-label>
+                    <input matInput [(ngModel)]="srv.buttonTextEn" dir="ltr">
+                  </mat-form-field>
+                }
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>الوصف (عربي) / Description (AR)</mat-label>
+                  <textarea matInput [(ngModel)]="srv.descAr" rows="3" required></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>Description (EN)</mat-label>
+                  <textarea matInput [(ngModel)]="srv.descEn" rows="3" required dir="ltr"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Tab 2: Authors & Stats -->
+    @if (activeTab() === 'family') {
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>إحصائيات عائلة دار الوصل / Authors & Family Stats</h3>
+        </div>
+
+        <div class="stat-editor-row">
+          <mat-form-field appearance="outline">
+            <mat-label>عدد مؤلفين الدار الإجمالي / Total Authors Count</mat-label>
+            <input matInput type="number" [(ngModel)]="authorCount" required>
+          </mat-form-field>
+          <span class="stat-help-text">هذا الرقم سيظهر في دائرة الإحصائيات الكبيرة في قسم عائلة الدار بالصفحة الرئيسية.</span>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="section-card-header mt-4">
+          <h3>قائمة المؤلفين / Authors List</h3>
+          <button mat-flat-button color="primary" (click)="addAuthor()" id="btn-add-author">
+            <mat-icon>add</mat-icon> إضافة مؤلف / Add Author
+          </button>
+        </div>
+
+        <div class="items-grid">
+          @for (author of authors; track author.nameAr; let idx = $index) {
+            <div class="item-edit-card">
+              <div class="card-title-bar">
+                <span>المؤلف #{{ idx + 1 }}</span>
+                <button mat-icon-button color="warn" (click)="deleteAuthor(idx)" [id]="'btn-delete-author-' + idx">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="card-form-grid author-layout">
+                <div class="author-image-preview">
+                  <img [src]="author.photo" alt="Author photo" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'">
+                </div>
+
+                <div class="author-fields">
+                  <mat-form-field appearance="outline">
+                    <mat-label>الاسم (عربي) / Name (AR)</mat-label>
+                    <input matInput [(ngModel)]="author.nameAr" required>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Name (EN)</mat-label>
+                    <input matInput [(ngModel)]="author.nameEn" required dir="ltr">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width-cell">
+                    <mat-label>رابط الصورة / Photo URL</mat-label>
+                    <input matInput [(ngModel)]="author.photo" required dir="ltr">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>عدد الكتب (عربي) / Count (AR)</mat-label>
+                    <input matInput [(ngModel)]="author.countAr" required>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Books Count (EN)</mat-label>
+                    <input matInput [(ngModel)]="author.countEn" required dir="ltr">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width-cell">
+                    <mat-label>نبذة (عربي) / Bio (AR)</mat-label>
+                    <textarea matInput [(ngModel)]="author.bioAr" rows="3" required></textarea>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width-cell">
+                    <mat-label>Bio (EN)</mat-label>
+                    <textarea matInput [(ngModel)]="author.bioEn" rows="3" required dir="ltr"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Tab 3: Distributors & Map -->
+    @if (activeTab() === 'distributors') {
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>خريطة الموزعين ونقاط التوزيع / Map Distributors</h3>
+          <button mat-flat-button color="primary" (click)="addDistributor()" id="btn-add-distributor">
+            <mat-icon>add</mat-icon> إضافة منفذ / Add Branch
+          </button>
+        </div>
+
+        <div class="items-grid">
+          @for (dist of distributors; track dist.id; let idx = $index) {
+            <div class="item-edit-card">
+              <div class="card-title-bar">
+                <span>الموزع #{{ idx + 1 }} (ID: {{ dist.id }})</span>
+                <button mat-icon-button color="warn" (click)="deleteDistributor(idx)" [id]="'btn-delete-dist-' + idx">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="card-form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>اسم المنفذ (عربي) / Name (AR)</mat-label>
+                  <input matInput [(ngModel)]="dist.nameAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Branch Name (EN)</mat-label>
+                  <input matInput [(ngModel)]="dist.nameEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>الهاتف / Phone</mat-label>
+                  <input matInput [(ngModel)]="dist.phone" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>البريد الإلكتروني / Email</mat-label>
+                  <input matInput type="email" [(ngModel)]="dist.email" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>ساعات العمل (عربي) / Hours (AR)</mat-label>
+                  <input matInput [(ngModel)]="dist.hoursAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Working Hours (EN)</mat-label>
+                  <input matInput [(ngModel)]="dist.hoursEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>العنوان (عربي) / Address (AR)</mat-label>
+                  <input matInput [(ngModel)]="dist.addressAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>Address (EN)</mat-label>
+                  <input matInput [(ngModel)]="dist.addressEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>إحداثي X على الخريطة (cx 0-400)</mat-label>
+                  <input matInput type="number" [(ngModel)]="dist.cx" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>إحداثي Y على الخريطة (cy 0-200)</mat-label>
+                  <input matInput type="number" [(ngModel)]="dist.cy" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>حجم نقطة الخريطة (القطر r)</mat-label>
+                  <input matInput type="number" [(ngModel)]="dist.r" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>صنف التأثير CSS Class</mat-label>
+                  <input matInput [(ngModel)]="dist.class" required dir="ltr">
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
