@@ -11,6 +11,7 @@ import { LocaleService } from '../../../core/i18n/locale.service';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 import { NewsDialogComponent } from './news-dialog.component';
 import { AuthorDialogComponent, DistributorDialogComponent, AllDistributorsDialogComponent } from './family-dialogs.component';
+import { ServiceDetailDialogComponent } from './service-dialog.component';
 import { ContentService, ServiceItem, AuthorItem, DistributorItem } from '../../../core/services/content.service';
 
 @Component({
@@ -27,7 +28,8 @@ import { ContentService, ServiceItem, AuthorItem, DistributorItem } from '../../
     LocalizedTextPipe,
     AuthorDialogComponent,
     DistributorDialogComponent,
-    AllDistributorsDialogComponent
+    AllDistributorsDialogComponent,
+    ServiceDetailDialogComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
@@ -319,6 +321,14 @@ export class HomePageComponent implements OnInit {
     this.dialog.open(AllDistributorsDialogComponent, {
       data: this.distributors,
       width: '600px',
+      maxWidth: '90vw'
+    });
+  }
+
+  openServiceDetail(service: any): void {
+    this.dialog.open(ServiceDetailDialogComponent, {
+      data: service,
+      width: '550px',
       maxWidth: '90vw'
     });
   }

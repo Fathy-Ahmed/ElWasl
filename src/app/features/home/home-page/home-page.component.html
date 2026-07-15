@@ -81,7 +81,7 @@
 
       <div class="services-grid">
         @for (srv of services; track srv.id) {
-          <div class="service-card" [id]="'service-' + srv.id">
+          <div class="service-card clickable-service-card" [id]="'service-' + srv.id" (click)="openServiceDetail(srv)">
             <div class="service-icon-box">
               <mat-icon class="service-icon">{{ srv.icon }}</mat-icon>
             </div>
@@ -99,7 +99,7 @@
               </div>
             } @else if (srv.visualType === 'publishing') {
               <div class="service-visual-mockup publishing-visual">
-                <a routerLink="/contract-with-us" mat-flat-button class="publish-btn-orange">
+                <a routerLink="/contract-with-us" mat-flat-button class="publish-btn-orange" (click)="$event.stopPropagation()">
                   {{ srv | localizedText:'buttonText' }}
                 </a>
               </div>
