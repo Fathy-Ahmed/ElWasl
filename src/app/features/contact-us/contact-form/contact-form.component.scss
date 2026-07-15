@@ -103,6 +103,8 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+  text-decoration: none;
+  color: inherit;
   
   mat-icon {
     font-size: 1.75rem;
@@ -110,17 +112,58 @@
     height: 1.75rem;
     color: $accent-color;
     margin-top: 2px;
+    transition: color 0.2s ease, transform 0.2s ease;
   }
   
   strong {
     display: block;
     font-size: 0.95rem;
     color: $text-dark;
+    transition: color 0.2s ease;
   }
   
   p {
     font-size: 0.85rem;
     color: $text-muted;
     margin-top: 2px;
+    transition: color 0.2s ease;
   }
+
+  &.clickable-info {
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px;
+    margin: -10px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: rgba($primary-color, 0.06);
+      transform: translateX(-4px);
+
+      mat-icon {
+        color: $primary-color;
+        transform: scale(1.1);
+      }
+      
+      strong {
+        color: $primary-dark;
+      }
+      
+      p {
+        color: $primary-color;
+        text-decoration: underline;
+      }
+    }
+
+    &:active {
+      transform: scale(0.98) translateX(-4px);
+    }
+  }
+}
+
+.phone-number {
+  direction: ltr;
+  unicode-bidi: embed;
+  text-align: inherit;
+  display: inline-block;
 }
