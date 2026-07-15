@@ -186,6 +186,16 @@ export class AuthorDialogComponent {
               <span>{{ data | localizedText:'hours' }}</span>
             </div>
           </div>
+
+          <div class="detail-item map-link-item" style="margin-top: 8px;">
+            <mat-icon style="color: #F57C00;">map</mat-icon>
+            <div class="detail-text">
+              <strong class="detail-label">الخريطة / Map:</strong>
+              <a [href]="getMapsUrl()" target="_blank" rel="noopener noreferrer" class="map-link-btn" style="color: #F57C00; font-weight: bold; text-decoration: underline;">
+                فتح في خرائط جوجل / Open in Google Maps
+              </a>
+            </div>
+          </div>
         </div>
       </mat-dialog-content>
       
@@ -270,7 +280,204 @@ export class DistributorDialogComponent {
     public dialogRef: MatDialogRef<DistributorDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
+  
   close(): void {
     this.dialogRef.close();
+  }
+
+  getMapsUrl(): string {
+    if (this.data.id === 'd1' || this.data.email === 'elwaslbook2023@gmail.com') {
+      return 'https://maps.app.goo.gl/Zg4CHwDNgW9nDEcy8?g_st=ic';
+    }
+    const query = encodeURIComponent(this.data.nameEn || this.data.addressEn || '');
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+  }
+}
+
+@Component({
+  selector: 'app-all-distributors-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslateModule,
+    LocalizedTextPipe
+  ],
+  template: `
+    <div class="family-dialog-container all-distributors-container" [dir]="localeService.isRtl() ? 'rtl' : 'ltr'">
+      <div class="dialog-header">
+        <h2 mat-dialog-title class="dialog-title">نقاط التوزيع والمنافذ / Distribution Areas</h2>
+        <button mat-icon-button (click)="close()" class="close-btn" aria-label="Close dialog">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <mat-dialog-content class="dialog-content scrollable-content">
+        <div class="distributors-list">
+          @for (dist of data; track dist.id; let idx = $index) {
+            <div class="distributor-card">
+              <h3 class="dist-name">{{ dist | localizedText:'name' }}</h3>
+              
+              <div class="dist-details-grid">
+                <div class="detail-row" *ngIf="dist.addressAr">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ dist | localizedText:'address' }}</span>
+                </div>
+                
+                <div class="detail-row" *ngIf="dist.phone">
+                  <mat-icon>phone</mat-icon>
+                  <span class="ltr-text">{{ dist.phone }}</span>
+                </div>
+                
+                <div class="detail-row" *ngIf="dist.email">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ dist.email }}</span>
+                </div>
+
+                <div class="detail-row" *ngIf="dist.hoursAr">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ dist | localizedText:'hours' }}</span>
+                </div>
+              </div>
+              
+              <div class="dist-action-row">
+                <a [href]="getMapsUrl(dist)" target="_blank" rel="noopener noreferrer" mat-stroked-button color="accent" class="view-map-btn">
+                  <mat-icon>map</mat-icon> فتح في خرائط جوجل / Open in Google Maps
+                </a>
+              </div>
+            </div>
+            @if (idx < data.length - 1) {
+              <hr class="list-divider">
+            }
+          }
+        </div>
+      </mat-dialog-content>
+      
+      <mat-dialog-actions [align]="localeService.isRtl() ? 'start' : 'end'" class="dialog-actions">
+        <button mat-flat-button color="primary" (click)="close()">
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
+      </mat-dialog-actions>
+    </div>
+  `,
+  styles: [`
+    .all-distributors-container {
+      padding: 16px;
+      max-width: 600px;
+    }
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding-bottom: 8px;
+    }
+    .dialog-title {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #5d4037;
+    }
+    .close-btn {
+      color: #8d6e63;
+    }
+    .dialog-content.scrollable-content {
+      margin-top: 12px;
+      max-height: 65vh;
+      overflow-y: auto;
+      padding-inline-end: 8px;
+    }
+    .distributors-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .distributor-card {
+      background-color: #faf6eb;
+      border: 1px solid rgba(212, 160, 23, 0.15);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      }
+    }
+    .dist-name {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e65100;
+    }
+    .dist-details-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: #4e342e;
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #d4a017;
+        margin-top: 2px;
+      }
+    }
+    .ltr-text {
+      direction: ltr;
+      text-align: start;
+    }
+    .dist-action-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+    .view-map-btn {
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .list-divider {
+      border: 0;
+      border-top: 1px dashed rgba(212,160,23,0.2);
+      margin: 4px 0;
+    }
+    .dialog-actions {
+      border-top: 1px solid rgba(0,0,0,0.08);
+      margin-top: 16px;
+      padding-top: 8px;
+    }
+  `]
+})
+export class AllDistributorsDialogComponent {
+  readonly localeService = inject(LocaleService);
+  constructor(
+    public dialogRef: MatDialogRef<AllDistributorsDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any[]
+  ) {}
+  
+  close(): void {
+    this.dialogRef.close();
+  }
+
+  getMapsUrl(dist: any): string {
+    if (dist.id === 'd1' || dist.email === 'elwaslbook2023@gmail.com') {
+      return 'https://maps.app.goo.gl/Zg4CHwDNgW9nDEcy8?g_st=ic';
+    }
+    const query = encodeURIComponent(dist.nameEn || dist.addressEn || '');
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 }

@@ -10,7 +10,7 @@ import { BookService } from '../../../core/services/book.service';
 import { LocaleService } from '../../../core/i18n/locale.service';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 import { NewsDialogComponent } from './news-dialog.component';
-import { AuthorDialogComponent, DistributorDialogComponent } from './family-dialogs.component';
+import { AuthorDialogComponent, DistributorDialogComponent, AllDistributorsDialogComponent } from './family-dialogs.component';
 import { ContentService, ServiceItem, AuthorItem, DistributorItem } from '../../../core/services/content.service';
 
 @Component({
@@ -26,7 +26,8 @@ import { ContentService, ServiceItem, AuthorItem, DistributorItem } from '../../
     ProductCardComponent,
     LocalizedTextPipe,
     AuthorDialogComponent,
-    DistributorDialogComponent
+    DistributorDialogComponent,
+    AllDistributorsDialogComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
@@ -310,6 +311,14 @@ export class HomePageComponent implements OnInit {
     this.dialog.open(DistributorDialogComponent, {
       data: distributor,
       width: '500px',
+      maxWidth: '90vw'
+    });
+  }
+
+  openAllDistributorsDetail(): void {
+    this.dialog.open(AllDistributorsDialogComponent, {
+      data: this.distributors,
+      width: '600px',
       maxWidth: '90vw'
     });
   }

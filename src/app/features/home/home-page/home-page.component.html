@@ -177,9 +177,9 @@
           </div>
 
           <!-- Interactive Sale Points World Map -->
-          <div class="world-map-container">
-            <h4 class="map-title"><mat-icon>language</mat-icon> {{ 'HOME.DISTRIBUTION_TITLE' | translate }}</h4>
-            <div class="interactive-world-map">
+          <div class="world-map-container" id="home-map-block">
+            <h4 class="map-title" (click)="openAllDistributorsDetail()" style="cursor: pointer; display: inline-flex;"><mat-icon>language</mat-icon> {{ 'HOME.DISTRIBUTION_TITLE' | translate }} <span style="font-size: 0.8rem; margin-inline-start: 8px; color: #F57C00; text-decoration: underline; font-weight: normal;">(عرض التفاصيل والمواقع / View All)</span></h4>
+            <div class="interactive-world-map" (click)="openAllDistributorsDetail()">
               <!-- Background abstract map lines -->
               <svg class="map-svg" viewBox="0 0 400 200">
                 <!-- Simple outline representing land masses -->
@@ -187,12 +187,17 @@
                 <!-- Points of sale locations with pulsing glow -->
                 @for (dist of distributors; track dist.id) {
                   <circle [attr.cx]="dist.cx" [attr.cy]="dist.cy" [attr.r]="dist.r" 
-                          [class]="dist.class + ' clickable-map-dot'" (click)="openDistributorDetail(dist)" 
+                          [class]="dist.class + ' clickable-map-dot'" (click)="openDistributorDetail(dist); $event.stopPropagation()" 
                           [attr.title]="dist | localizedText:'name'"/>
                 }
               </svg>
               <div class="map-locations-labels">
-                <span>{{ 'HOME.LOC_CAIRO' | translate }}</span> • <span>{{ 'HOME.LOC_RIYADH' | translate }}</span> • <span>{{ 'HOME.LOC_DUBAI' | translate }}</span> • <span>{{ 'HOME.LOC_LONDON' | translate }}</span> • <span>{{ 'HOME.LOC_NEWYORK' | translate }}</span>
+                @for (dist of distributors; track dist.id; let isLast = $last) {
+                  <span class="clickable-label" (click)="openDistributorDetail(dist); $event.stopPropagation()">
+                    {{ dist | localizedText:'name' }}
+                  </span>
+                  @if (!isLast) { • }
+                }
               </div>
             </div>
           </div>
