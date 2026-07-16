@@ -74,25 +74,19 @@
     </form>
 
     <!-- Terms -->
-    <div class="terms-sidebar">
+    <div class="terms-sidebar" id="contracting-sidebar">
       <h2>شروط ومراحل النشر / Publishing Terms</h2>
       
       <div class="steps-list">
-        <div class="step-item">
-          <span class="step-num">1</span>
-          <div>
-            <strong>فحص العمل / Review</strong>
-            <p>يتم تقييم مسودة الكتاب من قبل لجنة قراءة مختصة للتحقق من جودة المحتوى وملاءمته الأدبية والفكرية.</p>
+        @for (step of publishingTerms(); track step.id; let idx = $index) {
+          <div class="step-item">
+            <span class="step-num">{{ idx + 1 }}</span>
+            <div>
+              <strong>{{ step | localizedText:'title' }}</strong>
+              <p>{{ step | localizedText:'desc' }}</p>
+            </div>
           </div>
-        </div>
-
-        <div class="step-item">
-          <span class="step-num">2</span>
-          <div>
-            <strong>التعاقد والإنتاج / Contracting</strong>
-            <p>عند الموافقة، يتم توقيع عقد ملكية فكرية وعقد إنتاج وتوزيع للنسخ المطبوعة والصوتية.</p>
-          </div>
-        </div>
+        }
       </div>
     </div>
   </div>

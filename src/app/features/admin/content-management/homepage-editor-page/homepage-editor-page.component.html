@@ -10,6 +10,7 @@
       <mat-button-toggle value="services" (change)="setTab('services')" id="tab-services">الخدمات الشاملة / Services</mat-button-toggle>
       <mat-button-toggle value="family" (change)="setTab('family')" id="tab-family">المؤلفون / Authors & Stats</mat-button-toggle>
       <mat-button-toggle value="distributors" (change)="setTab('distributors')" id="tab-distributors">خريطة الموزعين / Map & Branches</mat-button-toggle>
+      <mat-button-toggle value="terms" (change)="setTab('terms')" id="tab-terms">شروط النشر / Publishing Terms</mat-button-toggle>
     </mat-button-toggle-group>
 
     <div class="global-actions">
@@ -265,6 +266,53 @@
                 <mat-form-field appearance="outline">
                   <mat-label>صنف التأثير CSS Class</mat-label>
                   <input matInput [(ngModel)]="dist.class" required dir="ltr">
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Tab 4: Publishing Terms -->
+    @if (activeTab() === 'terms') {
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>شروط ومراحل النشر / Publishing Terms & Steps</h3>
+          <button mat-flat-button color="primary" (click)="addTermStep()" id="btn-add-term-step">
+            <mat-icon>add</mat-icon> إضافة خطوة / Add Step
+          </button>
+        </div>
+
+        <div class="items-grid">
+          @for (step of publishingTerms; track step.id; let idx = $index) {
+            <div class="item-edit-card">
+              <div class="card-title-bar">
+                <span>الخطوة #{{ idx + 1 }} (رقم: {{ step.stepNumber }})</span>
+                <button mat-icon-button color="warn" (click)="deleteTermStep(idx)" [id]="'btn-delete-term-' + idx">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="card-form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>عنوان المرحلة (عربي) / Title (AR)</mat-label>
+                  <input matInput [(ngModel)]="step.titleAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Title (EN)</mat-label>
+                  <input matInput [(ngModel)]="step.titleEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>الوصف بالتفصيل (عربي) / Description (AR)</mat-label>
+                  <textarea matInput [(ngModel)]="step.descAr" rows="3" required></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell">
+                  <mat-label>Description (EN)</mat-label>
+                  <textarea matInput [(ngModel)]="step.descEn" rows="3" required dir="ltr"></textarea>
                 </mat-form-field>
               </div>
             </div>

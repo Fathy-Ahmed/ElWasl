@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
-import { ContentService, ServiceItem, AuthorItem, DistributorItem, HomepageData } from '../../../../core/services/content.service';
+import { ContentService, ServiceItem, AuthorItem, DistributorItem, HomepageData, TermStepItem } from '../../../../core/services/content.service';
 
 @Component({
   selector: 'app-homepage-editor-page',
@@ -42,7 +42,7 @@ export class HomepageEditorPageComponent implements OnInit {
     { label: 'تعديل الرئيسية / Homepage CMS' }
   ];
 
-  readonly activeTab = signal<'services' | 'family' | 'distributors'>('services');
+  readonly activeTab = signal<'services' | 'family' | 'distributors' | 'terms'>('services');
   readonly isSaving = signal<boolean>(false);
 
   // Editable local copies of state
@@ -50,6 +50,7 @@ export class HomepageEditorPageComponent implements OnInit {
   authorCount: number = 374;
   authors: AuthorItem[] = [];
   distributors: DistributorItem[] = [];
+  publishingTerms: TermStepItem[] = [];
 
   ngOnInit(): void {
     this.loadData();
@@ -62,9 +63,10 @@ export class HomepageEditorPageComponent implements OnInit {
     this.authorCount = data.authorCount;
     this.authors = JSON.parse(JSON.stringify(data.authors));
     this.distributors = JSON.parse(JSON.stringify(data.distributors));
+    this.publishingTerms = JSON.parse(JSON.stringify(data.publishingTerms || []));
   }
 
-  setTab(tab: 'services' | 'family' | 'distributors'): void {
+  setTab(tab: 'services' | 'family' | 'distributors' | 'terms'): void {
     this.activeTab.set(tab);
   }
 
@@ -133,6 +135,29 @@ export class HomepageEditorPageComponent implements OnInit {
     this.snackBar.open('تم حذف المنفذ / Branch deleted', 'موافق / OK', { duration: 2000 });
   }
 
+  // --- Publishing Terms Management ---
+  addTermStep(): void {
+    const newId = 'step_' + Date.now();
+    const nextNum = this.publishingTerms.length + 1;
+    this.publishingTerms.push({
+      id: newId,
+      stepNumber: nextNum,
+      titleAr: 'مرحلة جديدة',
+      titleEn: 'New Stage',
+      descAr: 'اكتب تفاصيل المرحلة الجديدة هنا.',
+      descEn: 'Write description of the new stage here.'
+    });
+    this.snackBar.open('تمت إضافة خطوة جديدة / New step added', 'موافق / OK', { duration: 2000 });
+  }
+
+  deleteTermStep(index: number): void {
+    this.publishingTerms.splice(index, 1);
+    this.publishingTerms.forEach((step, i) => {
+      step.stepNumber = i + 1;
+    });
+    this.snackBar.open('تم حذف الخطوة / Step deleted', 'موافق / OK', { duration: 2000 });
+  }
+
   // --- Global Saving ---
   saveAll(): void {
     this.isSaving.set(true);
@@ -140,7 +165,8 @@ export class HomepageEditorPageComponent implements OnInit {
       services: this.services,
       authorCount: this.authorCount,
       authors: this.authors,
-      distributors: this.distributors
+      distributors: this.distributors,
+      publishingTerms: this.publishingTerms
     };
 
     setTimeout(() => {

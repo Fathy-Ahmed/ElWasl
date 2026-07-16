@@ -39,11 +39,21 @@ export interface DistributorItem {
   class: string;
 }
 
+export interface TermStepItem {
+  id: string;
+  stepNumber: number;
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+}
+
 export interface HomepageData {
   services: ServiceItem[];
   authorCount: number;
   authors: AuthorItem[];
   distributors: DistributorItem[];
+  publishingTerms?: TermStepItem[];
 }
 
 @Injectable({
@@ -51,6 +61,25 @@ export interface HomepageData {
 })
 export class ContentService {
   private readonly STORAGE_KEY = 'elwasl_homepage_content';
+
+  private readonly defaultPublishingTerms: TermStepItem[] = [
+    {
+      id: 'step1',
+      stepNumber: 1,
+      titleAr: 'فحص العمل',
+      titleEn: 'Review',
+      descAr: 'يتم تقييم مسودة الكتاب من قبل لجنة قراءة مختصة للتحقق من جودة المحتوى وملاءمته الأدبية والفكرية.',
+      descEn: 'The manuscript is evaluated by a specialized reading committee to verify content quality and literary/intellectual suitability.'
+    },
+    {
+      id: 'step2',
+      stepNumber: 2,
+      titleAr: 'التعاقد والإنتاج',
+      titleEn: 'Contracting',
+      descAr: 'عند الموافقة، يتم توقيع عقد ملكية فكرية وعقد إنتاج وتوزيع للنسخ المطبوعة والصوتية.',
+      descEn: 'Upon approval, an intellectual property contract and a production/distribution contract for print and audio copies are signed.'
+    }
+  ];
 
   private readonly defaultServices: ServiceItem[] = [
     {
@@ -245,7 +274,11 @@ export class ContentService {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (!parsed.publishingTerms) {
+          parsed.publishingTerms = this.defaultPublishingTerms;
+        }
+        return parsed;
       }
     } catch (e) {
       console.error('Error reading homepage content from localStorage', e);
@@ -254,7 +287,8 @@ export class ContentService {
       services: this.defaultServices,
       authorCount: 374,
       authors: this.defaultAuthors,
-      distributors: this.defaultDistributors
+      distributors: this.defaultDistributors,
+      publishingTerms: this.defaultPublishingTerms
     };
   }
 
@@ -280,7 +314,8 @@ export class ContentService {
       services: this.defaultServices,
       authorCount: 374,
       authors: this.defaultAuthors,
-      distributors: this.defaultDistributors
+      distributors: this.defaultDistributors,
+      publishingTerms: this.defaultPublishingTerms
     };
     this.saveHomepageData(defaultData);
   }

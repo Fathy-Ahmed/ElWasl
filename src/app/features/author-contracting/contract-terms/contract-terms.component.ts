@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { ContentService, TermStepItem } from '../../../core/services/content.service';
+import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 
 @Component({
   selector: 'app-contract-terms',
@@ -18,7 +20,8 @@ import { TranslateModule } from '@ngx-translate/core';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    LocalizedTextPipe
   ],
   templateUrl: './contract-terms.component.html',
   styleUrls: ['./contract-terms.component.scss']
@@ -26,11 +29,13 @@ import { TranslateModule } from '@ngx-translate/core';
 export class ContractTermsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly contentService = inject(ContentService);
 
   requestForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
   readonly selectedFile = signal<File | null>(null);
   readonly selectedCv = signal<File | null>(null);
+  readonly publishingTerms = signal<TermStepItem[]>([]);
 
   ngOnInit(): void {
     this.requestForm = this.fb.group({
@@ -39,6 +44,9 @@ export class ContractTermsComponent implements OnInit {
       bookTitle: ['', Validators.required],
       summary: ['', [Validators.required, Validators.minLength(50)]]
     });
+
+    const data = this.contentService.getCurrentHomepageData();
+    this.publishingTerms.set(data.publishingTerms || []);
   }
 
   onFileSelected(event: Event): void {
