@@ -1,10 +1,14 @@
 @import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
-.glass-header {
+:host {
+  display: block;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 1000;
+}
+
+.glass-header {
   background: rgba(254, 249, 240, 0.9); // Warm cream base with high opacity
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
