@@ -104,11 +104,11 @@ export class ContentService {
     },
     {
       id: 'fairs',
-      titleAr: 'منافذ البيع والمعارض',
-      titleEn: 'Points of Sale & Fairs',
-      descAr: 'تتواجد كتب وروايات دار الوصل في كبرى المكتبات العربية، ونشارك سنوياً في المعارض الدولية (القاهرة، الرياض، الشارقة، أبوظبي).',
-      descEn: 'Dar ElWasl books and novels are available in major Arab libraries. We participate annually in international book fairs.',
-      icon: 'map',
+      titleAr: 'المعارض الجارية',
+      titleEn: 'Current Exhibitions',
+      descAr: 'تابعوا مشاركاتنا وجداولنا في المعارض الدولية والمحلية الجارية للكتاب وتسوقوا أحدث إصداراتنا مباشرة.',
+      descEn: 'Follow our participation and schedules in ongoing international and local book fairs and shop our latest releases directly.',
+      icon: 'storefront',
       visualType: 'fairs'
     }
   ];
@@ -277,6 +277,18 @@ export class ContentService {
         const parsed = JSON.parse(stored);
         if (!parsed.publishingTerms) {
           parsed.publishingTerms = this.defaultPublishingTerms;
+        }
+        // Auto-migration for Fairs service card to Exhibitions
+        if (parsed.services) {
+          const fairsIndex = parsed.services.findIndex((s: any) => s.id === 'fairs');
+          if (fairsIndex > -1 && parsed.services[fairsIndex].titleAr === 'منافذ البيع والمعارض') {
+            parsed.services[fairsIndex].titleAr = 'المعارض الجارية';
+            parsed.services[fairsIndex].titleEn = 'Current Exhibitions';
+            parsed.services[fairsIndex].descAr = 'تابعوا مشاركاتنا وجداولنا في المعارض الدولية والمحلية الجارية للكتاب وتسوقوا أحدث إصداراتنا مباشرة.';
+            parsed.services[fairsIndex].descEn = 'Follow our participation and schedules in ongoing international and local book fairs and shop our latest releases directly.';
+            parsed.services[fairsIndex].icon = 'storefront';
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
+          }
         }
         return parsed;
       }
