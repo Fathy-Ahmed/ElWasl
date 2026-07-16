@@ -84,6 +84,13 @@
     align-items: center;
     justify-content: center;
     border: none;
+    color: #ffffff !important;
+    background-color: $primary-color !important;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: #e65100 !important;
+    }
   }
 
   .hero-content {
