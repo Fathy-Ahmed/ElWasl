@@ -70,6 +70,16 @@
   grid-column: 1 / -1;
 }
 
+.uploads-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @include respond-to('sm') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .file-upload-block {
   display: flex;
   flex-direction: column;

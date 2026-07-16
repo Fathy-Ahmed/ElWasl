@@ -31,18 +31,36 @@
         <textarea matInput formControlName="summary" rows="4" required id="contract-summary"></textarea>
       </mat-form-field>
 
-      <!-- Custom file upload -->
-      <div class="file-upload-block">
-        <span class="file-label">إرفاق مسودة العمل (PDF) * / Attach Manuscript</span>
-        <div class="upload-btn-wrapper">
-          <button mat-stroked-button type="button" class="upload-btn" (click)="fileInput.click()">
-            <mat-icon>cloud_upload</mat-icon>
-            <span>اختيار ملف / Choose File</span>
-          </button>
-          <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" id="contract-file">
-          @if (selectedFile(); as file) {
-            <span class="file-name" id="contract-file-name">{{ file.name }}</span>
-          }
+      <!-- File Uploads Grid -->
+      <div class="uploads-grid">
+        <!-- Custom file upload for Manuscript -->
+        <div class="file-upload-block">
+          <span class="file-label">إرفاق مسودة العمل (PDF) * / Attach Manuscript</span>
+          <div class="upload-btn-wrapper">
+            <button mat-stroked-button type="button" class="upload-btn" (click)="fileInput.click()">
+              <mat-icon>cloud_upload</mat-icon>
+              <span>اختيار ملف / Choose File</span>
+            </button>
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" id="contract-file">
+            @if (selectedFile(); as file) {
+              <span class="file-name" id="contract-file-name">{{ file.name }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Custom file upload for CV -->
+        <div class="file-upload-block">
+          <span class="file-label">إرفاق السيرة الذاتية (PDF/Word) * / Attach CV</span>
+          <div class="upload-btn-wrapper">
+            <button mat-stroked-button type="button" class="upload-btn" (click)="cvInput.click()">
+              <mat-icon>contact_page</mat-icon>
+              <span>اختيار ملف / Choose File</span>
+            </button>
+            <input type="file" #cvInput (change)="onCvSelected($event)" accept=".pdf,.doc,.docx" style="display: none;" id="contract-cv">
+            @if (selectedCv(); as file) {
+              <span class="file-name" id="contract-cv-name">{{ file.name }}</span>
+            }
+          </div>
         </div>
       </div>
 

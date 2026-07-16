@@ -30,6 +30,7 @@ export class ContractTermsComponent implements OnInit {
   requestForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
   readonly selectedFile = signal<File | null>(null);
+  readonly selectedCv = signal<File | null>(null);
 
   ngOnInit(): void {
     this.requestForm = this.fb.group({
@@ -47,11 +48,20 @@ export class ContractTermsComponent implements OnInit {
     }
   }
 
+  onCvSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedCv.set(input.files[0]);
+    }
+  }
+
   submitRequest(): void {
-    if (this.requestForm.invalid || !this.selectedFile()) {
+    if (this.requestForm.invalid || !this.selectedFile() || !this.selectedCv()) {
       this.requestForm.markAllAsTouched();
       if (!this.selectedFile()) {
         this.snackBar.open('يرجى إرفاق مسودة العمل / Please attach a manuscript file', 'إغلاق / Close', { duration: 3000 });
+      } else if (!this.selectedCv()) {
+        this.snackBar.open('يرجى إرفاق السيرة الذاتية / Please attach your CV', 'إغلاق / Close', { duration: 3000 });
       }
       return;
     }
@@ -61,13 +71,14 @@ export class ContractTermsComponent implements OnInit {
     // Simulate multipart request submission
     setTimeout(() => {
       this.isSubmitting.set(false);
-      this.snackBar.open('تم تقديم طلبك بنجاح! سنقوم بمراجعة المسودة والرد عليك.', 'إغلاق / Close', {
+      this.snackBar.open('تم تقديم طلبك بنجاح! سنقوم بمراجعة طلبك والرد عليك.', 'إغلاق / Close', {
         duration: 5000,
         horizontalPosition: 'end',
         verticalPosition: 'top'
       });
       this.requestForm.reset();
       this.selectedFile.set(null);
+      this.selectedCv.set(null);
     }, 2000);
   }
 }
