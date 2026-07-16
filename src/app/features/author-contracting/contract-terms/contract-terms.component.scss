@@ -83,16 +83,22 @@
 .file-upload-block {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1.25rem;
   border: 1px dashed $border-color;
   border-radius: $border-radius;
   padding: 1.5rem;
   background-color: $bg-light;
+  height: 100%;
+  box-sizing: border-box;
   
   .file-label {
     font-size: 0.9rem;
     font-weight: 600;
     color: $text-dark;
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
   }
 }
 
