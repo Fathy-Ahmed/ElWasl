@@ -63,6 +63,8 @@
     position: relative;
     transition: $transition-fast;
     font-family: $font-arabic;
+    display: inline-block;
+    text-align: center;
     
     &::after {
       content: '';
