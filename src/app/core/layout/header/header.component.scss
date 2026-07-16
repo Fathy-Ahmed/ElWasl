@@ -27,7 +27,7 @@
 .right-header-group {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1.5rem;
 }
 
 .logo-area {
@@ -53,23 +53,24 @@
 .nav-links {
   display: none;
   align-items: center;
-  gap: 1.75rem;
+  gap: 0.95rem;
   
   @include respond-to('lg') {
     display: flex;
   }
   
   a {
-    font-size: 1rem;
+    font-size: 0.88rem;
     font-weight: 700; // Premium bold Arabic look
     color: $brown-text; // Use brown text as requested
-    padding: 0.3rem 0.6rem;
+    padding: 0.3rem 0.5rem;
     border-radius: 6px;
     position: relative;
     transition: $transition-fast;
     font-family: $font-arabic;
     display: inline-block;
     text-align: center;
+    white-space: nowrap;
     
     &::after {
       content: '';
