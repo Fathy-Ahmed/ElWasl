@@ -1,32 +1,34 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { ContentService, TermStepItem } from '../../../../core/services/content.service';
 
 @Component({
   selector: 'app-contract-terms-editor-page',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     TranslateModule,
     MatButtonModule,
-    MatButtonToggleModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
     AdminPageHeaderComponent
   ],
   templateUrl: './contract-terms-editor-page.component.html',
   styleUrls: ['./contract-terms-editor-page.component.scss']
 })
 export class ContractTermsEditorPageComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
+  private readonly contentService = inject(ContentService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly breadcrumbs = [
@@ -35,31 +37,57 @@ export class ContractTermsEditorPageComponent implements OnInit {
     { label: 'شروط التعاقد / Terms' }
   ];
 
-  editorForm!: FormGroup;
-  readonly activeLangTab = signal<'ar' | 'en'>('ar');
+  publishingTerms: TermStepItem[] = [];
   readonly isSaving = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.editorForm = this.fb.group({
-      termsAr: [`يتم مراجعة العمل من قبل لجنة قراءة مختصة. عند الموافقة يتم التوقيع على عقد توزيع ونشر للنسخ المطبوعة والصوتية.`, Validators.required],
-      termsEn: [`Manuscripts are reviewed by a reading committee. Upon approval, intellectual property contracts for print and audio publishing are signed.`, Validators.required]
+    this.loadData();
+  }
+
+  loadData(): void {
+    const data = this.contentService.getCurrentHomepageData();
+    this.publishingTerms = JSON.parse(JSON.stringify(data.publishingTerms || []));
+  }
+
+  addTermStep(): void {
+    const newId = 'step_' + Date.now();
+    const nextNum = this.publishingTerms.length + 1;
+    this.publishingTerms.push({
+      id: newId,
+      stepNumber: nextNum,
+      titleAr: 'مرحلة جديدة',
+      titleEn: 'New Stage',
+      descAr: 'اكتب تفاصيل المرحلة الجديدة هنا.',
+      descEn: 'Write description of the new stage here.'
     });
+    this.snackBar.open('تمت إضافة خطوة جديدة / New step added', 'موافق / OK', { duration: 2000 });
+  }
+
+  deleteTermStep(index: number): void {
+    this.publishingTerms.splice(index, 1);
+    this.publishingTerms.forEach((step, i) => {
+      step.stepNumber = i + 1;
+    });
+    this.snackBar.open('تم حذف الخطوة / Step deleted', 'موافق / OK', { duration: 2000 });
   }
 
   saveContent(): void {
-    if (this.editorForm.invalid) {
-      return;
-    }
-
     this.isSaving.set(true);
+    const data = this.contentService.getCurrentHomepageData();
+    data.publishingTerms = this.publishingTerms;
 
     setTimeout(() => {
+      this.contentService.saveHomepageData(data);
       this.isSaving.set(false);
-      this.snackBar.open('تم حفظ شروط النشر بنجاح / Terms saved successfully', 'إغلاق / Close', { duration: 3000 });
-    }, 1500);
+      this.snackBar.open('تم حفظ شروط ومراحل النشر بنجاح / Publishing terms saved successfully', 'إغلاق / Close', { duration: 3000 });
+    }, 1200);
   }
 
-  setLangTab(lang: 'ar' | 'en'): void {
-    this.activeLangTab.set(lang);
+  resetDefaults(): void {
+    if (confirm('هل أنت متأكد من رغبتك في استعادة الإعدادات الافتراضية؟ / Are you sure you want to reset to defaults?')) {
+      this.contentService.resetToDefault();
+      this.loadData();
+      this.snackBar.open('تمت استعادة البيانات الافتراضية / Defaults restored successfully', 'إغلاق / Close', { duration: 3000 });
+    }
   }
 }

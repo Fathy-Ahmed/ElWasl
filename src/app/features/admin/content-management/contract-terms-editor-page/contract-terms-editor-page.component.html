@@ -1,43 +1,70 @@
 <div class="cms-editor-page container" id="terms-cms-view">
-  <app-admin-page-header title="تعديل شروط التعاقد والنشر / Edit Publishing Terms" 
-                         subtitle="تحديث معايير النشر وخطوات مراجعة مسودات الكتب."
-                         [breadcrumbs]="breadcrumbs">
+  <app-admin-page-header title="تعديل شروط ومراحل التعاقد والنشر / Edit Publishing Terms & Stages" 
+                          subtitle="تحديث شروط النشر وخطوات فحص ومراجعة مسودات الكتب."
+                          [breadcrumbs]="breadcrumbs">
   </app-admin-page-header>
 
-  <form [formGroup]="editorForm" (ngSubmit)="saveContent()" class="editor-form" id="terms-cms-form">
-    <div class="editor-card">
-      <div class="editor-header">
-        <span class="label">نص الشروط والخطوات / Terms & Steps Body</span>
-        
-        <mat-button-toggle-group [value]="activeLangTab()" name="langTab" class="lang-toggle-group">
-          <mat-button-toggle value="ar" (change)="setLangTab('ar')" id="terms-cms-ar-btn">العربية / AR</mat-button-toggle>
-          <mat-button-toggle value="en" (change)="setLangTab('en')" id="terms-cms-en-btn">English / EN</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-
-      <div class="editor-body">
-        @if (activeLangTab() === 'ar') {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>شروط النشر باللغة العربية / Publishing Terms (AR)</mat-label>
-            <textarea matInput formControlName="termsAr" rows="12" required id="terms-cms-ar-text"></textarea>
-          </mat-form-field>
+  <!-- Action Bar -->
+  <div class="cms-action-bar" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+    <button mat-flat-button color="primary" (click)="addTermStep()" id="btn-add-term-step">
+      <mat-icon>add</mat-icon> إضافة خطوة / Add Step
+    </button>
+    
+    <div style="display: flex; gap: 12px;">
+      <button mat-stroked-button color="warn" (click)="resetDefaults()" id="btn-reset-defaults">
+        <mat-icon>restore</mat-icon> استعادة الافتراضي / Reset Defaults
+      </button>
+      <button mat-flat-button color="accent" (click)="saveContent()" [disabled]="isSaving()" id="terms-cms-save-btn" class="save-all-btn">
+        <mat-icon>save</mat-icon>
+        @if (isSaving()) {
+          جاري الحفظ... / Saving...
+        } @else {
+          حفظ التغييرات / Save Changes
         }
+      </button>
+    </div>
+  </div>
 
-        @if (activeLangTab() === 'en') {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>شروط النشر باللغة الإنجليزية / Publishing Terms (EN)</mat-label>
-            <textarea matInput formControlName="termsEn" rows="12" required id="terms-cms-en-text" dir="ltr"></textarea>
-          </mat-form-field>
+  <div class="editor-content-area">
+    <div class="section-card">
+      <div class="items-grid" style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+        @for (step of publishingTerms; track step.id; let idx = $index) {
+          <div class="item-edit-card" style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+            <div class="card-title-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 16px;">
+              <span style="font-weight: 700; font-size: 1.05rem; color: #3e2723;">
+                الخطوة #{{ idx + 1 }} (المرحلة: {{ step.stepNumber }})
+              </span>
+              <button mat-icon-button color="warn" (click)="deleteTermStep(idx)" [id]="'btn-delete-term-' + idx">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <div class="card-form-grid" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <mat-form-field appearance="outline">
+                  <mat-label>عنوان المرحلة (عربي) / Title (AR)</mat-label>
+                  <input matInput [(ngModel)]="step.titleAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Title (EN)</mat-label>
+                  <input matInput [(ngModel)]="step.titleEn" required dir="ltr">
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width-cell">
+                <mat-label>الوصف بالتفصيل (عربي) / Description (AR)</mat-label>
+                <textarea matInput [(ngModel)]="step.descAr" rows="3" required></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width-cell">
+                <mat-label>Description (EN)</mat-label>
+                <textarea matInput [(ngModel)]="step.descEn" rows="3" required dir="ltr"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
         }
       </div>
     </div>
-
-    <button mat-flat-button color="accent" type="submit" class="save-btn" [disabled]="isSaving() || editorForm.invalid" id="terms-cms-save-btn">
-      @if (isSaving()) {
-        {{ 'COMMON.LOADING' | translate }}
-      } @else {
-        حفظ التغييرات / Save Changes
-      }
-    </button>
-  </form>
+  </div>
 </div>
