@@ -63,6 +63,17 @@
     gap: 0.75rem;
     font-size: 0.95rem;
     color: #efebe9;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    
+    &.clickable-footer-contact {
+      cursor: pointer;
+      
+      &:hover {
+        color: $primary-color;
+        text-decoration: underline;
+      }
+    }
     
     mat-icon {
       color: $primary-color; // Brand orange icons
