@@ -167,10 +167,14 @@ export class ServiceDetailDialogComponent {
   onActionClick(): void {
     this.dialogRef.close();
     if (this.data.id === 'fairs') {
-      const element = document.getElementById('home-map-block');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      this.dialogRef.afterClosed().subscribe(() => {
+        setTimeout(() => {
+          const element = document.getElementById('home-map-block');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      });
     } else if (this.data.id === 'publishing') {
       this.router.navigate(['/contract-with-us']);
     } else if (this.data.id === 'eshop') {
