@@ -1,0 +1,119 @@
+<div class="library-page container" id="library-view">
+  
+  <!-- Header -->
+  <div class="library-header-section">
+    <h1 class="library-title">مكتبتك الخاصة / Your Library</h1>
+    <p class="library-subtitle">تصفح كافة رواياتك، كتبك الصوتية، وألعابك التي قمت بشرائها من الدار.</p>
+  </div>
+
+  @if (!authService.isAuthenticated()) {
+    <!-- Unauthorized State -->
+    <div class="unauth-state-card" id="library-unauth">
+      <div class="unauth-icon-box">
+        <mat-icon class="large-icon">lock_person</mat-icon>
+      </div>
+      <h2>يرجى تسجيل الدخول / Please Sign In</h2>
+      <p>يجب تسجيل الدخول لحسابك لتتمكن من الوصول وعرض مكتبة الكتب والمقتنيات الخاصة بك.</p>
+      <a routerLink="/auth/login" mat-flat-button color="primary" class="login-redirect-btn" id="library-login-btn">
+        تسجيل الدخول / Sign In
+      </a>
+    </div>
+  } @else {
+    <!-- Authorized Library Content -->
+    <div class="library-controls-bar">
+      <!-- Search -->
+      <div class="search-box-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" 
+               [placeholder]="'COMMON.SEARCH' | translate" 
+               class="library-search-input" 
+               (input)="onSearch($event)"
+               id="library-search">
+      </div>
+
+      <!-- Filters (Dynamic style pills) -->
+      <div class="filter-pills-row">
+        <button class="filter-pill" 
+                [class.active]="activeFilter() === 'all'" 
+                (click)="setFilter('all')"
+                id="filter-all">
+          الكل / All
+        </button>
+        <button class="filter-pill" 
+                [class.active]="activeFilter() === 'books'" 
+                (click)="setFilter('books')"
+                id="filter-books">
+          الكتب المطبوعة / Books
+        </button>
+        <button class="filter-pill" 
+                [class.active]="activeFilter() === 'audiobooks'" 
+                (click)="setFilter('audiobooks')"
+                id="filter-audiobooks">
+          الكتب الصوتية / Audiobooks
+        </button>
+        <button class="filter-pill" 
+                [class.active]="activeFilter() === 'games'" 
+                (click)="setFilter('games')"
+                id="filter-games">
+          الألعاب / Games
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="loading-state-box">
+        <span class="spinner"></span>
+        <p>{{ 'COMMON.LOADING' | translate }}</p>
+      </div>
+    } @else {
+      @if (filteredItems().length === 0) {
+        <!-- Empty State -->
+        <div class="empty-state-card" id="library-empty">
+          <div class="empty-icon-box">
+            <mat-icon class="large-icon">auto_stories</mat-icon>
+          </div>
+          <h2>المكتبة فارغة / Library is Empty</h2>
+          <p>لم تقم بشراء أي كتب أو ألعاب حتى الآن، أو لا توجد نتائج مطابقة لبحثك.</p>
+          <a routerLink="/books" mat-flat-button color="accent" class="browse-redirect-btn" id="library-browse-btn">
+            تصفح المتجر الآن / Browse Shop
+          </a>
+        </div>
+      } @else {
+        <!-- Dynamic library items grid -->
+        <div class="library-items-grid">
+          @for (item of filteredItems(); track item.id) {
+            <div class="library-item-card clickable-card" [routerLink]="getDetailRoute(item)">
+              
+              <!-- Item Image / Cover -->
+              <div class="item-cover-wrapper">
+                <img [src]="item.coverImage" [alt]="item | localizedText:'title'" class="item-cover-img">
+                <span class="type-badge" [class]="getProductTypeClass(item.productType)">
+                  {{ getProductTypeLabel(item.productType) }}
+                </span>
+              </div>
+
+              <!-- Item Info Details -->
+              <div class="item-details-box">
+                <h3 class="item-title">{{ item | localizedText:'title' }}</h3>
+                <p class="item-author"><mat-icon>person</mat-icon> {{ item | localizedText:'author' }}</p>
+                
+                <div class="item-actions-row">
+                  @if (item.productType === 'Audiobook') {
+                    <button mat-flat-button color="primary" class="action-btn listen-btn" (click)="listenToAudiobook(item, $event)">
+                      <mat-icon>play_circle</mat-icon> استمع الآن / Listen
+                    </button>
+                  } @else {
+                    <a [routerLink]="getDetailRoute(item)" mat-stroked-button class="action-btn view-btn">
+                      <mat-icon>visibility</mat-icon> عرض التفاصيل / View
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</div>

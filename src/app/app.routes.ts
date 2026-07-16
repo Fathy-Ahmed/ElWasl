@@ -55,6 +55,11 @@ export const routes: Routes = [
     title: 'عربة التسوق | ElWasl'
   },
   {
+    path: 'library',
+    loadComponent: () => import('./features/catalog/library/library.component').then(m => m.LibraryComponent),
+    title: 'مكتبتي الخاصة | ElWasl'
+  },
+  {
     path: 'checkout',
     loadComponent: () => import('./features/checkout/checkout-page/checkout-page.component').then(m => m.CheckoutPageComponent),
     canActivate: [authGuard],
