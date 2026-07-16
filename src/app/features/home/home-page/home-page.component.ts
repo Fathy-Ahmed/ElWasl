@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Product, ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { BookService } from '../../../core/services/book.service';
@@ -39,6 +39,7 @@ export class HomePageComponent implements OnInit {
   readonly localeService = inject(LocaleService);
   private readonly dialog = inject(MatDialog);
   private readonly contentService = inject(ContentService);
+  private readonly router = inject(Router);
 
   featuredProducts: Product[] = [];
 
@@ -331,5 +332,11 @@ export class HomePageComponent implements OnInit {
       width: '550px',
       maxWidth: '90vw'
     });
+  }
+
+  onGlobalSearch(query: string): void {
+    if (query && query.trim()) {
+      this.router.navigate(['/books'], { queryParams: { search: query.trim() } });
+    }
   }
 }

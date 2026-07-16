@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -38,6 +38,13 @@ export class BookListComponent implements OnInit {
   readonly books = signal<Product[]>([]);
   readonly categories = signal<CategoryDto[]>([]);
   readonly isLoading = signal<boolean>(false);
+
+  @Input() set search(val: string) {
+    if (val !== undefined && val !== null) {
+      this.searchQuery.set(val);
+      this.loadBooks();
+    }
+  }
 
   ngOnInit(): void {
     this.loadCategories();

@@ -37,4 +37,14 @@ export class HeaderComponent {
   isHomePage(): boolean {
     return this.router.url === '/' || this.router.url === '' || this.router.url.split('?')[0] === '/';
   }
+
+  onSearchClick(): void {
+    const heroSearch = document.getElementById('hero-search-input-field');
+    if (heroSearch) {
+      heroSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => heroSearch.focus(), 400);
+    } else {
+      this.router.navigate(['/books']);
+    }
+  }
 }
