@@ -69,6 +69,7 @@
     font-family: $font-arabic;
     display: inline-block;
     text-align: center;
+    white-space: nowrap;
     
     &::after {
       content: '';
