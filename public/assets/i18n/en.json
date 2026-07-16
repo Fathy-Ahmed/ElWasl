@@ -91,5 +91,21 @@
     "ADDRESS": "Address",
     "PHONE": "Phone",
     "EMAIL": "Email"
+  },
+  "FOOTER": {
+    "BRAND_DESC": "Dar ElWasl for Publishing and Distribution - your gateway to endless worlds of knowledge, distinguished literary imagination, and innovative card games.",
+    "ADDRESS": "165 Mohamed Farid Street, Downtown Cairo",
+    "CONTACT_TITLE": "Contact Us",
+    "PUBLICATIONS_TITLE": "Our Publications",
+    "ABOUT_TITLE": "About the House",
+    "LINK_BOOKS": "Print Novels",
+    "LINK_AUDIOBOOKS": "Audiobooks",
+    "LINK_GAMES": "Card Games",
+    "LINK_OFFERS": "Offers & Discounts",
+    "LINK_ABOUT": "About Us",
+    "LINK_CONTRACTING": "Publish with Us",
+    "LINK_CONTACT": "Contact Us",
+    "LINK_EXHIBITIONS": "International Book Fairs",
+    "COPYRIGHT": "© 2024 Dar ElWasl Publishing & Distribution. All rights reserved."
   }
 }
