@@ -1,22 +1,24 @@
 <header class="glass-header" id="app-header">
   <div class="header-container container">
-    <!-- Brand Logo Area -->
-    <a routerLink="/" class="logo-area" id="nav-logo">
-      <img src="/logo.png" alt="Dar ElWasl Logo" class="header-logo-img">
-    </a>
+    <!-- Top Right Group: Logo & Navigation Menu -->
+    <div class="right-header-group">
+      <a routerLink="/" class="logo-area" id="nav-logo">
+        <img src="/logo.png" alt="Dar ElWasl Logo" class="header-logo-img">
+      </a>
 
-    <!-- Navigation Menu (Arabic text, RTL aligned) -->
-    <nav class="nav-links" id="main-nav">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">{{ 'NAV.HOME' | translate }}</a>
-      <a routerLink="/books" routerLinkActive="active" id="nav-books">{{ 'NAV.BOOKS' | translate }}</a>
-      <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">{{ 'NAV.AUDIOBOOKS' | translate }}</a>
-      <a routerLink="/games" routerLinkActive="active" id="nav-games">{{ 'NAV.GAMES' | translate }}</a>
-      <a routerLink="/offers" routerLinkActive="active" id="nav-offers">{{ 'NAV.OFFERS' | translate }}</a>
-      <a routerLink="/library" routerLinkActive="active" id="nav-library">{{ 'NAV.LIBRARY' | translate }}</a>
-      <a routerLink="/about-us" routerLinkActive="active" id="nav-about">{{ 'NAV.ABOUT' | translate }}</a>
-      <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">{{ 'NAV.CONTRACTING' | translate }}</a>
-      <a routerLink="/contact-us" routerLinkActive="active" id="nav-contact">{{ 'NAV.CONTACT' | translate }}</a>
-    </nav>
+      <!-- Right Navigation Menu (Arabic text, RTL aligned) -->
+      <nav class="nav-links" id="main-nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" id="nav-home">{{ 'NAV.HOME' | translate }}</a>
+        <a routerLink="/books" routerLinkActive="active" id="nav-books">{{ 'NAV.BOOKS' | translate }}</a>
+        <a routerLink="/audiobooks" routerLinkActive="active" id="nav-audiobooks">{{ 'NAV.AUDIOBOOKS' | translate }}</a>
+        <a routerLink="/games" routerLinkActive="active" id="nav-games">{{ 'NAV.GAMES' | translate }}</a>
+        <a routerLink="/offers" routerLinkActive="active" id="nav-offers">{{ 'NAV.OFFERS' | translate }}</a>
+        <a routerLink="/library" routerLinkActive="active" id="nav-library">{{ 'NAV.LIBRARY' | translate }}</a>
+        <a routerLink="/about-us" routerLinkActive="active" id="nav-about">{{ 'NAV.ABOUT' | translate }}</a>
+        <a routerLink="/contract-with-us" routerLinkActive="active" id="nav-contracting">{{ 'NAV.CONTRACTING' | translate }}</a>
+        <a routerLink="/contact-us" routerLinkActive="active" id="nav-contact">{{ 'NAV.CONTACT' | translate }}</a>
+      </nav>
+    </div>
 
     <!-- Top Left Group: Search, Cart & User Account -->
     <div class="left-header-group">

@@ -11,34 +11,32 @@ html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
   padding: 0;
 }
 
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: $bg-light !important;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 body {
-  background-color: #f2ebe0; // Soft warm cream tone for the outer background
-  color: $text-dark;
-  min-height: 100vh;
-  margin: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
-}
-
-.site-wrapper-container {
-  max-width: 1440px;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: $bg-light;
   background-image: 
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1440 800' preserveAspectRatio='none'%3E%3Cpath d='M-100,150 C300,50 500,350 900,180 C1200,80 1350,220 1600,120 M-100,550 C200,400 600,700 1000,500 C1300,350 1450,550 1600,450' fill='none' stroke='%23F57C00' stroke-width='1.8' stroke-opacity='0.07'/%3E%3Cpath d='M-100,280 C250,380 600,120 1000,280 C1300,400 1400,200 1600,300 M-100,420 C350,250 700,580 1100,380 C1350,250 1500,450 1600,350' fill='none' stroke='%23D4A017' stroke-width='1.2' stroke-opacity='0.06'/%3E%3C/svg%3E");
-  background-attachment: scroll;
+  background-attachment: fixed;
   background-size: cover;
   background-repeat: no-repeat;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.04);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
+  color: $text-dark;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 a {
@@ -75,7 +73,7 @@ button {
 // Utility styling classes
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1.5rem;
@@ -95,6 +93,9 @@ button {
 }
 
 .glass-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   @include glass-card(rgba(255, 255, 255, 0.8));
   box-shadow: $shadow-sm;
 }

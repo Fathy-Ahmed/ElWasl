@@ -1,16 +1,12 @@
 @if (isNotAdminRoute()) {
-  <div class="site-wrapper-container">
-    <app-header></app-header>
-    
-    <main class="main-content" id="main-content-area">
-      <router-outlet></router-outlet>
-    </main>
-    
-    <app-footer></app-footer>
-  </div>
-} @else {
-  <main class="main-content admin-layout" id="main-content-area">
-    <router-outlet></router-outlet>
-  </main>
+  <app-header></app-header>
+}
+
+<main class="main-content" [class.admin-layout]="!isNotAdminRoute()" id="main-content-area">
+  <router-outlet></router-outlet>
+</main>
+
+@if (isNotAdminRoute()) {
+  <app-footer></app-footer>
 }
 
