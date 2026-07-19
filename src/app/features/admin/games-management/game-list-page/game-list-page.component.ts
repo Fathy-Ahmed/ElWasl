@@ -69,6 +69,7 @@ export class GameListPageComponent implements OnInit {
           titleAr: g.nameAr || '',
           titleEn: g.nameEn || '',
           price: g.price,
+          priceUsd: g.priceUsd,
           stock: g.stock,
           categoryTag: g.categoryTag,
           playerCountMin: g.playerCountMin,

@@ -271,36 +271,44 @@ export class BookDialogComponent implements OnInit {
       this.categories = res || [];
     });
 
-    const b = this.data.book;
+    const b = this.data.book || {};
+    const raw = b.raw || {};
     
     // Format publishedDate to YYYY-MM-DD for the HTML5 date input
     let formattedDate = '';
-    if (b?.publishedDate) {
-      formattedDate = b.publishedDate.split('T')[0];
+    const rawDate = b.publishedDate || raw.publishedDate;
+    if (rawDate) {
+      formattedDate = rawDate.split('T')[0];
     }
 
-    // Determine default formats & languages (ensure they map to enum numeric values)
-    const formatValue = b?.format !== undefined ? this.mapFormatToNumber(b.format) : 2; // Paperback default
-    const langValue = b?.language !== undefined ? this.mapLanguageToNumber(b.language) : 1; // Arabic default
+    // Determine default formats & languages
+    const fmt = b.format !== undefined ? b.format : raw.format;
+    const lang = b.language !== undefined ? b.language : raw.language;
+    const formatValue = fmt !== undefined ? this.mapFormatToNumber(fmt) : 2;
+    const langValue = lang !== undefined ? this.mapLanguageToNumber(lang) : 1;
+
+    const discountPriceVal = (b.discountPrice !== undefined && b.discountPrice !== null) ? b.discountPrice : (raw.discountPrice !== undefined ? raw.discountPrice : null);
+    const priceUsdVal = (b.priceUsd !== undefined && b.priceUsd !== null) ? b.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
+    const discountPriceUsdVal = (b.discountPriceUsd !== undefined && b.discountPriceUsd !== null) ? b.discountPriceUsd : (raw.discountPriceUsd !== undefined ? raw.discountPriceUsd : null);
 
     this.form = this.fb.group({
-      titleAr: [b?.titleAr || '', Validators.required],
-      titleEn: [b?.titleEn || '', Validators.required],
-      authorName: [b?.authorName || b?.authorAr || '', Validators.required],
-      isbn: [b?.isbn || ''],
-      coverImageUrl: [b?.coverImageUrl || b?.coverImage || ''],
-      categoryId: [b?.categoryId || '', Validators.required],
-      price: [b?.price || 0, [Validators.required, Validators.min(0)]],
-      discountPrice: [b?.discountPrice !== undefined && b?.discountPrice !== null ? b.discountPrice : null, Validators.min(0)],
-      priceUsd: [b?.priceUsd !== undefined && b?.priceUsd !== null ? b.priceUsd : null, Validators.min(0)],
-      discountPriceUsd: [b?.discountPriceUsd !== undefined && b?.discountPriceUsd !== null ? b.discountPriceUsd : null, Validators.min(0)],
-      stock: [b?.stock || 0, [Validators.required, Validators.min(0)]],
+      titleAr: [b.titleAr || raw.titleAr || '', Validators.required],
+      titleEn: [b.titleEn || raw.titleEn || '', Validators.required],
+      authorName: [b.authorName || b.authorAr || raw.authorName || raw.authorAr || '', Validators.required],
+      isbn: [b.isbn || raw.isbn || ''],
+      coverImageUrl: [b.coverImageUrl || b.coverImage || raw.coverImageUrl || raw.coverImage || ''],
+      categoryId: [b.categoryId || raw.categoryId || '', Validators.required],
+      price: [b.price !== undefined ? b.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      discountPrice: [discountPriceVal, Validators.min(0)],
+      priceUsd: [priceUsdVal, Validators.min(0)],
+      discountPriceUsd: [discountPriceUsdVal, Validators.min(0)],
+      stock: [b.stock !== undefined ? b.stock : (raw.stock || 0), [Validators.required, Validators.min(0)]],
       format: [formatValue, Validators.required],
       language: [langValue, Validators.required],
       publishedDate: [formattedDate],
-      descriptionAr: [b?.descriptionAr || ''],
-      descriptionEn: [b?.descriptionEn || ''],
-      isActive: [b?.isActive !== undefined ? b.isActive : true]
+      descriptionAr: [b.descriptionAr || raw.descriptionAr || ''],
+      descriptionEn: [b.descriptionEn || raw.descriptionEn || ''],
+      isActive: [b.isActive !== undefined ? b.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
     });
   }
 

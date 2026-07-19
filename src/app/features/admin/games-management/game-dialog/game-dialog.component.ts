@@ -220,20 +220,23 @@ export class GameDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const g = this.data.game;
+    const g = this.data.game || {};
+    const raw = g.raw || {};
+    const priceUsdVal = (g.priceUsd !== undefined && g.priceUsd !== null) ? g.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
+
     this.form = this.fb.group({
-      nameAr: [g?.titleAr || g?.nameAr || '', Validators.required],
-      nameEn: [g?.titleEn || g?.nameEn || '', Validators.required],
-      categoryTag: [g?.categoryTag || ''],
-      imageUrl: [g?.coverImage || g?.imageUrl || ''],
-      playerCountMin: [g?.playerCountMin || g?.raw?.playerCountMin || 2, [Validators.required, Validators.min(1)]],
-      playerCountMax: [g?.playerCountMax || g?.raw?.playerCountMax || 4, [Validators.required, Validators.min(1)]],
-      stock: [g?.stock || 0, [Validators.required, Validators.min(0)]],
-      price: [g?.price || 0, [Validators.required, Validators.min(0)]],
-      priceUsd: [g?.priceUsd !== undefined && g?.priceUsd !== null ? g.priceUsd : (g?.raw?.priceUsd || null), Validators.min(0)],
-      descriptionAr: [g?.descriptionAr || g?.raw?.descriptionAr || ''],
-      descriptionEn: [g?.descriptionEn || g?.raw?.descriptionEn || ''],
-      isActive: [g?.isActive !== undefined ? g.isActive : true]
+      nameAr: [g.nameAr || g.titleAr || raw.nameAr || raw.titleAr || '', Validators.required],
+      nameEn: [g.nameEn || g.titleEn || raw.nameEn || raw.titleEn || '', Validators.required],
+      categoryTag: [g.categoryTag || raw.categoryTag || ''],
+      imageUrl: [g.imageUrl || g.coverImage || raw.imageUrl || raw.coverImage || ''],
+      playerCountMin: [g.playerCountMin !== undefined ? g.playerCountMin : (raw.playerCountMin || 2), [Validators.required, Validators.min(1)]],
+      playerCountMax: [g.playerCountMax !== undefined ? g.playerCountMax : (raw.playerCountMax || 4), [Validators.required, Validators.min(1)]],
+      stock: [g.stock !== undefined ? g.stock : (raw.stock || 0), [Validators.required, Validators.min(0)]],
+      price: [g.price !== undefined ? g.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      priceUsd: [priceUsdVal, Validators.min(0)],
+      descriptionAr: [g.descriptionAr || raw.descriptionAr || ''],
+      descriptionEn: [g.descriptionEn || raw.descriptionEn || ''],
+      isActive: [g.isActive !== undefined ? g.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
     });
   }
 

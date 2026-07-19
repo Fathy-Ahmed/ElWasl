@@ -70,6 +70,7 @@ export class AudiobookListPageComponent implements OnInit {
           titleEn: a.titleEn || '',
           authorAr: a.narratorName || '',
           price: a.price,
+          priceUsd: a.priceUsd,
           durationMinutes: a.durationMinutes,
           audioFileUrl: a.audioFileUrl,
           bookId: a.bookId,

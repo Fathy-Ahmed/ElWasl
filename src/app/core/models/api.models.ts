@@ -183,6 +183,8 @@ export interface AdminBookDto {
   coverImageUrl?: string | null;
   price: number;
   discountPrice?: number | null;
+  priceUsd?: number | null;
+  discountPriceUsd?: number | null;
   stock: number;
   categoryId: string;
   categoryName?: string | null;

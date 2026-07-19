@@ -233,20 +233,23 @@ export class AudiobookDialogComponent implements OnInit {
       this.printedBooks = res.items || [];
     });
 
-    const a = this.data.audiobook;
+    const a = this.data.audiobook || {};
+    const raw = a.raw || {};
+    const priceUsdVal = (a.priceUsd !== undefined && a.priceUsd !== null) ? a.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
+
     this.form = this.fb.group({
-      titleAr: [a?.titleAr || '', Validators.required],
-      titleEn: [a?.titleEn || '', Validators.required],
-      narratorName: [a?.narratorName || a?.authorAr || '', Validators.required],
-      durationMinutes: [a?.durationMinutes || 0, [Validators.required, Validators.min(0)]],
-      coverImageUrl: [a?.coverImageUrl || a?.coverImage || ''],
-      audioFileUrl: [a?.audioFileUrl || ''],
-      price: [a?.price || 0, [Validators.required, Validators.min(0)]],
-      priceUsd: [a?.priceUsd !== undefined && a?.priceUsd !== null ? a.priceUsd : null, Validators.min(0)],
-      bookId: [a?.bookId || null],
-      descriptionAr: [a?.descriptionAr || ''],
-      descriptionEn: [a?.descriptionEn || ''],
-      isActive: [a?.isActive !== undefined ? a.isActive : true]
+      titleAr: [a.titleAr || raw.titleAr || '', Validators.required],
+      titleEn: [a.titleEn || raw.titleEn || '', Validators.required],
+      narratorName: [a.narratorName || a.authorAr || raw.narratorName || raw.authorAr || '', Validators.required],
+      durationMinutes: [a.durationMinutes !== undefined ? a.durationMinutes : (raw.durationMinutes || 0), [Validators.required, Validators.min(0)]],
+      coverImageUrl: [a.coverImageUrl || a.coverImage || raw.coverImageUrl || raw.coverImage || ''],
+      audioFileUrl: [a.audioFileUrl || raw.audioFileUrl || ''],
+      price: [a.price !== undefined ? a.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      priceUsd: [priceUsdVal, Validators.min(0)],
+      bookId: [a.bookId || raw.bookId || null],
+      descriptionAr: [a.descriptionAr || raw.descriptionAr || ''],
+      descriptionEn: [a.descriptionEn || raw.descriptionEn || ''],
+      isActive: [a.isActive !== undefined ? a.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
     });
   }
 
