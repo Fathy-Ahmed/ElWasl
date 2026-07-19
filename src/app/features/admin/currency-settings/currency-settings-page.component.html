@@ -131,12 +131,12 @@
             <button mat-stroked-button 
                     [class.active]="currencyService.activeCurrency() === 'EGP'"
                     (click)="currencyService.setAdminTestRegion('EG')">
-              🇪🇬 زائر من داخل مصر (EGP)
+              🇪🇬 داخل مصر (EGP)
             </button>
             <button mat-stroked-button 
                     [class.active]="currencyService.activeCurrency() === 'USD'"
                     (click)="currencyService.setAdminTestRegion('OTHER')">
-              🌐 زائر من خارج مصر (USD)
+              🌐 خارج مصر (USD)
             </button>
             <button mat-icon-button 
                     title="الكشف التلقائي الفعلي / Real Auto Detect"
