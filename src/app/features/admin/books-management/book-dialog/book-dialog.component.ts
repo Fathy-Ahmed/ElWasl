@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryService } from '../../../../core/services/category.service';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { CurrencyService } from '../../../../core/services/currency.service';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.models';
 
@@ -251,8 +252,11 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
   `]
 })
 export class BookDialogComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   private readonly categoryService = inject(CategoryService);
   private readonly adminApiService = inject(AdminApiService);
+  private readonly currencyService = inject(CurrencyService);
+  private readonly dialogRef = inject(MatDialogRef<BookDialogComponent>);
   
   form!: FormGroup;
   categories: CategoryDto[] = [];
@@ -260,36 +264,41 @@ export class BookDialogComponent implements OnInit {
   readonly localPreviewUrl = signal<string>('');
 
   constructor(
-    private readonly fb: FormBuilder,
-    private readonly dialogRef: MatDialogRef<BookDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { book?: any }
   ) {}
 
   ngOnInit(): void {
-    // Load categories for the dropdown selection
     this.categoryService.getCategories().subscribe(res => {
       this.categories = res || [];
     });
 
     const b = this.data.book || {};
     const raw = b.raw || {};
+    const rate = this.currencyService.settings().usdExchangeRate || 50.0;
     
-    // Format publishedDate to YYYY-MM-DD for the HTML5 date input
     let formattedDate = '';
     const rawDate = b.publishedDate || raw.publishedDate;
     if (rawDate) {
       formattedDate = rawDate.split('T')[0];
     }
 
-    // Determine default formats & languages
     const fmt = b.format !== undefined ? b.format : raw.format;
     const lang = b.language !== undefined ? b.language : raw.language;
     const formatValue = fmt !== undefined ? this.mapFormatToNumber(fmt) : 2;
     const langValue = lang !== undefined ? this.mapLanguageToNumber(lang) : 1;
 
+    const currentPriceEgp = b.price !== undefined ? b.price : (raw.price || 0);
     const discountPriceVal = (b.discountPrice !== undefined && b.discountPrice !== null) ? b.discountPrice : (raw.discountPrice !== undefined ? raw.discountPrice : null);
-    const priceUsdVal = (b.priceUsd !== undefined && b.priceUsd !== null) ? b.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
-    const discountPriceUsdVal = (b.discountPriceUsd !== undefined && b.discountPriceUsd !== null) ? b.discountPriceUsd : (raw.discountPriceUsd !== undefined ? raw.discountPriceUsd : null);
+    
+    let priceUsdVal = (b.priceUsd !== undefined && b.priceUsd !== null && b.priceUsd > 0) ? b.priceUsd : (raw.priceUsd !== undefined && raw.priceUsd !== null && raw.priceUsd > 0 ? raw.priceUsd : null);
+    if ((priceUsdVal === null || priceUsdVal === undefined) && currentPriceEgp > 0 && rate > 0) {
+      priceUsdVal = Math.round((currentPriceEgp / rate) * 100) / 100;
+    }
+
+    let discountPriceUsdVal = (b.discountPriceUsd !== undefined && b.discountPriceUsd !== null && b.discountPriceUsd > 0) ? b.discountPriceUsd : (raw.discountPriceUsd !== undefined && raw.discountPriceUsd !== null && raw.discountPriceUsd > 0 ? raw.discountPriceUsd : null);
+    if ((discountPriceUsdVal === null || discountPriceUsdVal === undefined) && discountPriceVal !== null && discountPriceVal !== undefined && discountPriceVal > 0 && rate > 0) {
+      discountPriceUsdVal = Math.round((discountPriceVal / rate) * 100) / 100;
+    }
 
     this.form = this.fb.group({
       titleAr: [b.titleAr || raw.titleAr || '', Validators.required],
@@ -298,7 +307,7 @@ export class BookDialogComponent implements OnInit {
       isbn: [b.isbn || raw.isbn || ''],
       coverImageUrl: [b.coverImageUrl || b.coverImage || raw.coverImageUrl || raw.coverImage || ''],
       categoryId: [b.categoryId || raw.categoryId || '', Validators.required],
-      price: [b.price !== undefined ? b.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      price: [currentPriceEgp, [Validators.required, Validators.min(0)]],
       discountPrice: [discountPriceVal, Validators.min(0)],
       priceUsd: [priceUsdVal, Validators.min(0)],
       discountPriceUsd: [discountPriceUsdVal, Validators.min(0)],
@@ -309,6 +318,22 @@ export class BookDialogComponent implements OnInit {
       descriptionAr: [b.descriptionAr || raw.descriptionAr || ''],
       descriptionEn: [b.descriptionEn || raw.descriptionEn || ''],
       isActive: [b.isActive !== undefined ? b.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
+    });
+
+    this.form.get('price')?.valueChanges.subscribe(egp => {
+      if (egp > 0 && rate > 0) {
+        const autoUsd = Math.round((egp / rate) * 100) / 100;
+        this.form.patchValue({ priceUsd: autoUsd }, { emitEvent: false });
+      }
+    });
+
+    this.form.get('discountPrice')?.valueChanges.subscribe(discEgp => {
+      if (discEgp > 0 && rate > 0) {
+        const autoDiscUsd = Math.round((discEgp / rate) * 100) / 100;
+        this.form.patchValue({ discountPriceUsd: autoDiscUsd }, { emitEvent: false });
+      } else if (!discEgp) {
+        this.form.patchValue({ discountPriceUsd: null }, { emitEvent: false });
+      }
     });
   }
 

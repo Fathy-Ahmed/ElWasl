@@ -8,7 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { CurrencyService } from '../../../../core/services/currency.service';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 
 @Component({
@@ -208,21 +210,30 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
   `]
 })
 export class GameDialogComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   private readonly adminApiService = inject(AdminApiService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly currencyService = inject(CurrencyService);
+  readonly dialogRef = inject(MatDialogRef<GameDialogComponent>);
+
   form!: FormGroup;
   readonly isUploading = signal<boolean>(false);
   readonly localPreviewUrl = signal<string>('');
 
   constructor(
-    private readonly fb: FormBuilder,
-    private readonly dialogRef: MatDialogRef<GameDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { game?: any }
   ) {}
 
   ngOnInit(): void {
     const g = this.data.game || {};
     const raw = g.raw || {};
-    const priceUsdVal = (g.priceUsd !== undefined && g.priceUsd !== null) ? g.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
+    const rate = this.currencyService.settings().usdExchangeRate || 50.0;
+    const currentPriceEgp = g.price !== undefined ? g.price : (raw.price || 0);
+
+    let priceUsdVal = (g.priceUsd !== undefined && g.priceUsd !== null && g.priceUsd > 0) ? g.priceUsd : (raw.priceUsd !== undefined && raw.priceUsd !== null && raw.priceUsd > 0 ? raw.priceUsd : null);
+    if ((priceUsdVal === null || priceUsdVal === undefined) && currentPriceEgp > 0 && rate > 0) {
+      priceUsdVal = Math.round((currentPriceEgp / rate) * 100) / 100;
+    }
 
     this.form = this.fb.group({
       nameAr: [g.nameAr || g.titleAr || raw.nameAr || raw.titleAr || '', Validators.required],
@@ -232,11 +243,18 @@ export class GameDialogComponent implements OnInit {
       playerCountMin: [g.playerCountMin !== undefined ? g.playerCountMin : (raw.playerCountMin || 2), [Validators.required, Validators.min(1)]],
       playerCountMax: [g.playerCountMax !== undefined ? g.playerCountMax : (raw.playerCountMax || 4), [Validators.required, Validators.min(1)]],
       stock: [g.stock !== undefined ? g.stock : (raw.stock || 0), [Validators.required, Validators.min(0)]],
-      price: [g.price !== undefined ? g.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      price: [currentPriceEgp, [Validators.required, Validators.min(0)]],
       priceUsd: [priceUsdVal, Validators.min(0)],
       descriptionAr: [g.descriptionAr || raw.descriptionAr || ''],
       descriptionEn: [g.descriptionEn || raw.descriptionEn || ''],
       isActive: [g.isActive !== undefined ? g.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
+    });
+
+    this.form.get('price')?.valueChanges.subscribe(egp => {
+      if (egp > 0 && rate > 0) {
+        const autoUsd = Math.round((egp / rate) * 100) / 100;
+        this.form.patchValue({ priceUsd: autoUsd }, { emitEvent: false });
+      }
     });
   }
 

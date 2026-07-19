@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { CurrencyService } from '../../../../core/services/currency.service';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 
 @Component({
@@ -216,6 +217,7 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 })
 export class AudiobookDialogComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
+  private readonly currencyService = inject(CurrencyService);
   form!: FormGroup;
   printedBooks: any[] = [];
   readonly isUploading = signal<boolean>(false);
@@ -235,7 +237,13 @@ export class AudiobookDialogComponent implements OnInit {
 
     const a = this.data.audiobook || {};
     const raw = a.raw || {};
-    const priceUsdVal = (a.priceUsd !== undefined && a.priceUsd !== null) ? a.priceUsd : (raw.priceUsd !== undefined ? raw.priceUsd : null);
+    const rate = this.currencyService.settings().usdExchangeRate || 50.0;
+    const currentPriceEgp = a.price !== undefined ? a.price : (raw.price || 0);
+
+    let priceUsdVal = (a.priceUsd !== undefined && a.priceUsd !== null && a.priceUsd > 0) ? a.priceUsd : (raw.priceUsd !== undefined && raw.priceUsd !== null && raw.priceUsd > 0 ? raw.priceUsd : null);
+    if ((priceUsdVal === null || priceUsdVal === undefined) && currentPriceEgp > 0 && rate > 0) {
+      priceUsdVal = Math.round((currentPriceEgp / rate) * 100) / 100;
+    }
 
     this.form = this.fb.group({
       titleAr: [a.titleAr || raw.titleAr || '', Validators.required],
@@ -244,12 +252,19 @@ export class AudiobookDialogComponent implements OnInit {
       durationMinutes: [a.durationMinutes !== undefined ? a.durationMinutes : (raw.durationMinutes || 0), [Validators.required, Validators.min(0)]],
       coverImageUrl: [a.coverImageUrl || a.coverImage || raw.coverImageUrl || raw.coverImage || ''],
       audioFileUrl: [a.audioFileUrl || raw.audioFileUrl || ''],
-      price: [a.price !== undefined ? a.price : (raw.price || 0), [Validators.required, Validators.min(0)]],
+      price: [currentPriceEgp, [Validators.required, Validators.min(0)]],
       priceUsd: [priceUsdVal, Validators.min(0)],
       bookId: [a.bookId || raw.bookId || null],
       descriptionAr: [a.descriptionAr || raw.descriptionAr || ''],
       descriptionEn: [a.descriptionEn || raw.descriptionEn || ''],
       isActive: [a.isActive !== undefined ? a.isActive : (raw.isActive !== undefined ? raw.isActive : true)]
+    });
+
+    this.form.get('price')?.valueChanges.subscribe(egp => {
+      if (egp > 0 && rate > 0) {
+        const autoUsd = Math.round((egp / rate) * 100) / 100;
+        this.form.patchValue({ priceUsd: autoUsd }, { emitEvent: false });
+      }
     });
   }
 
