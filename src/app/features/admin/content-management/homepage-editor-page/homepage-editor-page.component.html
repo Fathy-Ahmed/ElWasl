@@ -7,10 +7,18 @@
   <!-- Control Actions -->
   <div class="cms-action-bar">
     <mat-button-toggle-group [value]="activeTab()" name="activeTab" class="lang-toggle-group">
-      <mat-button-toggle value="services" (change)="setTab('services')" id="tab-services">الخدمات الشاملة / Services</mat-button-toggle>
-      <mat-button-toggle value="family" (change)="setTab('family')" id="tab-family">المؤلفون / Authors & Stats</mat-button-toggle>
-      <mat-button-toggle value="distributors" (change)="setTab('distributors')" id="tab-distributors">خريطة الموزعين / Map & Branches</mat-button-toggle>
-      <mat-button-toggle value="terms" (change)="setTab('terms')" id="tab-terms">شروط النشر / Publishing Terms</mat-button-toggle>
+      <mat-button-toggle value="services" (change)="setTab('services')" id="tab-services">
+        <mat-icon inline>auto_stories</mat-icon> الخدمات الشاملة / Services
+      </mat-button-toggle>
+      <mat-button-toggle value="family" (change)="setTab('family')" id="tab-family">
+        <mat-icon inline>people</mat-icon> المؤلفون / Authors
+      </mat-button-toggle>
+      <mat-button-toggle value="distributors" (change)="setTab('distributors')" id="tab-distributors">
+        <mat-icon inline>map</mat-icon> الموزعين / Branches
+      </mat-button-toggle>
+      <mat-button-toggle value="terms" (change)="setTab('terms')" id="tab-terms">
+        <mat-icon inline>gavel</mat-icon> شروط النشر / Terms
+      </mat-button-toggle>
     </mat-button-toggle-group>
 
     <div class="global-actions">

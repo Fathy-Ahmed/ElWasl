@@ -9,15 +9,19 @@
 
 .cms-action-bar {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
   background-color: white;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   border-radius: $border-radius;
   border: 1px solid $border-color;
   box-shadow: $shadow-sm;
+
+  @include respond-to('lg') {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .global-actions {
@@ -38,10 +42,23 @@
 
 .lang-toggle-group {
   border-radius: 20px;
-  overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;
+  display: inline-flex;
+  white-space: nowrap;
   
   mat-button-toggle {
     font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    
+    ::ng-deep .mat-button-toggle-label-content {
+      padding: 0 12px !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
   }
 }
 
