@@ -26,13 +26,25 @@
 
 .global-actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
 
   button {
-    height: 40px;
-    line-height: 38px;
-    border-radius: 20px;
+    height: auto;
+    min-height: 42px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 24px;
     font-weight: 700;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    span, mat-icon {
+      white-space: nowrap;
+    }
   }
   
   .save-all-btn {
