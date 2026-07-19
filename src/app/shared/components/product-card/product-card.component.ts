@@ -119,11 +119,8 @@ export class ProductCardComponent {
     if (fmtLower.includes('paperback')) {
       return isAr ? 'غلاف ورقي عادي' : 'Paperback';
     }
-    if (fmtLower.includes('ebook') || fmtLower.includes('e-book')) {
-      return isAr ? 'كتاب إلكتروني' : 'E-Book';
-    }
-    if (fmtLower.includes('digital')) {
-      return isAr ? 'نسخة رقمية' : 'Digital Edition';
+    if (fmtLower.includes('ebook') || fmtLower.includes('e-book') || fmtLower.includes('digital') || fmtLower.includes('electronic')) {
+      return isAr ? 'غلاف ورقي عادي' : 'Paperback';
     }
     return format;
   }
