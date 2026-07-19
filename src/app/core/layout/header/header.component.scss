@@ -124,6 +124,35 @@
   margin: 0 0.25rem;
 }
 
+.currency-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 16px;
+  background-color: rgba($primary-color, 0.08);
+  border: 1px solid rgba($primary-color, 0.2);
+  color: $brown-text;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background-color: $primary-color;
+    color: white;
+    border-color: $primary-color;
+  }
+
+  .curr-flag {
+    font-size: 0.95rem;
+  }
+
+  .curr-code {
+    font-family: $font-latin;
+  }
+}
+
 .login-btn {
   display: inline-flex !important;
   align-items: center;

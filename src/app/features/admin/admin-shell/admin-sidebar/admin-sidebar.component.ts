@@ -65,6 +65,7 @@ export class AdminSidebarComponent {
       items: [
         { label: 'المعارض الجارية / Exhibitions', route: '/admin/exhibitions', icon: 'storefront' },
         { label: 'العروض الترويجية / Offers', route: '/admin/offers', icon: 'local_offer' },
+        { label: 'أسعار العملات / Currency Rates', route: '/admin/currency-settings', icon: 'currency_exchange' },
         { label: 'من نحن / About CMS', route: '/admin/content/about-us', icon: 'edit_note' },
         { label: 'شروط التعاقد / Terms CMS', route: '/admin/content/contract-terms', icon: 'gavel' },
         { label: 'تعديل الرئيسية / Homepage CMS', route: '/admin/content/homepage', icon: 'home_repair_service' }

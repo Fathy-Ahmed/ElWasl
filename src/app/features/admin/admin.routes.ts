@@ -70,6 +70,10 @@ export const adminRoutes: Routes = [
       {
         path: 'audit-logs',
         loadComponent: () => import('./audit-logs/audit-log-list-page/audit-log-list-page.component').then(m => m.AuditLogListPageComponent)
+      },
+      {
+        path: 'currency-settings',
+        loadComponent: () => import('./currency-settings/currency-settings-page.component').then(m => m.CurrencySettingsPageComponent)
       }
     ]
   }
