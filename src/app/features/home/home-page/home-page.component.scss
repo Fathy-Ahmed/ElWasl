@@ -1059,7 +1059,7 @@
 /* Single Paper Sheet Styling */
 .falling-paper {
   position: absolute;
-  top: -80px;
+  top: 0;
   width: 55px;
   height: 75px;
   background: #ffffff;
@@ -1149,20 +1149,22 @@
 /* Smooth Fluttering & Free-Falling Keyframe Animation */
 @keyframes floatDownAndTwist {
   0% {
-    transform: translateY(-80px) translateX(0) rotate(0deg) rotateX(0deg) rotateY(0deg);
+    transform: translateY(-90px) translateX(0) rotate(0deg) rotateX(0deg) rotateY(0deg);
     opacity: 0;
   }
-  12% {
+  15% {
+    transform: translateY(15px) translateX(10px) rotate(15deg) rotateX(15deg) rotateY(10deg);
+    opacity: 0;
+  }
+  32% {
     opacity: 0.95;
   }
-  35% {
-    transform: translateY(140px) translateX(40px) rotate(45deg) rotateX(40deg) rotateY(30deg);
-  }
   65% {
-    transform: translateY(290px) translateX(-30px) rotate(120deg) rotateX(-25deg) rotateY(60deg);
+    transform: translateY(280px) translateX(-30px) rotate(120deg) rotateX(-25deg) rotateY(60deg);
+    opacity: 0.85;
   }
   88% {
-    opacity: 0.85;
+    opacity: 0.3;
   }
   100% {
     transform: translateY(480px) translateX(50px) rotate(220deg) rotateX(50deg) rotateY(90deg);
