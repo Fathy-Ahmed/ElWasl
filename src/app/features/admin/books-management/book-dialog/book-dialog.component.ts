@@ -100,16 +100,26 @@ import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.m
           </div>
         }
 
-        <!-- Row 4: Pricing & Stock -->
+        <!-- Row 4: Pricing & Stock (EGP & USD) -->
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>السعر / Price</mat-label>
+            <mat-label>السعر بالجنيه / Price (EGP)</mat-label>
             <input type="number" matInput formControlName="price" required min="0">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>سعر الخصم / Discount Price</mat-label>
+            <mat-label>خصم الجنيه / Discount (EGP)</mat-label>
             <input type="number" matInput formControlName="discountPrice" min="0">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>السعر بالدولار ($) / Price (USD)</mat-label>
+            <input type="number" matInput formControlName="priceUsd" min="0" step="0.5">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>خصم الدولار ($) / Discount (USD)</mat-label>
+            <input type="number" matInput formControlName="discountPriceUsd" min="0" step="0.5">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -282,6 +292,8 @@ export class BookDialogComponent implements OnInit {
       categoryId: [b?.categoryId || '', Validators.required],
       price: [b?.price || 0, [Validators.required, Validators.min(0)]],
       discountPrice: [b?.discountPrice !== undefined && b?.discountPrice !== null ? b.discountPrice : null, Validators.min(0)],
+      priceUsd: [b?.priceUsd !== undefined && b?.priceUsd !== null ? b.priceUsd : null, Validators.min(0)],
+      discountPriceUsd: [b?.discountPriceUsd !== undefined && b?.discountPriceUsd !== null ? b.discountPriceUsd : null, Validators.min(0)],
       stock: [b?.stock || 0, [Validators.required, Validators.min(0)]],
       format: [formatValue, Validators.required],
       language: [langValue, Validators.required],
@@ -349,6 +361,16 @@ export class BookDialogComponent implements OnInit {
       if (!val.coverImageUrl) val.coverImageUrl = null;
       if (val.discountPrice === '' || val.discountPrice === null || val.discountPrice === undefined) {
         val.discountPrice = null;
+      }
+      if (val.priceUsd === '' || val.priceUsd === null || val.priceUsd === undefined) {
+        val.priceUsd = null;
+      } else {
+        val.priceUsd = Number(val.priceUsd);
+      }
+      if (val.discountPriceUsd === '' || val.discountPriceUsd === null || val.discountPriceUsd === undefined) {
+        val.discountPriceUsd = null;
+      } else {
+        val.discountPriceUsd = Number(val.discountPriceUsd);
       }
       if (!val.descriptionAr) val.descriptionAr = null;
       if (!val.descriptionEn) val.descriptionEn = null;

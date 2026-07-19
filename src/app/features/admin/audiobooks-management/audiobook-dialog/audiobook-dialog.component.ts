@@ -92,11 +92,16 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
           </div>
         }
 
-        <!-- Row 4: Price & Book Link -->
+        <!-- Row 4: Price (EGP & USD) & Book Link -->
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>السعر / Price</mat-label>
+            <mat-label>السعر بالجنيه / Price (EGP)</mat-label>
             <input type="number" matInput formControlName="price" required min="0">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>السعر بالدولار ($) / Price (USD)</mat-label>
+            <input type="number" matInput formControlName="priceUsd" min="0" step="0.5">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -237,6 +242,7 @@ export class AudiobookDialogComponent implements OnInit {
       coverImageUrl: [a?.coverImageUrl || a?.coverImage || ''],
       audioFileUrl: [a?.audioFileUrl || ''],
       price: [a?.price || 0, [Validators.required, Validators.min(0)]],
+      priceUsd: [a?.priceUsd !== undefined && a?.priceUsd !== null ? a.priceUsd : null, Validators.min(0)],
       bookId: [a?.bookId || null],
       descriptionAr: [a?.descriptionAr || ''],
       descriptionEn: [a?.descriptionEn || ''],

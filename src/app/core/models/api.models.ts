@@ -110,6 +110,8 @@ export interface BookDto {
   coverImageUrl?: string | null;
   price: number;
   discountPrice?: number | null;
+  priceUsd?: number | null;
+  discountPriceUsd?: number | null;
   stock: number;
   categoryId: string;
   categoryNameAr?: string | null;
@@ -139,6 +141,8 @@ export interface CreateBookCommand {
   coverImageUrl?: string | null;
   price: number;
   discountPrice?: number | null;
+  priceUsd?: number | null;
+  discountPriceUsd?: number | null;
   stock: number;
   categoryId: string;
   format?: BookFormat;
@@ -157,6 +161,8 @@ export interface UpdateBookCommand {
   coverImageUrl?: string | null;
   price: number;
   discountPrice?: number | null;
+  priceUsd?: number | null;
+  discountPriceUsd?: number | null;
   stock: number;
   categoryId: string;
   format?: BookFormat;
@@ -213,6 +219,7 @@ export interface AudiobookDto {
   coverImageUrl?: string | null;
   durationMinutes: number;
   price: number;
+  priceUsd?: number | null;
   audioFileUrl?: string | null;
   isActive: boolean;
 }
@@ -236,6 +243,7 @@ export interface CreateAudiobookCommand {
   coverImageUrl?: string | null;
   durationMinutes: number;
   price: number;
+  priceUsd?: number | null;
   audioFileUrl?: string | null;
 }
 
@@ -250,6 +258,7 @@ export interface UpdateAudiobookCommand {
   coverImageUrl?: string | null;
   durationMinutes: number;
   price: number;
+  priceUsd?: number | null;
   audioFileUrl?: string | null;
   isActive: boolean;
 }
@@ -262,6 +271,7 @@ export interface GameDto {
   descriptionAr?: string | null;
   descriptionEn?: string | null;
   price: number;
+  priceUsd?: number | null;
   playerCountMin: number;
   playerCountMax: number;
   categoryTag?: string | null;
@@ -285,6 +295,7 @@ export interface CreateGameCommand {
   descriptionAr?: string | null;
   descriptionEn?: string | null;
   price: number;
+  priceUsd?: number | null;
   playerCountMin: number;
   playerCountMax: number;
   categoryTag?: string | null;
@@ -299,6 +310,7 @@ export interface UpdateGameCommand {
   descriptionAr?: string | null;
   descriptionEn?: string | null;
   price: number;
+  priceUsd?: number | null;
   playerCountMin: number;
   playerCountMax: number;
   categoryTag?: string | null;

@@ -99,13 +99,20 @@ export interface Breadcrumb {
 
     .header-actions {
       button {
-        border-radius: 20px;
-        font-weight: 600;
-        height: 40px;
-        line-height: 38px;
-        display: flex;
+        border-radius: 24px;
+        font-weight: 700;
+        height: auto;
+        min-height: 42px;
+        padding: 0.5rem 1.25rem;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        white-space: nowrap;
         gap: 0.5rem;
+
+        span {
+          white-space: nowrap;
+        }
       }
     }
   `]

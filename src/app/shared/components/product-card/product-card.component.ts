@@ -10,6 +10,8 @@ import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 import { PriceTagComponent } from '../price-tag/price-tag.component';
 import { LocaleService } from '../../../core/i18n/locale.service';
 
+import { CurrencyService } from '../../../core/services/currency.service';
+
 export interface Product {
   id: string;
   productType: 'Book' | 'Audiobook' | 'Game';
@@ -17,6 +19,8 @@ export interface Product {
   titleEn: string;
   price: number;
   originalPrice?: number;
+  priceUsd?: number;
+  originalPriceUsd?: number;
   coverImage: string;
   authorAr?: string;
   authorEn?: string;
@@ -52,6 +56,21 @@ export class ProductCardComponent {
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
   private readonly localeService = inject(LocaleService);
+  readonly currencyService = inject(CurrencyService);
+
+  get displayPrice(): number {
+    if (this.currencyService.activeCurrency() === 'USD' && this.product.priceUsd && this.product.priceUsd > 0) {
+      return this.product.priceUsd;
+    }
+    return this.product.price;
+  }
+
+  get displayOriginalPrice(): number | undefined {
+    if (this.currencyService.activeCurrency() === 'USD' && this.product.originalPriceUsd && this.product.originalPriceUsd > 0) {
+      return this.product.originalPriceUsd;
+    }
+    return this.product.originalPrice;
+  }
 
   addToCart(event: Event): void {
     event.stopPropagation(); // Avoid navigating to details page

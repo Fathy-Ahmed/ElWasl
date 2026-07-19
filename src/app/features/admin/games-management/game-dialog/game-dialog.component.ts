@@ -97,11 +97,16 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
           </mat-form-field>
         </div>
 
-        <!-- Row 4: Price -->
+        <!-- Row 4: Price (EGP & USD) -->
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>السعر / Price</mat-label>
+            <mat-label>السعر بالجنيه / Price (EGP)</mat-label>
             <input type="number" matInput formControlName="price" required min="0">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>السعر بالدولار ($) / Price (USD)</mat-label>
+            <input type="number" matInput formControlName="priceUsd" min="0" step="0.5">
           </mat-form-field>
         </div>
 
@@ -225,6 +230,7 @@ export class GameDialogComponent implements OnInit {
       playerCountMax: [g?.playerCountMax || g?.raw?.playerCountMax || 4, [Validators.required, Validators.min(1)]],
       stock: [g?.stock || 0, [Validators.required, Validators.min(0)]],
       price: [g?.price || 0, [Validators.required, Validators.min(0)]],
+      priceUsd: [g?.priceUsd !== undefined && g?.priceUsd !== null ? g.priceUsd : (g?.raw?.priceUsd || null), Validators.min(0)],
       descriptionAr: [g?.descriptionAr || g?.raw?.descriptionAr || ''],
       descriptionEn: [g?.descriptionEn || g?.raw?.descriptionEn || ''],
       isActive: [g?.isActive !== undefined ? g.isActive : true]

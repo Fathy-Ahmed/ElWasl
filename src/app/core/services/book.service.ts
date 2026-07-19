@@ -41,6 +41,16 @@ export class BookService {
 
   private mapBookToProduct(book: BookDto): Product {
     const isDiscounted = book.discountPrice !== null && book.discountPrice !== undefined && book.discountPrice < book.price;
+    const isDiscountedUsd = book.discountPriceUsd !== null && book.discountPriceUsd !== undefined && book.priceUsd !== undefined && book.priceUsd !== null && book.discountPriceUsd < book.priceUsd;
+    
+    let priceUsd: number | undefined = undefined;
+    let originalPriceUsd: number | undefined = undefined;
+
+    if (book.priceUsd !== undefined && book.priceUsd !== null && book.priceUsd > 0) {
+      priceUsd = isDiscountedUsd ? book.discountPriceUsd! : book.priceUsd;
+      originalPriceUsd = isDiscountedUsd ? book.priceUsd : undefined;
+    }
+
     return {
       id: book.id,
       productType: 'Book',
@@ -48,6 +58,8 @@ export class BookService {
       titleEn: book.titleEn || '',
       price: isDiscounted ? book.discountPrice! : book.price,
       originalPrice: isDiscounted ? book.price : undefined,
+      priceUsd,
+      originalPriceUsd,
       coverImage: book.coverImageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600',
       authorAr: book.authorName || '',
       authorEn: book.authorName || '',

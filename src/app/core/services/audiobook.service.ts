@@ -43,6 +43,7 @@ export class AudiobookService {
       titleAr: audiobook.titleAr || '',
       titleEn: audiobook.titleEn || '',
       price: audiobook.price,
+      priceUsd: audiobook.priceUsd && audiobook.priceUsd > 0 ? audiobook.priceUsd : undefined,
       coverImage: audiobook.coverImageUrl || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=600',
       authorAr: audiobook.narratorName || '',
       authorEn: audiobook.narratorName || '',

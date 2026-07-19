@@ -43,6 +43,7 @@ export class GameService {
       titleAr: game.nameAr || '',
       titleEn: game.nameEn || '',
       price: game.price,
+      priceUsd: game.priceUsd && game.priceUsd > 0 ? game.priceUsd : undefined,
       coverImage: game.imageUrl || 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&q=80&w=600',
       authorAr: game.categoryTag ? `تصنيف: ${game.categoryTag}` : `${game.playerCountMin}-${game.playerCountMax} لاعبين`,
       authorEn: game.categoryTag ? `Category: ${game.categoryTag}` : `${game.playerCountMin}-${game.playerCountMax} players`,
