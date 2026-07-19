@@ -1,7 +1,7 @@
 <div class="card-wrapper" [routerLink]="getDetailsRoute()" [id]="'prod-card-' + product.id">
   <!-- Image container with product type badge -->
   <div class="image-container">
-    <img [src]="product.coverImage | imageUrl" [alt]="product | localizedText:'title'" class="product-cover" loading="lazy">
+    <img [src]="product.coverImage | imageUrl" [alt]="product | localizedText:'title'" class="product-cover" loading="lazy" decoding="async">
     <span class="type-badge" [ngClass]="product.productType.toLowerCase()">
       @if (product.productType === 'Book') {
         {{ 'NAV.BOOKS' | translate }}
