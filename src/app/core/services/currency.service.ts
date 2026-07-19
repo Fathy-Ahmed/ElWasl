@@ -5,50 +5,46 @@ export type RegionCode = 'EG' | 'OTHER';
 
 export interface CurrencySettings {
   usdExchangeRate: number;      // e.g. 50 EGP per 1 USD
-  autoDetectRegion: boolean;    // Automatically detect Egypt vs International
-  defaultRegion: RegionCode;     // Fallback region ('EG' or 'OTHER')
+  defaultRegion: RegionCode;     // Fallback region if detection is unavailable ('EG' or 'OTHER')
 }
 
 const STORAGE_KEY_SETTINGS = 'elwasl_currency_settings';
-const STORAGE_KEY_USER_PREF = 'elwasl_user_currency_preference';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CurrencyService {
-  // Configurable settings signal
+  // Configurable admin settings
   readonly settings = signal<CurrencySettings>({
     usdExchangeRate: 50.0,
-    autoDetectRegion: true,
     defaultRegion: 'EG'
   });
 
-  // User manual preference ('EGP' | 'USD' | null)
-  private readonly userPreference = signal<CurrencyCode | null>(null);
-
-  // System detected region ('EG' | 'OTHER')
+  // Automatically detected region ('EG' for Egypt, 'OTHER' for any other country)
   readonly detectedRegion = signal<RegionCode>('EG');
+
+  // Admin test simulation override (only used inside admin preview for testing)
+  readonly adminTestRegion = signal<RegionCode | null>(null);
 
   constructor() {
     this.loadSettings();
-    this.detectRegion();
+    this.detectVisitorLocation();
   }
 
-  // Active currency signal derived from preferences, settings, and detected region
+  // Active currency is strictly determined by location (EG -> EGP, International -> USD)
   readonly activeCurrency = computed<CurrencyCode>(() => {
-    // 1. User manual override takes highest precedence
-    const userPref = this.userPreference();
-    if (userPref) {
-      return userPref;
+    // 1. Admin test preview simulation
+    const testRegion = this.adminTestRegion();
+    if (testRegion) {
+      return testRegion === 'EG' ? 'EGP' : 'USD';
     }
 
-    // 2. If auto-detection is enabled, use detected region
-    const cfg = this.settings();
-    const region = cfg.autoDetectRegion ? this.detectedRegion() : cfg.defaultRegion;
+    // 2. Strict automated location check
+    const region = this.detectedRegion();
     return region === 'EG' ? 'EGP' : 'USD';
   });
 
-  // Active symbol derived from active currency and language
+  // Get active currency symbol for layout
   getCurrencySymbol(lang: string = 'ar'): string {
     const cur = this.activeCurrency();
     if (cur === 'EGP') {
@@ -57,7 +53,7 @@ export class CurrencyService {
     return '$';
   }
 
-  // Convert an EGP base price into the target or active currency
+  // Convert an EGP base price into USD or active currency
   convertPrice(amountInEgp: number | null | undefined, overrideCurrency?: CurrencyCode): number {
     if (amountInEgp === null || amountInEgp === undefined || isNaN(amountInEgp)) {
       return 0;
@@ -72,36 +68,28 @@ export class CurrencyService {
     if (rate <= 0) return amountInEgp;
 
     const usdVal = amountInEgp / rate;
-    // Format to 2 decimal places rounded
     return Math.round(usdVal * 100) / 100;
   }
 
-  // Format amount for display based on active currency & locale
+  // Format amount for display based on automated currency & locale
   formatPrice(amountInEgp: number | null | undefined, lang: string = 'ar'): string {
     if (amountInEgp === null || amountInEgp === undefined) return '';
 
     const cur = this.activeCurrency();
     const converted = this.convertPrice(amountInEgp, cur);
 
-    // Format numbers
     const formattedVal = Number.isInteger(converted) ? converted.toString() : converted.toFixed(2);
 
     if (cur === 'EGP') {
       return lang === 'ar' ? `${formattedVal} ج.م` : `${formattedVal} EGP`;
     } else {
-      // USD formatting
       return lang === 'ar' ? `${formattedVal} $` : `$${formattedVal}`;
     }
   }
 
-  // Toggle or manually set user currency preference
-  setCurrencyPreference(cur: CurrencyCode | null): void {
-    this.userPreference.set(cur);
-    if (cur) {
-      localStorage.setItem(STORAGE_KEY_USER_PREF, cur);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_USER_PREF);
-    }
+  // Admin test simulation toggle
+  setAdminTestRegion(region: RegionCode | null): void {
+    this.adminTestRegion.set(region);
   }
 
   // Update admin settings
@@ -114,46 +102,49 @@ export class CurrencyService {
   }
 
   private loadSettings(): void {
-    // Load stored settings if present
     const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         this.settings.set({
           usdExchangeRate: typeof parsed.usdExchangeRate === 'number' && parsed.usdExchangeRate > 0 ? parsed.usdExchangeRate : 50.0,
-          autoDetectRegion: typeof parsed.autoDetectRegion === 'boolean' ? parsed.autoDetectRegion : true,
           defaultRegion: parsed.defaultRegion === 'OTHER' ? 'OTHER' : 'EG'
         });
       } catch {}
     }
-
-    // Load user preference if present
-    const savedPref = localStorage.getItem(STORAGE_KEY_USER_PREF) as CurrencyCode;
-    if (savedPref === 'EGP' || savedPref === 'USD') {
-      this.userPreference.set(savedPref);
-    }
   }
 
-  private detectRegion(): void {
+  private detectVisitorLocation(): void {
     try {
-      // Detect browser timezone
+      // 1. Timezone detection
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      if (timeZone.toLowerCase().includes('cairo') || timeZone.toLowerCase().includes('egypt')) {
+      const lowerTz = timeZone.toLowerCase();
+      
+      // If timezone is Cairo / Egypt -> region is EG (EGP)
+      if (lowerTz.includes('cairo') || lowerTz.includes('egypt')) {
         this.detectedRegion.set('EG');
+        return;
+      }
+
+      // 2. Language / Locale region tag detection
+      const lang = (navigator.language || '').toLowerCase();
+      const languages = (navigator.languages || []).map(l => l.toLowerCase());
+      const hasEgLocale = lang.includes('ar-eg') || lang.includes('en-eg') || languages.some(l => l.includes('-eg'));
+
+      if (hasEgLocale) {
+        this.detectedRegion.set('EG');
+        return;
+      }
+
+      // 3. If timezone is explicitly specified and not Egypt -> International (USD)
+      if (timeZone) {
+        this.detectedRegion.set('OTHER');
       } else {
-        // Default to Egypt if locale contains 'ar-EG', otherwise check timezone
-        const lang = navigator.language || '';
-        if (lang.toLowerCase().includes('eg')) {
-          this.detectedRegion.set('EG');
-        } else if (timeZone) {
-          // If timezone exists and is not Cairo -> International
-          this.detectedRegion.set('OTHER');
-        } else {
-          this.detectedRegion.set('EG');
-        }
+        // Fallback to admin default region setting
+        this.detectedRegion.set(this.settings().defaultRegion);
       }
     } catch {
-      this.detectedRegion.set('EG');
+      this.detectedRegion.set(this.settings().defaultRegion);
     }
   }
 }

@@ -39,12 +39,6 @@
       <!-- Language switcher -->
       <app-language-switcher class="lang-switcher-widget"></app-language-switcher>
 
-      <!-- Currency Switcher Badge -->
-      <button class="currency-badge-btn" (click)="toggleCurrency()" [title]="currencyService.activeCurrency() === 'EGP' ? 'الجنيه المصري (اضغط للتحويل للدولار)' : 'US Dollar (Click to switch to EGP)'">
-        <span class="curr-flag">{{ currencyService.activeCurrency() === 'EGP' ? '🇪🇬' : '💵' }}</span>
-        <span class="curr-code">{{ currencyService.activeCurrency() }}</span>
-      </button>
-
       <!-- Profile/Logout -->
       @if (authService.isAuthenticated()) {
         <a routerLink="/account" mat-icon-button class="profile-btn" id="nav-profile-btn" aria-label="Profile">

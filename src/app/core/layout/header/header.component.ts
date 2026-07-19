@@ -8,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 import { AuthService } from '../../auth/auth.service';
 import { CartService } from '../../cart/cart.service';
-import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-header',
@@ -28,14 +27,7 @@ import { CurrencyService } from '../../services/currency.service';
 export class HeaderComponent {
   readonly cartService = inject(CartService);
   readonly authService = inject(AuthService);
-  readonly currencyService = inject(CurrencyService);
   private readonly router = inject(Router);
-
-  toggleCurrency(): void {
-    const current = this.currencyService.activeCurrency();
-    const next = current === 'EGP' ? 'USD' : 'EGP';
-    this.currencyService.setCurrencyPreference(next);
-  }
 
   logout(): void {
     this.authService.logout();

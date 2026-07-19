@@ -4,10 +4,10 @@
     <div class="header-titles">
       <h1>
         <mat-icon class="header-icon">currency_exchange</mat-icon>
-        إعدادات العملات وأسعار الصرف / Currency & Exchange Rates
+        إعداد أسعار الصرف بالجنيه والدولار / EGP & USD Rates Setup
       </h1>
       <p class="subtitle">
-        تحديد سعر الصرف للجنيه المصري والدولار الأمريكي وإدارة آلية التحديد التلقائي لبلد الزائر
+        تظهر الأسعار بالجنيه المصري تلقائياً للعملاء داخل مصر، وبالدولار الأمريكي للعملاء من خارج مصر
       </p>
     </div>
   </header>
@@ -18,10 +18,10 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>tune</mat-icon>
-          سعر الصرف وتخصيص الموقع / Exchange Rate & Location Rules
+          سعر الصرف والمنطقة الافتراضية / Exchange Rate & Fallback
         </mat-card-title>
         <mat-card-subtitle>
-          ضبط أسعار المنتجات بالجنيه المصري داخل مصر وبالدولار لكافة دول العالم
+          تخصيص قيمة التحويل للدولار لجميع المعاملات من خارج مصر
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -47,41 +47,28 @@
             </mat-form-field>
             <p class="field-hint">
               <mat-icon inline>info</mat-icon>
-              يستخدم هذا السعر لتحويل أسعار الكتب والألعاب تلقائياً للزوار من خارج جمهورية مصر العربية.
+              يتم تحويل أسعار الكتب والمحتوى تلقائياً للدولار عند دخول الزائر من خارج مصر وفق هذا السعر.
             </p>
           </div>
 
           <hr class="divider">
 
-          <!-- Auto Detect Toggle -->
-          <div class="toggle-block">
-            <div class="toggle-info">
-              <span class="toggle-title">تفعيل الكشف التلقائي عن بلد الزائر (Auto Detect Location)</span>
-              <span class="toggle-desc">
-                استخدام المنطقة الزمنية ولغة المتصفح لإظهار الجنيه المصري تلقائياً للمستخدمين داخل مصر، والدولار الأمريكي للزوار الدوليين.
-              </span>
-            </div>
-            <mat-slide-toggle formControlName="autoDetectRegion" color="primary"></mat-slide-toggle>
-          </div>
-
-          <hr class="divider">
-
-          <!-- Default Region Setting -->
+          <!-- Default Fallback Region Setting -->
           <div class="field-block">
             <label class="field-label">
-              <strong>العملة والمنطقة الافتراضية للتطبيق (Default Fallback Currency)</strong>
+              <strong>المنطقة والعملة الاحتياطية (Fallback Currency)</strong>
             </label>
             <mat-radio-group formControlName="defaultRegion" class="region-radio-group">
               <mat-radio-button value="EG" color="primary">
                 <div class="radio-option">
-                  <strong>جمهورية مصر العربية (الجنيه المصري - EGP)</strong>
-                  <span>عرض الأسعار بالجنيه المصري افتراضياً عند تعذر تحديد موقع الزائر</span>
+                  <strong>داخل مصر (الجنيه المصري - EGP)</strong>
+                  <span>الاحتياطي في حال تعذر تحديد الدولة تلقائياً هو الجنيه المصري</span>
                 </div>
               </mat-radio-button>
               <mat-radio-button value="OTHER" color="primary">
                 <div class="radio-option">
-                  <strong>الدولية / باقي دول العالم (الدولار الأمريكي - USD)</strong>
-                  <span>عرض الأسعار بالدولار الأمريكي افتراضياً عند تعذر تحديد موقع الزائر</span>
+                  <strong>خارج مصر (الدولار الأمريكي - USD)</strong>
+                  <span>الاحتياطي في حال تعذر تحديد الدولة تلقائياً هو الدولار الأمريكي</span>
                 </div>
               </mat-radio-button>
             </mat-radio-group>
@@ -91,7 +78,7 @@
           <div class="form-actions">
             <button type="submit" mat-flat-button color="primary" [disabled]="settingsForm.invalid" class="save-btn">
               <mat-icon>save</mat-icon>
-              حفظ التغييرات / Save Settings
+              حفظ سعر الصرف / Save Settings
             </button>
             <button type="button" mat-outlined-button (click)="resetDefaults()" class="reset-btn">
               <mat-icon>restart_alt</mat-icon>
@@ -107,29 +94,29 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>preview</mat-icon>
-          معاينة حية لأسعار المنتجات / Live Rate Preview
+          اختبار محاكاة عرض الأسعار / Live Rate Simulator
         </mat-card-title>
         <mat-card-subtitle>
-          عرض توضيحي لكيفية تحويل أسعار الكتب بين الجنيه والدولار
+          اختبار كيفية ظهور الأسعار للعملاء من داخل مصر ومن خارج مصر
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content class="preview-content">
         <div class="active-status-badge">
           <div class="status-item">
-            <span class="lbl">العملة الحالية النشطة / Active:</span>
+            <span class="lbl">العملة المعروضة حالياً / Active:</span>
             <span class="val highlight">{{ currencyService.activeCurrency() }} ({{ currencyService.getCurrencySymbol('ar') }})</span>
           </div>
           <div class="status-item">
-            <span class="lbl">سعر الصرف المحدد / Rate:</span>
+            <span class="lbl">سعر الصرف الحالي / Rate:</span>
             <span class="val">1 USD = {{ settingsForm.get('usdExchangeRate')?.value || 50 }} EGP</span>
           </div>
         </div>
 
         <div class="preview-table">
           <div class="table-header">
-            <span>السعر بالجنيه (EGP)</span>
-            <span>المعادل بالدولار (USD)</span>
+            <span>السعر بالجنيه (داخل مصر)</span>
+            <span>السعر بالدولار (خارج مصر)</span>
           </div>
           <div class="table-row" *ngFor="let egp of samplePrices">
             <span class="egp-val">{{ egp }} ج.م</span>
@@ -137,23 +124,23 @@
           </div>
         </div>
 
-        <!-- Quick Manual Test Override Toggle -->
+        <!-- Admin Simulation Test Switcher -->
         <div class="test-override-block">
-          <p class="test-lbl">اختبار واجهة المستخدم (Simulate View):</p>
+          <p class="test-lbl">محاكاة دخول الزائر (Admin Preview Test):</p>
           <div class="btn-group">
             <button mat-stroked-button 
                     [class.active]="currencyService.activeCurrency() === 'EGP'"
-                    (click)="currencyService.setCurrencyPreference('EGP')">
-              مصر (EGP)
+                    (click)="currencyService.setAdminTestRegion('EG')">
+              🇪🇬 زائر من داخل مصر (EGP)
             </button>
             <button mat-stroked-button 
                     [class.active]="currencyService.activeCurrency() === 'USD'"
-                    (click)="currencyService.setCurrencyPreference('USD')">
-              دولية (USD)
+                    (click)="currencyService.setAdminTestRegion('OTHER')">
+              🌐 زائر من خارج مصر (USD)
             </button>
             <button mat-icon-button 
-                    title="إعادة ضبط للاختبار التلقائي / Auto"
-                    (click)="currencyService.setCurrencyPreference(null)">
+                    title="الكشف التلقائي الفعلي / Real Auto Detect"
+                    (click)="currencyService.setAdminTestRegion(null)">
               <mat-icon>refresh</mat-icon>
             </button>
           </div>

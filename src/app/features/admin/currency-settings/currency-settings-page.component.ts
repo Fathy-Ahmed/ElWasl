@@ -7,7 +7,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyService, CurrencySettings, RegionCode } from '../../../core/services/currency.service';
@@ -25,7 +24,6 @@ import { CurrencyEgpPipe } from '../../../shared/pipes/currency-egp.pipe';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatSlideToggleModule,
     MatRadioModule,
     MatSnackBarModule,
     CurrencyEgpPipe
@@ -47,7 +45,6 @@ export class CurrencySettingsPageComponent implements OnInit {
     const current = this.currencyService.settings();
     this.settingsForm = this.fb.group({
       usdExchangeRate: [current.usdExchangeRate, [Validators.required, Validators.min(0.01)]],
-      autoDetectRegion: [current.autoDetectRegion],
       defaultRegion: [current.defaultRegion, [Validators.required]]
     });
   }
@@ -58,14 +55,13 @@ export class CurrencySettingsPageComponent implements OnInit {
     const val = this.settingsForm.value;
     const updated: Partial<CurrencySettings> = {
       usdExchangeRate: parseFloat(val.usdExchangeRate),
-      autoDetectRegion: !!val.autoDetectRegion,
       defaultRegion: val.defaultRegion as RegionCode
     };
 
     this.currencyService.updateSettings(updated);
 
     this.snackBar.open(
-      'تم حفظ إعدادات العملة وأسعار الصرف بنجاح / Currency settings updated successfully',
+      'تم حفظ سعر الصرف وإعدادات العملة بنجاح / Exchange rate settings updated successfully',
       'إغلاق / Close',
       { duration: 4000, horizontalPosition: 'center', verticalPosition: 'bottom' }
     );
@@ -74,7 +70,6 @@ export class CurrencySettingsPageComponent implements OnInit {
   resetDefaults(): void {
     this.settingsForm.patchValue({
       usdExchangeRate: 50.0,
-      autoDetectRegion: true,
       defaultRegion: 'EG'
     });
     this.saveSettings();
