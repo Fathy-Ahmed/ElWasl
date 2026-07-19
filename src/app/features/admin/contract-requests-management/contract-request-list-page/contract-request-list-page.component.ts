@@ -42,18 +42,24 @@ export class ContractRequestListPageComponent {
   ];
 
   readonly tableActions = [
+    { name: 'review', icon: 'rate_review', color: 'primary', idPrefix: 'review-contract-' },
     { name: 'approve', icon: 'check_circle', color: 'accent', idPrefix: 'approve-contract-' },
     { name: 'reject', icon: 'cancel', color: 'warn', idPrefix: 'reject-contract-' }
   ];
 
   readonly contractRequests = signal([
-    { id: 'cr-101', authorName: 'أحمد صالح', bookTitle: 'صرخة الأندلس', date: '2026-06-20', status: 'pending' },
+    { id: 'cr-101', authorName: 'أحمد صالح', bookTitle: 'صرخة الأندلس', date: '2026-06-20', status: 'under_review' },
     { id: 'cr-102', authorName: 'منى غانم', bookTitle: 'رحلة البحث عن الذات', date: '2026-06-19', status: 'delivered' }
   ]);
 
   handleAction(event: { action: string; row: any }): void {
     const requestId = event.row.id;
-    if (event.action === 'approve') {
+    if (event.action === 'review') {
+      this.contractRequests.update(current => 
+        current.map(cr => cr.id === requestId ? { ...cr, status: 'under_review' } : cr)
+      );
+      this.snackBar.open(`تم تغيير حالة الطلب ${requestId} إلى قيد المراجعة / Under Review`, 'إغلاق / Close', { duration: 3000 });
+    } else if (event.action === 'approve') {
       this.contractRequests.update(current => 
         current.map(cr => cr.id === requestId ? { ...cr, status: 'delivered' } : cr)
       );

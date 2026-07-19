@@ -34,6 +34,7 @@ export class StatusBadgeComponent {
     completed: { bg: '#e6f4ea', text: '#137333' },
     
     pending: { bg: '#fef7e0', text: '#b06000' },       // Amber
+    under_review: { bg: '#e8f0fe', text: '#1a73e8' },   // Blue
     shipped: { bg: '#e8f0fe', text: '#1a73e8' },       // Blue
     
     canceled: { bg: '#fce8e6', text: '#c5221f' },      // Red
