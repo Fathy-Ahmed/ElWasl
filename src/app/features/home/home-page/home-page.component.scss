@@ -1026,3 +1026,204 @@
     stroke-width: 10px;
   }
 }
+
+/* ==========================================================================
+   Flying Papers Section (Full-Width Free-Falling Wind-Blown Animation)
+   ========================================================================== */
+.flying-papers-section {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #FAF8F5; // Warm beige matching the site palette
+  border-top: 1px solid rgba(212, 160, 23, 0.15);
+  border-bottom: 1px solid rgba(212, 160, 23, 0.15);
+  padding: 5rem 1.5rem;
+  margin: 3rem 0;
+  perspective: 1000px;
+}
+
+/* Background Paper Animation Layer */
+.papers-animation-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Single Paper Sheet Styling */
+.falling-paper {
+  position: absolute;
+  top: -80px;
+  width: 55px;
+  height: 75px;
+  background: #ffffff;
+  border-radius: 2px 8px 2px 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(230, 225, 215, 0.8);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  backface-visibility: visible;
+  will-change: transform, opacity;
+  animation: floatDownAndTwist 9s linear infinite;
+
+  /* Paper line placeholders mimicking writing */
+  .paper-line {
+    height: 3px;
+    background-color: #e2ded6;
+    border-radius: 2px;
+    width: 100%;
+
+    &.short {
+      width: 60%;
+    }
+  }
+}
+
+/* Individual Paper Positions, Animations, and Delays */
+.paper-1 {
+  left: 8%;
+  animation-duration: 9.5s;
+  animation-delay: 0s;
+}
+
+.paper-2 {
+  left: 22%;
+  width: 48px;
+  height: 68px;
+  animation-duration: 11s;
+  animation-delay: 2.2s;
+}
+
+.paper-3 {
+  left: 38%;
+  width: 60px;
+  height: 82px;
+  animation-duration: 8.5s;
+  animation-delay: 4.5s;
+}
+
+.paper-4 {
+  left: 54%;
+  animation-duration: 10s;
+  animation-delay: 1.2s;
+}
+
+.paper-5 {
+  left: 68%;
+  width: 50px;
+  height: 70px;
+  animation-duration: 9s;
+  animation-delay: 3.8s;
+}
+
+.paper-6 {
+  left: 82%;
+  width: 58px;
+  height: 80px;
+  animation-duration: 12s;
+  animation-delay: 0.5s;
+}
+
+.paper-7 {
+  left: 92%;
+  animation-duration: 8.8s;
+  animation-delay: 5.1s;
+}
+
+.paper-8 {
+  left: 15%;
+  width: 52px;
+  height: 72px;
+  animation-duration: 10.5s;
+  animation-delay: 6.3s;
+}
+
+/* Smooth Fluttering & Free-Falling Keyframe Animation */
+@keyframes floatDownAndTwist {
+  0% {
+    transform: translateY(-80px) translateX(0) rotate(0deg) rotateX(0deg) rotateY(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  35% {
+    transform: translateY(140px) translateX(40px) rotate(45deg) rotateX(40deg) rotateY(30deg);
+  }
+  65% {
+    transform: translateY(290px) translateX(-30px) rotate(120deg) rotateX(-25deg) rotateY(60deg);
+  }
+  88% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(480px) translateX(50px) rotate(220deg) rotateX(50deg) rotateY(90deg);
+    opacity: 0;
+  }
+}
+
+/* Centered Content Styling */
+.flying-papers-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+
+  .papers-badge {
+    background: rgba(212, 160, 23, 0.12);
+    color: #9c6e00;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(212, 160, 23, 0.3);
+    letter-spacing: 0.5px;
+  }
+
+  .papers-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2b2319;
+    line-height: 1.3;
+
+    @media (max-width: 768px) {
+      font-size: 1.7rem;
+    }
+  }
+
+  .papers-description {
+    font-size: 1.05rem;
+    color: #665b4c;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .papers-actions {
+    margin-top: 0.75rem;
+
+    .papers-btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 25px;
+      box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 124, 0, 0.4);
+      }
+    }
+  }
+}
