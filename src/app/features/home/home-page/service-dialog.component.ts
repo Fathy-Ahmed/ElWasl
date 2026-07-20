@@ -117,44 +117,64 @@ export class ServiceDetailDialogComponent {
   }
 
   getServiceDetails(): string {
-    const isRtl = this.localeService.isRtl();
+    const lang = this.localeService.currentLocale();
     
     if (this.data.id === 'eshop') {
-      return isRtl 
-        ? 'مرحباً بكم في متجرنا الإلكتروني المتميز. نوفر لكم تشكيلة واسعة من أحدث الإصدارات الروائية، الكتب المطبوعة الفاخرة، الروايات العربية والعالمية الأكثر مبيعاً، والكتب الصوتية الممتعة، بالإضافة إلى ألعاب الورق الجماعية المبتكرة. نضمن لكم تجربة تسوق آمنة وسهلة مع شحن سريع وتوصيل مباشر لباب منزلكم.'
-        : 'Welcome to our premium online bookstore. We offer a wide range of the latest novel releases, luxury print books, bestselling Arabic and international novels, entertaining audiobooks, and innovative board/card games. We guarantee a secure and easy shopping experience with fast shipping and direct home delivery.';
+      if (lang === 'ar') {
+        return 'مرحباً بكم في متجرنا الإلكتروني المتميز. نوفر لكم تشكيلة واسعة من أحدث الإصدارات الروائية، الكتب المطبوعة الفاخرة، الروايات العربية والعالمية الأكثر مبيعاً، والكتب الصوتية الممتعة، بالإضافة إلى ألعاب الورق الجماعية المبتكرة. نضمن لكم تجربة تسوق آمنة وسهلة مع شحن سريع وتوصيل مباشر لباب منزلكم.';
+      }
+      if (lang === 'fr') {
+        return 'Bienvenue dans notre librairie en ligne de premier choix. Nous proposons une large sélection de nouveaux romans, de superbes éditions imprimées, des best-sellers de la littérature arabe et mondiale, des livres audio captivants ainsi que des jeux de cartes créatifs pour toute la famille. Profitez d\'une expérience d\'achat simple et sécurisée avec livraison rapide à domicile.';
+      }
+      return 'Welcome to our premium online bookstore. We offer a wide range of the latest novel releases, luxury print books, bestselling Arabic and international novels, entertaining audiobooks, and innovative board/card games. We guarantee a secure and easy shopping experience with fast shipping and direct home delivery.';
     }
     
     if (this.data.id === 'publishing') {
-      return isRtl
-        ? 'هل أنت مؤلف ولديك رواية أو كتاب تبحث عن نشره وتوزيعه؟ نحن في دار الوصل نقدم لك باقة متكاملة من الخدمات الاحترافية: التحرير الأدبي والتدقيق اللغوي، التنسيق والتصميم الداخلي، تصميم الأغلفة الجذابة والمبتكرة، الطباعة الفاخرة بجودة عالية، والتوزيع الواسع في المعارض والمكتبات العربية والعالمية. انضم لعائلة كتابنا المتميزين اليوم!'
-        : 'Are you an author with a novel or book seeking publication and distribution? At ElWasl, we offer a comprehensive package of professional services: literary editing and proofreading, interior layout design, eye-catching cover design, premium quality printing, and wide distribution in book fairs and libraries worldwide. Join our family of authors today!';
+      if (lang === 'ar') {
+        return 'هل أنت مؤلف ولديك رواية أو كتاب تبحث عن نشره وتوزيعه؟ نحن في دار الوصل نقدم لك باقة متكاملة من الخدمات الاحترافية: التحرير الأدبي والتدقيق اللغوي، التنسيق والتصميم الداخلي، تصميم الأغلفة الجذابة والمبتكرة، الطباعة الفاخرة بجودة عالية، والتوزيع الواسع في المعارض والمكتبات العربية والعالمية. انضم لعائلة كتابنا المتميزين اليوم!';
+      }
+      if (lang === 'fr') {
+        return 'Vous êtes auteur et souhaitez publier votre ouvrage ? Dar ElWasl vous propose un accompagnement professionnel complet : correction et révision éditoriale, mise en page, conception de couvertures attrayantes, impression haute qualité et large distribution dans les librairies et salons du livre. Rejoignez notre communauté d\'auteurs dès aujourd\'hui !';
+      }
+      return 'Are you an author with a novel or book seeking publication and distribution? At ElWasl, we offer a comprehensive package of professional services: literary editing and proofreading, interior layout design, eye-catching cover design, premium quality printing, and wide distribution in book fairs and libraries worldwide. Join our family of authors today!';
     }
     
     if (this.data.id === 'fairs') {
-      return isRtl
-        ? 'تتواجد إصدارات دار الوصل في كبرى المكتبات ومنافذ التوزيع العربية المعتمدة. كما نسعد بلقائكم سنوياً والمشاركة الفعالة في كبرى المعارض الدولية للكتاب (معرض القاهرة الدولي، معرض الرياض، معرض الشارقة، ومعرض أبوظبي الدولي للكتاب). نوفر من خلال منافذنا خيارات ميسرة للحصول على كتبنا المطبوعة وألعابنا أينما كنتم.'
-        : 'ElWasl publications are available in major certified Arab bookstores and distribution outlets. We are also pleased to meet you annually through our active participation in major international book fairs (Cairo, Riyadh, Sharjah, and Abu Dhabi International Book Fairs). We provide easy access to our print books and games wherever you are.';
+      if (lang === 'ar') {
+        return 'تتواجد إصدارات دار الوصل في كبرى المكتبات ومنافذ التوزيع العربية المعتمدة. كما نسعد بلقائكم سنوياً والمشاركة الفعالة في كبرى المعارض الدولية للكتاب (معرض القاهرة الدولي، معرض الرياض، معرض الشارقة، ومعرض أبوظبي الدولي للكتاب). نوفر من خلال منافذنا خيارات ميسرة للحصول على كتبنا المطبوعة وألعابنا أينما كنتم.';
+      }
+      if (lang === 'fr') {
+        return 'Les publications de Dar ElWasl sont disponibles dans les plus grandes librairies et réseaux de distribution. Nous sommes ravis de vous rencontrer chaque année lors des salons internationaux du livre (Le Caire, Riyad, Sharjah, Abou Dabi). Nos points de distribution facilitent l\'accès à nos ouvrages papier et jeux où que vous soyez.';
+      }
+      return 'ElWasl publications are available in major certified Arab bookstores and distribution outlets. We are also pleased to meet you annually through our active participation in major international book fairs (Cairo, Riyadh, Sharjah, and Abu Dhabi International Book Fairs). We provide easy access to our print books and games wherever you are.';
     }
 
     // Default fallback if admin added custom services
-    return isRtl ? this.data.descAr : this.data.descEn;
+    return lang === 'ar' ? this.data.descAr : (lang === 'fr' && this.data.descFr ? this.data.descFr : this.data.descEn);
   }
 
   getActionText(): string {
-    const isRtl = this.localeService.isRtl();
+    const lang = this.localeService.currentLocale();
     
     if (this.data.id === 'eshop') {
-      return isRtl ? 'تسوق الآن / الذهاب للمتجر' : 'Shop Now / Go to E-Shop';
+      if (lang === 'ar') return 'تسوق الآن / الذهاب للمتجر';
+      if (lang === 'fr') return 'Acheter maintenant / Boutique';
+      return 'Shop Now / Go to E-Shop';
     }
     if (this.data.id === 'publishing') {
-      return isRtl ? 'انشر معنا / تقديم طلب تعاقد' : 'Publish With Us / Contracting';
+      if (lang === 'ar') return 'انشر معنا / تقديم طلب تعاقد';
+      if (lang === 'fr') return 'Publier avec nous / Contrat';
+      return 'Publish With Us / Contracting';
     }
     if (this.data.id === 'fairs') {
-      return isRtl ? 'عرض الفروع والموزعين' : 'View Outlets & Map';
+      if (lang === 'ar') return 'عرض الفروع والموزعين';
+      if (lang === 'fr') return 'Points de vente & Carte';
+      return 'View Outlets & Map';
     }
     
-    return isRtl ? 'المزيد من التفاصيل' : 'More Details';
+    if (lang === 'ar') return 'المزيد من التفاصيل';
+    if (lang === 'fr') return 'Plus de détails';
+    return 'More Details';
   }
 
   getActionIcon(): string {

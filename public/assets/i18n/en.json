@@ -85,7 +85,10 @@
     "BOOK_PAGE_RIGHT": "Granada was breathing slowly under the burden of the siege, as if fearing the last moments of its ancient history would expire...",
     "BOOK_PAGE_LEFT": "...But the ancient walls were always whispering promises of survival, hiding in their folds ancient stories of love and secret manuscripts.",
     "PAGE_NUM_RIGHT": "124",
-    "PAGE_NUM_LEFT": "125"
+    "PAGE_NUM_LEFT": "125",
+    "SEARCH_PLACEHOLDER": "Search for books, novels, audiobooks and card games...",
+    "SEARCH_BUTTON": "Search",
+    "EXHIBITIONS_BUTTON": "View Exhibitions"
   },
   "CONTACT": {
     "ADDRESS": "Address",

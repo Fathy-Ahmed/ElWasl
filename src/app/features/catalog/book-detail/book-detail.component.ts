@@ -79,17 +79,23 @@ export class BookDetailComponent implements OnInit {
 
   getLocalizedFormat(format: string | undefined): string {
     if (!format) return '';
-    const isAr = this.localeService.currentLocale() === 'ar';
+    const lang = this.localeService.currentLocale();
     const fmtLower = format.toLowerCase();
     
     if (fmtLower.includes('hardcover')) {
-      return isAr ? 'غلاف ورقي سميك (مجلد)' : 'Hardcover';
+      if (lang === 'ar') return 'غلاف ورقي سميك (مجلد)';
+      if (lang === 'fr') return 'Couverture rigide';
+      return 'Hardcover';
     }
     if (fmtLower.includes('paperback')) {
-      return isAr ? 'غلاف ورقي عادي' : 'Paperback';
+      if (lang === 'ar') return 'غلاف ورقي عادي';
+      if (lang === 'fr') return 'Livre broché';
+      return 'Paperback';
     }
     if (fmtLower.includes('ebook') || fmtLower.includes('e-book') || fmtLower.includes('digital') || fmtLower.includes('electronic')) {
-      return isAr ? 'غلاف ورقي عادي' : 'Paperback';
+      if (lang === 'ar') return 'كتاب إلكتروني';
+      if (lang === 'fr') return 'Livre numérique';
+      return 'E-Book';
     }
     return format;
   }

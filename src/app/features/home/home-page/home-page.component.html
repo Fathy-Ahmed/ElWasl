@@ -43,7 +43,7 @@
     <div class="container hero-search-container" style="margin-bottom: 2rem; display: flex; justify-content: center;">
       <div class="search-bar-wrapper">
         <input type="text" 
-               [placeholder]="localeService.isRtl() ? 'ابحث عن الكتب، الروايات، الكتب الصوتية وألعاب الورق...' : 'Search for books, novels, audiobooks and card games...'"
+               [placeholder]="'HOME.SEARCH_PLACEHOLDER' | translate"
                class="search-bar-input"
                id="hero-search-input-field"
                #heroSearchInput
@@ -52,7 +52,7 @@
                 color="accent" 
                 class="search-bar-btn"
                 (click)="onGlobalSearch(heroSearchInput.value)">
-          {{ localeService.isRtl() ? 'بحث' : 'Search' }}
+          {{ 'HOME.SEARCH_BUTTON' | translate }}
         </button>
       </div>
     </div>
@@ -163,7 +163,7 @@
               <div class="service-visual-mockup fairs-visual" style="display: flex; align-items: center; justify-content: center; background-color: #fbe9e7; border-radius: 8px; width: 100%; height: 80px; border: 1px solid rgba(245, 124, 0, 0.1);">
                 <a routerLink="/exhibitions" mat-flat-button color="accent" (click)="$event.stopPropagation()" style="font-weight: 700; border-radius: 20px; box-shadow: 0 4px 10px rgba(245, 124, 0, 0.15); display: inline-flex; align-items: center; gap: 4px;">
                   <mat-icon>storefront</mat-icon>
-                  {{ localeService.isRtl() ? 'عرض المعارض الجارية' : 'View Exhibitions' }}
+                  {{ 'HOME.EXHIBITIONS_BUTTON' | translate }}
                 </a>
               </div>
             } @else {

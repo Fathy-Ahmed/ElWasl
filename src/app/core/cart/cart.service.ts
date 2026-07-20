@@ -50,10 +50,16 @@ export class CartService {
   addToCart(item: Omit<CartItem, 'quantity'>): boolean {
     if (!this.activeUserId) {
       const lang = this.localeService.currentLocale();
-      const message = lang === 'ar'
-        ? 'يرجى تسجيل الدخول أولاً لتتمكن من إضافة المنتجات إلى السلة / Please log in first to add products to your cart'
-        : 'Please log in first to add products to your cart / يرجى تسجيل الدخول أولاً لتتمكن من إضافة المنتجات إلى السلة';
-      const actionLabel = lang === 'ar' ? 'تسجيل الدخول / Login' : 'Login / تسجيل الدخول';
+      let message = 'Please log in first to add products to your cart';
+      let actionLabel = 'Login';
+      
+      if (lang === 'ar') {
+        message = 'يرجى تسجيل الدخول أولاً لتتمكن من إضافة المنتجات إلى السلة';
+        actionLabel = 'تسجيل الدخول';
+      } else if (lang === 'fr') {
+        message = 'Veuillez d\'abord vous connecter pour ajouter des produits au panier';
+        actionLabel = 'Connexion';
+      }
 
       this.snackBar.open(message, actionLabel, {
         duration: 5000,
@@ -82,14 +88,22 @@ export class CartService {
 
       this.saveItems(updated);
 
-      // Notify user via dynamic bilingual snackbar
-      const lang = this.localeService.currentLocale(); // 'ar' or 'en'
-      const title = lang === 'ar' ? item.titleAr : item.titleEn;
-      const message = lang === 'ar' 
-        ? `تم إضافة "${title}" إلى عربة التسوق` 
-        : `"${title}" has been added to your cart`;
+      // Notify user via dynamic localized snackbar
+      const lang = this.localeService.currentLocale();
+      const title = lang === 'ar' ? item.titleAr : ((item as any).titleFr || item.titleEn);
       
-      this.snackBar.open(message, lang === 'ar' ? 'إغلاق' : 'Close', {
+      let message = `"${title}" has been added to your cart`;
+      let actionLabel = 'Close';
+      
+      if (lang === 'ar') {
+        message = `تم إضافة "${title}" إلى عربة التسوق`;
+        actionLabel = 'إغلاق';
+      } else if (lang === 'fr') {
+        message = `"${title}" a été ajouté au panier`;
+        actionLabel = 'Fermer';
+      }
+      
+      this.snackBar.open(message, actionLabel, {
         duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom'
