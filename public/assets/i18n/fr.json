@@ -88,7 +88,11 @@
     "PAGE_NUM_LEFT": "125",
     "SEARCH_PLACEHOLDER": "Rechercher des livres, romans, livres audio et jeux de cartes...",
     "SEARCH_BUTTON": "Rechercher",
-    "EXHIBITIONS_BUTTON": "Voir les expositions"
+    "EXHIBITIONS_BUTTON": "Voir les expositions",
+    "FLYING_BADGE": "Monde de l'Édition",
+    "FLYING_TITLE": "Des pages s'envolent avec des histoires infinies",
+    "FLYING_DESC": "Explorez l'univers de Dar ElWasl où les mots s'envolent et les histoires naissent au fil des livres imprimés et des romans d'exception.",
+    "FLYING_BTN": "Parcourir les publications"
   },
   "CONTACT": {
     "ADDRESS": "Adresse",

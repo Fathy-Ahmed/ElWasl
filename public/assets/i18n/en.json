@@ -88,7 +88,11 @@
     "PAGE_NUM_LEFT": "125",
     "SEARCH_PLACEHOLDER": "Search for books, novels, audiobooks and card games...",
     "SEARCH_BUTTON": "Search",
-    "EXHIBITIONS_BUTTON": "View Exhibitions"
+    "EXHIBITIONS_BUTTON": "View Current Exhibitions",
+    "FLYING_BADGE": "World of Publishing",
+    "FLYING_TITLE": "Pages Flying with Endless Stories",
+    "FLYING_DESC": "Explore the world of Dar ElWasl where words soar and stories are born between printed books and distinguished novels.",
+    "FLYING_BTN": "Browse Publications"
   },
   "CONTACT": {
     "ADDRESS": "Address",
