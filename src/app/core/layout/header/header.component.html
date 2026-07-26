@@ -78,13 +78,13 @@
 </header>
 
 <!-- Mobile Navigation Drawer Overlay -->
-<div class="mobile-drawer-overlay" [class.open]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+<div class="mobile-drawer-overlay" [class.open]="isMobileMenuOpen()" (click)="closeMobileMenu()" (touchstart)="closeMobileMenu()"></div>
 
 <!-- Mobile Navigation Drawer Panel -->
 <div class="mobile-drawer" [class.open]="isMobileMenuOpen()">
   <div class="drawer-header">
     <img src="/logo.png" alt="Dar ElWasl Logo" class="drawer-logo">
-    <button type="button" class="close-btn" (click)="closeMobileMenu()" aria-label="Close Menu" style="background: none; border: none;">
+    <button type="button" class="close-btn" (click)="closeMobileMenu()" (touchstart)="closeMobileMenu(); $event.stopPropagation()" aria-label="Close Menu" style="background: none; border: none;">
       <mat-icon>close</mat-icon>
     </button>
   </div>
