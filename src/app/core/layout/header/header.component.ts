@@ -22,25 +22,12 @@ import { CartService } from '../../cart/cart.service';
     LanguageSwitcherComponent
   ],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
-  host: {
-    '[class.mobile-menu-active]': 'isMobileMenuOpen()'
-  }
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   readonly cartService = inject(CartService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-
-  readonly isMobileMenuOpen = signal<boolean>(false);
-
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen.update(open => !open);
-  }
-
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen.set(false);
-  }
 
   logout(): void {
     this.authService.logout();
