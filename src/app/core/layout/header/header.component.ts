@@ -22,7 +22,10 @@ import { CartService } from '../../cart/cart.service';
     LanguageSwitcherComponent
   ],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
+  host: {
+    '[class.mobile-menu-active]': 'isMobileMenuOpen()'
+  }
 })
 export class HeaderComponent {
   readonly cartService = inject(CartService);
