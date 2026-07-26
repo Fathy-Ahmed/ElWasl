@@ -283,6 +283,10 @@
     opacity: 1;
     visibility: visible;
   }
+
+  @include respond-to('lg') {
+    display: none !important;
+  }
 }
 
 // Mobile Drawer Panel
@@ -299,6 +303,10 @@
   flex-direction: column;
   transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
 
+  @include respond-to('lg') {
+    display: none !important;
+  }
+
   .drawer-header {
     display: flex;
     align-items: center;
@@ -314,6 +322,19 @@
 
     .close-btn {
       color: $brown-text;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+      pointer-events: auto;
+
+      &:hover {
+        background-color: rgba(212, 160, 23, 0.08);
+        color: $primary-color;
+      }
     }
   }
 
