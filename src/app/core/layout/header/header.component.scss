@@ -306,7 +306,8 @@
 .mobile-drawer {
   position: fixed;
   top: 0;
-  bottom: 0;
+  height: 100vh;
+  height: 100dvh;
   width: 290px;
   background: rgba(254, 249, 240, 0.98);
   backdrop-filter: blur(16px);
@@ -340,13 +341,18 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 6px;
+      padding: 10px; // Larger tap target on mobile
+      min-width: 44px; // Mobile friendly minimum touch sizes
+      min-height: 44px;
       border-radius: 50%;
       transition: background-color 0.2s ease;
       pointer-events: auto;
 
       mat-icon {
         pointer-events: none;
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
       }
 
       &:hover {
@@ -402,7 +408,7 @@
   }
 
   .drawer-footer {
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 16px));
     border-top: 1px solid rgba(212, 160, 23, 0.15);
     display: flex;
     flex-direction: column;
