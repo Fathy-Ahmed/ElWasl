@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, shareReplay } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { 
   AuthResponse, 
@@ -25,6 +25,9 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly cartService = inject(CartService);
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Auth`;
+
+  // Store active refresh subscription to share between concurrent requests
+  private refreshSubscription$: Observable<AuthResponse> | null = null;
 
   // Token state signal
   readonly accessToken = signal<string | null>(localStorage.getItem('access_token'));
@@ -121,7 +124,11 @@ export class AuthService {
       return of({});
     }
 
-    return this.http.post<AuthResponse>(`${this.baseUrl}/refresh`, { refreshToken }).pipe(
+    if (this.refreshSubscription$) {
+      return this.refreshSubscription$;
+    }
+
+    this.refreshSubscription$ = this.http.post<AuthResponse>(`${this.baseUrl}/refresh`, { refreshToken }).pipe(
       tap(res => {
         if (res.accessToken) {
           localStorage.setItem('access_token', res.accessToken);
@@ -130,12 +137,17 @@ export class AuthService {
         if (res.refreshToken) {
           localStorage.setItem('refresh_token', res.refreshToken);
         }
+        this.refreshSubscription$ = null;
       }),
       catchError(err => {
+        this.refreshSubscription$ = null;
         this.logout();
         throw err;
-      })
+      }),
+      shareReplay(1)
     );
+
+    return this.refreshSubscription$;
   }
 
   logout(): void {
