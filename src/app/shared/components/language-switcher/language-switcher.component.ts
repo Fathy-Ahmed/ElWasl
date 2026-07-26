@@ -96,6 +96,14 @@ interface LanguageOption {
         }
       }
 
+      @media (max-width: 599px) {
+        padding: 0 8px;
+        gap: 3px;
+        .lang-label {
+          display: none;
+        }
+      }
+
       .globe-icon {
         font-size: 0.95rem;
         line-height: 1;

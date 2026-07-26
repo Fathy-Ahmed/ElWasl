@@ -41,14 +41,88 @@
 
       <!-- Profile/Logout -->
       @if (authService.isAuthenticated()) {
-        <a routerLink="/account" mat-icon-button class="profile-btn" id="nav-profile-btn" aria-label="Profile">
+        <a routerLink="/account" mat-icon-button class="profile-btn desktop-only" id="nav-profile-btn" aria-label="Profile">
           <mat-icon>account_circle</mat-icon>
         </a>
-        <button mat-icon-button color="warn" (click)="logout()" class="logout-btn" id="nav-logout-btn" aria-label="Logout">
+        <button mat-icon-button color="warn" (click)="logout()" class="logout-btn desktop-only" id="nav-logout-btn" aria-label="Logout">
           <mat-icon>exit_to_app</mat-icon>
         </button>
       } @else {
-        <a routerLink="/auth/login" mat-flat-button color="primary" class="login-btn" id="nav-login-btn">
+        <a routerLink="/auth/login" mat-flat-button color="primary" class="login-btn desktop-only" id="nav-login-btn">
+          {{ 'NAV.LOGIN' | translate }}
+        </a>
+      }
+
+      <!-- Mobile Menu Hamburger Button -->
+      <button mat-icon-button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle Menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Drawer Overlay -->
+  <div class="mobile-drawer-overlay" [class.open]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+  <!-- Mobile Navigation Drawer Panel -->
+  <div class="mobile-drawer" [class.open]="isMobileMenuOpen()">
+    <div class="drawer-header">
+      <img src="/logo.png" alt="Dar ElWasl Logo" class="drawer-logo">
+      <button mat-icon-button class="close-btn" (click)="closeMobileMenu()" aria-label="Close Menu">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <nav class="drawer-nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
+        <mat-icon>home</mat-icon>
+        <span>{{ 'NAV.HOME' | translate }}</span>
+      </a>
+      <a routerLink="/books" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>book</mat-icon>
+        <span>{{ 'NAV.BOOKS' | translate }}</span>
+      </a>
+      <a routerLink="/audiobooks" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>headset</mat-icon>
+        <span>{{ 'NAV.AUDIOBOOKS' | translate }}</span>
+      </a>
+      <a routerLink="/games" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>casino</mat-icon>
+        <span>{{ 'NAV.GAMES' | translate }}</span>
+      </a>
+      <a routerLink="/offers" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>local_offer</mat-icon>
+        <span>{{ 'NAV.OFFERS' | translate }}</span>
+      </a>
+      <a routerLink="/library" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>auto_stories</mat-icon>
+        <span>{{ 'NAV.LIBRARY' | translate }}</span>
+      </a>
+      <a routerLink="/about-us" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>info</mat-icon>
+        <span>{{ 'NAV.ABOUT' | translate }}</span>
+      </a>
+      <a routerLink="/contract-with-us" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>rate_review</mat-icon>
+        <span>{{ 'NAV.CONTRACTING' | translate }}</span>
+      </a>
+      <a routerLink="/contact-us" routerLinkActive="active" (click)="closeMobileMenu()">
+        <mat-icon>contact_support</mat-icon>
+        <span>{{ 'NAV.CONTACT' | translate }}</span>
+      </a>
+    </nav>
+
+    <div class="drawer-footer">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/account" class="drawer-action-btn profile-link" (click)="closeMobileMenu()">
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ 'NAV.PROFILE' | translate }}</span>
+        </a>
+        <button class="drawer-action-btn logout-btn" (click)="logout(); closeMobileMenu()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>{{ 'NAV.LOGOUT' | translate }}</span>
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="drawer-login-btn" (click)="closeMobileMenu()">
           {{ 'NAV.LOGIN' | translate }}
         </a>
       }
