@@ -107,16 +107,16 @@ button {
   color: #{$primary-color} !important;
 }
 
-.mat-mdc-unelevated-button.mat-primary,
-.mat-mdc-raised-button.mat-primary,
-.mat-mdc-flat-button.mat-primary {
+.mat-mdc-unelevated-button.mat-primary:not(:disabled),
+.mat-mdc-raised-button.mat-primary:not(:disabled),
+.mat-mdc-flat-button.mat-primary:not(:disabled) {
   background-color: $primary-color !important;
   color: white !important;
 }
 
-.mat-mdc-unelevated-button.mat-accent,
-.mat-mdc-raised-button.mat-accent,
-.mat-mdc-flat-button.mat-accent {
+.mat-mdc-unelevated-button.mat-accent:not(:disabled),
+.mat-mdc-raised-button.mat-accent:not(:disabled),
+.mat-mdc-flat-button.mat-accent:not(:disabled) {
   background-color: $primary-color !important; // Use orange for flat accent buttons as well
   color: white !important;
 }

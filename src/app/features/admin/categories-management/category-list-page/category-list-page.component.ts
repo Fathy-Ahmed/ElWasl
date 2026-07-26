@@ -82,6 +82,10 @@ export class CategoryListPageComponent implements OnInit {
           next: () => {
             this.loadCategories();
             this.snackBar.open('تم إضافة التصنيف بنجاح / Category added successfully', 'إغلاق / Close', { duration: 3000 });
+          },
+          error: (err) => {
+            console.error(err);
+            this.snackBar.open('حدث خطأ أثناء إضافة التصنيف / Error adding category', 'إغلاق / Close', { duration: 5000 });
           }
         });
       }
@@ -102,6 +106,10 @@ export class CategoryListPageComponent implements OnInit {
             next: () => {
               this.loadCategories();
               this.snackBar.open('تم تحديث التصنيف بنجاح / Category updated successfully', 'إغلاق / Close', { duration: 3000 });
+            },
+            error: (err) => {
+              console.error(err);
+              this.snackBar.open('حدث خطأ أثناء تحديث التصنيف / Error updating category', 'إغلاق / Close', { duration: 5000 });
             }
           });
         }
@@ -111,6 +119,10 @@ export class CategoryListPageComponent implements OnInit {
         next: () => {
           this.categories.update(current => current.filter(c => c.id !== event.row.id));
           this.snackBar.open('تم حذف التصنيف بنجاح / Category deleted successfully', 'إغلاق / Close', { duration: 3000 });
+        },
+        error: (err) => {
+          console.error(err);
+          this.snackBar.open('حدث خطأ أثناء حذف التصنيف / Error deleting category', 'إغلاق / Close', { duration: 5000 });
         }
       });
     }

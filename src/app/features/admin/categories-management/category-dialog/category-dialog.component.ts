@@ -116,6 +116,22 @@ export class CategoryDialogComponent implements OnInit {
       descriptionEn: [cat?.descriptionEn || ''],
       parentCategoryId: [cat?.parentCategoryId || null]
     });
+
+    // Auto-generate slug from English name changes if not in edit mode
+    if (!cat) {
+      this.form.get('nameEn')?.valueChanges.subscribe(name => {
+        if (name) {
+          const generatedSlug = name.toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+          this.form.get('slug')?.setValue(generatedSlug);
+        } else {
+          this.form.get('slug')?.setValue('');
+        }
+      });
+    }
   }
 
   onSubmit(): void {
