@@ -13,7 +13,8 @@ import { errorInterceptor } from './core/http/error.interceptor';
 // Factory for HTTP translation loader
 export function HttpLoaderFactory(http: HttpClient) {
   // Translate assets are located in the public directory's assets/i18n/ folder
-  return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
+  const cacheBust = new Date().getTime();
+  return new TranslateHttpLoader(http, 'assets/i18n/', `.json?v=${cacheBust}`);
 }
 
 export const appConfig: ApplicationConfig = {
