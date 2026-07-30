@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-image-crop-dialog',
@@ -13,7 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatDialogModule,
     MatButtonModule,
     MatSliderModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonToggleModule
   ],
   template: `
     <h2 mat-dialog-title class="dialog-title">
@@ -22,8 +24,19 @@ import { MatIconModule } from '@angular/material/icon';
 
     <mat-dialog-content class="crop-dialog-content">
       <p class="instructions">
-        {{ 'اسحب الصورة لتحريكها واستخدم الشريط بالأسفل لتكبيرها / Drag the image to position it and use the slider below to zoom.' }}
+        {{ 'اسحب الصورة لتحريكها واستخدم الشريط بالأسفل لتكبيرها أو تصغيرها / Drag the image to move it and use the slider to zoom in or out.' }}
       </p>
+
+      <!-- Aspect Ratio Selectors -->
+      <div class="ratio-selector-container">
+        <span class="ratio-label">{{ 'نسبة الأبعاد / Aspect Ratio:' }}</span>
+        <mat-button-toggle-group [value]="selectedRatio" (change)="onRatioChange($event.value)" aria-label="Aspect Ratio">
+          <mat-button-toggle value="2:3">{{ '2:3 غلاف كتاب / Cover' }}</mat-button-toggle>
+          <mat-button-toggle value="1:1">{{ '1:1 مربع / Square' }}</mat-button-toggle>
+          <mat-button-toggle value="4:3">{{ '4:3 عريض / Wide' }}</mat-button-toggle>
+          <mat-button-toggle value="original">{{ 'أبعاد الصورة / Original' }}</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
       <div class="crop-area-container" 
            (mousedown)="onMouseDown($event)"
@@ -39,15 +52,19 @@ import { MatIconModule } from '@angular/material/icon';
           <img [src]="imageUrl" (load)="onImageLoaded($event)" #cropImage alt="Crop Source" class="source-img">
         </div>
 
-        <!-- Overlays to darken the outside area -->
-        <div class="overlay-dark overlay-top"></div>
-        <div class="overlay-dark overlay-bottom"></div>
-        <div class="overlay-dark overlay-left"></div>
-        <div class="overlay-dark overlay-right"></div>
+        <!-- Dynamic dark overlays surrounding the viewport box -->
+        <div class="overlay-dark" [style.top.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="viewportTop"></div>
+        <div class="overlay-dark" [style.bottom.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="440 - viewportTop - viewportHeight"></div>
+        <div class="overlay-dark" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.left.px]="0" [style.width.px]="viewportLeft"></div>
+        <div class="overlay-dark" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.right.px]="0" [style.width.px]="320 - viewportLeft - viewportWidth"></div>
 
-        <!-- Visual boundary of the 2:3 book cover viewport -->
-        <div class="crop-viewport-outline">
-          <div class="aspect-ratio-badge">2:3 {{ 'نسبة الغلاف / Cover Ratio' }}</div>
+        <!-- Visual boundary of the crop viewport -->
+        <div class="crop-viewport-outline" 
+             [style.width.px]="viewportWidth" 
+             [style.height.px]="viewportHeight"
+             [style.left.px]="viewportLeft"
+             [style.top.px]="viewportTop">
+          <div class="aspect-ratio-badge">{{ getRatioLabel() }}</div>
         </div>
       </div>
 
@@ -57,7 +74,7 @@ import { MatIconModule } from '@angular/material/icon';
         <mat-slider class="zoom-slider" 
                     [min]="minScale" 
                     [max]="maxScale" 
-                    [step]="0.01">
+                    [step]="0.005">
           <input matSliderThumb [value]="scale" (input)="onZoomChange($event)">
         </mat-slider>
         <mat-icon color="primary">zoom_in</mat-icon>
@@ -83,14 +100,40 @@ import { MatIconModule } from '@angular/material/icon';
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      overflow: hidden !important;
+      gap: 12px;
+      overflow-y: auto !important;
+      max-height: 80vh;
     }
     .instructions {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #666;
       text-align: center;
       margin: 0;
+    }
+    .ratio-selector-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+      width: 100%;
+    }
+    .ratio-label {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #555;
+    }
+    ::v-deep .mat-button-toggle-group {
+      border: 1px solid rgba(212, 160, 23, 0.2) !important;
+      background: white;
+    }
+    ::v-deep .mat-button-toggle {
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    ::v-deep .mat-button-toggle-checked {
+      background-color: #f57c00 !important;
+      color: white !important;
     }
     .crop-area-container {
       position: relative;
@@ -121,18 +164,14 @@ import { MatIconModule } from '@angular/material/icon';
       transform: translate(-50%, -50%);
     }
     
-    /* Center Book Cover Viewport layout (200px width x 300px height) */
     .crop-viewport-outline {
       position: absolute;
-      top: 70px;
-      left: 60px;
-      width: 200px;
-      height: 300px;
       border: 2px solid #f57c00;
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), 0 4px 20px rgba(0,0,0,0.5);
       pointer-events: none;
       z-index: 10;
       border-radius: 4px;
+      transition: width 0.2s ease, height 0.2s ease, left 0.2s ease, top 0.2s ease;
     }
     .aspect-ratio-badge {
       position: absolute;
@@ -140,42 +179,19 @@ import { MatIconModule } from '@angular/material/icon';
       right: 0;
       background-color: #f57c00;
       color: white;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: bold;
       padding: 2px 8px;
       border-radius: 4px;
+      white-space: nowrap;
     }
 
-    /* Dark overlays outside the 2:3 crop viewport */
     .overlay-dark {
       position: absolute;
       background-color: rgba(0, 0, 0, 0.7);
       pointer-events: none;
       z-index: 5;
-    }
-    .overlay-top {
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-    }
-    .overlay-bottom {
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-    }
-    .overlay-left {
-      top: 70px;
-      bottom: 70px;
-      left: 0;
-      width: 60px;
-    }
-    .overlay-right {
-      top: 70px;
-      bottom: 70px;
-      right: 0;
-      width: 60px;
+      transition: width 0.2s ease, height 0.2s ease, left 0.2s ease, top 0.2s ease, bottom 0.2s ease, right 0.2s ease;
     }
 
     .controls-row {
@@ -184,7 +200,7 @@ import { MatIconModule } from '@angular/material/icon';
       gap: 12px;
       width: 100%;
       max-width: 320px;
-      margin-top: 8px;
+      margin-top: 4px;
     }
     .zoom-slider {
       flex: 1;
@@ -200,10 +216,11 @@ export class ImageCropDialogComponent implements OnInit {
 
   imageUrl = '';
   imageLoaded = false;
+  selectedRatio = '2:3';
 
   // Render & crop state
-  minScale = 0.1;
-  maxScale = 3.0;
+  minScale = 0.02;
+  maxScale = 4.0;
   scale = 1.0;
   panX = 0;
   panY = 0;
@@ -216,8 +233,8 @@ export class ImageCropDialogComponent implements OnInit {
   private initialPanY = 0;
 
   // Image natural bounds
-  private naturalWidth = 0;
-  private naturalHeight = 0;
+  naturalWidth = 0;
+  naturalHeight = 0;
 
   constructor(
     private readonly dialogRef: MatDialogRef<ImageCropDialogComponent>,
@@ -234,23 +251,99 @@ export class ImageCropDialogComponent implements OnInit {
     const img = event.target as HTMLImageElement;
     this.naturalWidth = img.naturalWidth;
     this.naturalHeight = img.naturalHeight;
+    this.imageLoaded = true;
+    this.resetZoomAndFit();
+  }
 
-    // Viewport is 200 x 300 centered in 320 x 440 container.
-    // Calculate initial scale to fit viewport beautifully
-    const aspectViewport = 200 / 300;
+  resetZoomAndFit(): void {
+    if (!this.imageLoaded) return;
+
+    // Viewport width and height
+    const Vw = this.viewportWidth;
+    const Vh = this.viewportHeight;
+
+    const aspectViewport = Vw / Vh;
     const aspectImg = this.naturalWidth / this.naturalHeight;
 
+    // Set initial scale to contain the full image inside the viewport box
     if (aspectImg > aspectViewport) {
-      // Image is wider than viewport -> fit height to 300px
-      this.scale = 300 / this.naturalHeight;
+      // Image is wider -> fit width
+      this.scale = Vw / this.naturalWidth;
     } else {
-      // Image is taller than viewport -> fit width to 200px
-      this.scale = 200 / this.naturalWidth;
+      // Image is taller -> fit height
+      this.scale = Vh / this.naturalHeight;
     }
 
-    this.minScale = this.scale;
-    this.maxScale = this.scale * 4;
-    this.imageLoaded = true;
+    // Set min scale to 0.05 to allow complete zoom out so they can see the full image
+    this.minScale = Math.min(this.scale * 0.25, 0.05);
+    this.maxScale = this.scale * 5;
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  // Dynamic Viewport calculations
+  get viewportWidth(): number {
+    if (!this.imageLoaded) return 200;
+
+    switch (this.selectedRatio) {
+      case '1:1': return 250;
+      case '4:3': return 260;
+      case 'original':
+        const aspect = this.naturalWidth / this.naturalHeight;
+        if (aspect > 320/440) {
+          // landscape or moderately portrait -> fit width
+          return 270;
+        } else {
+          // extremely portrait -> fit height bounds
+          return 380 * aspect;
+        }
+      case '2:3':
+      default:
+        return 200;
+    }
+  }
+
+  get viewportHeight(): number {
+    if (!this.imageLoaded) return 300;
+
+    switch (this.selectedRatio) {
+      case '1:1': return 250;
+      case '4:3': return 195;
+      case 'original':
+        const aspect = this.naturalWidth / this.naturalHeight;
+        if (aspect > 320/440) {
+          return 270 / aspect;
+        } else {
+          return 380;
+        }
+      case '2:3':
+      default:
+        return 300;
+    }
+  }
+
+  get viewportLeft(): number {
+    return (320 - this.viewportWidth) / 2;
+  }
+
+  get viewportTop(): number {
+    return (440 - this.viewportHeight) / 2;
+  }
+
+  getRatioLabel(): string {
+    switch (this.selectedRatio) {
+      case '1:1': return '1:1 مربع / Square';
+      case '4:3': return '4:3 عريض / Wide';
+      case 'original': return 'الأصلية / Original';
+      case '2:3':
+      default:
+        return '2:3 غلاف كتاب / Cover';
+    }
+  }
+
+  onRatioChange(ratio: string): void {
+    this.selectedRatio = ratio;
+    this.resetZoomAndFit();
   }
 
   getTransformStyle(): string {
@@ -313,28 +406,32 @@ export class ImageCropDialogComponent implements OnInit {
   cropAndSave(): void {
     if (!this.imageLoaded) return;
 
-    // Create high-res crop canvas (600px width x 900px height for sharp cover)
+    const Vw = this.viewportWidth;
+    const Vh = this.viewportHeight;
+
+    // High-res output canvas matching the viewport aspect ratio
+    const Cw = 600;
+    const Ch = Math.round(Cw * (Vh / Vw));
+
     const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = 900;
+    canvas.width = Cw;
+    canvas.height = Ch;
     const ctx = canvas.getContext('2d');
 
     if (!ctx) return;
 
     const img = this.cropImageRef.nativeElement;
 
-    // We mapped:
-    // Viewport box in UI is 200 width, 300 height.
-    // Canvas output is 600 width, 900 height -> scale factor is 3.0.
-    const drawScale = 3.0;
+    // Scale factor to map viewport pixels to output canvas
+    const drawScale = Cw / Vw;
 
     ctx.save();
-    // Move canvas center to the output center
-    ctx.translate(300, 450);
-    // Apply pan and zoom factor scaled up to high-res canvas
+    // Center of canvas
+    ctx.translate(Cw / 2, Ch / 2);
+    // Apply pan and zoom
     ctx.translate(this.panX * drawScale, this.panY * drawScale);
     ctx.scale(this.scale * drawScale, this.scale * drawScale);
-    // Draw the image centered around transformed canvas context
+    // Draw centered
     ctx.drawImage(img, -this.naturalWidth / 2, -this.naturalHeight / 2);
     ctx.restore();
 
