@@ -4,7 +4,6 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-image-crop-dialog',
@@ -14,8 +13,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     MatDialogModule,
     MatButtonModule,
     MatSliderModule,
-    MatIconModule,
-    MatButtonToggleModule
+    MatIconModule
   ],
   template: `
     <h2 mat-dialog-title class="dialog-title">
@@ -27,15 +25,36 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
         {{ 'اسحب الصورة لتحريكها واستخدم الشريط بالأسفل لتكبيرها أو تصغيرها / Drag the image to move it and use the slider to zoom in or out.' }}
       </p>
 
-      <!-- Aspect Ratio Selectors -->
-      <div class="ratio-selector-container">
-        <span class="ratio-label">{{ 'نسبة الأبعاد / Aspect Ratio:' }}</span>
-        <mat-button-toggle-group [value]="selectedRatio" (change)="onRatioChange($event.value)" aria-label="Aspect Ratio">
-          <mat-button-toggle value="2:3">{{ '2:3 غلاف كتاب / Cover' }}</mat-button-toggle>
-          <mat-button-toggle value="1:1">{{ '1:1 مربع / Square' }}</mat-button-toggle>
-          <mat-button-toggle value="4:3">{{ '4:3 عريض / Wide' }}</mat-button-toggle>
-          <mat-button-toggle value="original">{{ 'أبعاد الصورة / Original' }}</mat-button-toggle>
-        </mat-button-toggle-group>
+      <!-- Aspect Ratio & Dimensions Control -->
+      <div class="controls-card">
+        <div class="control-group">
+          <label class="control-label">{{ 'نسبة الأبعاد / Aspect Ratio:' }}</label>
+          <select class="ratio-select" [value]="selectedRatio" (change)="onRatioSelect($event)">
+            <option value="2:3">2:3 غلاف كتاب / Book Cover</option>
+            <option value="1:1">1:1 مربع / Square</option>
+            <option value="4:3">4:3 عريض / Wide</option>
+            <option value="original">أبعاد الصورة الأصلية / Original Ratio</option>
+            <option value="free">قص حر (تحديد يدوي) / Free Crop (Manual Dimensions)</option>
+          </select>
+        </div>
+
+        <!-- Manual dimensions sliders for Free Crop option -->
+        @if (selectedRatio === 'free') {
+          <div class="free-dims-container animate-fade-in">
+            <div class="dim-control">
+              <span class="dim-label">العرض / Width: <strong>{{ freeWidth }}px</strong></span>
+              <mat-slider min="80" max="280" step="5" class="dim-slider">
+                <input matSliderThumb [value]="freeWidth" (input)="onFreeWidthChange($event)">
+              </mat-slider>
+            </div>
+            <div class="dim-control">
+              <span class="dim-label">الارتفاع / Height: <strong>{{ freeHeight }}px</strong></span>
+              <mat-slider min="80" max="380" step="5" class="dim-slider">
+                <input matSliderThumb [value]="freeHeight" (input)="onFreeHeightChange($event)">
+              </mat-slider>
+            </div>
+          </div>
+        }
       </div>
 
       <div class="crop-area-container" 
@@ -52,11 +71,11 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
           <img [src]="imageUrl" (load)="onImageLoaded($event)" #cropImage alt="Crop Source" class="source-img">
         </div>
 
-        <!-- Dynamic dark overlays surrounding the viewport box -->
-        <div class="overlay-dark" [style.top.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="viewportTop"></div>
-        <div class="overlay-dark" [style.bottom.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="440 - viewportTop - viewportHeight"></div>
-        <div class="overlay-dark" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.left.px]="0" [style.width.px]="viewportLeft"></div>
-        <div class="overlay-dark" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.right.px]="0" [style.width.px]="320 - viewportLeft - viewportWidth"></div>
+        <!-- Light semi-transparent overlays (opacity reduced from 0.7 to 0.3 to see the entire crop area) -->
+        <div class="overlay-light" [style.top.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="viewportTop"></div>
+        <div class="overlay-light" [style.bottom.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="440 - viewportTop - viewportHeight"></div>
+        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.left.px]="0" [style.width.px]="viewportLeft"></div>
+        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.right.px]="0" [style.width.px]="320 - viewportLeft - viewportWidth"></div>
 
         <!-- Visual boundary of the crop viewport -->
         <div class="crop-viewport-outline" 
@@ -74,7 +93,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
         <mat-slider class="zoom-slider" 
                     [min]="minScale" 
                     [max]="maxScale" 
-                    [step]="0.005">
+                    [step]="0.002">
           <input matSliderThumb [value]="scale" (input)="onZoomChange($event)">
         </mat-slider>
         <mat-icon color="primary">zoom_in</mat-icon>
@@ -102,39 +121,74 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       align-items: center;
       gap: 12px;
       overflow-y: auto !important;
-      max-height: 80vh;
+      max-height: 82vh;
     }
     .instructions {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #666;
       text-align: center;
       margin: 0;
     }
-    .ratio-selector-container {
+    
+    .controls-card {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 4px;
+      gap: 8px;
       width: 100%;
+      max-width: 320px;
+      padding: 10px;
+      background: #fdfaf5;
+      border: 1px solid rgba(212, 160, 23, 0.15);
+      border-radius: 8px;
     }
-    .ratio-label {
-      font-size: 0.8rem;
-      font-weight: bold;
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .control-label {
+      font-size: 0.78rem;
+      font-weight: 700;
       color: #555;
     }
-    ::v-deep .mat-button-toggle-group {
-      border: 1px solid rgba(212, 160, 23, 0.2) !important;
+    .ratio-select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid rgba(212, 160, 23, 0.3);
+      border-radius: 6px;
       background: white;
-    }
-    ::v-deep .mat-button-toggle {
-      font-size: 0.78rem;
+      padding: 0 8px;
+      font-size: 0.82rem;
       font-weight: 600;
+      color: #3e2723;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
     }
-    ::v-deep .mat-button-toggle-checked {
-      background-color: #f57c00 !important;
-      color: white !important;
+    .ratio-select:focus {
+      border-color: #f57c00;
     }
+
+    .free-dims-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(212, 160, 23, 0.2);
+    }
+    .dim-control {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .dim-label {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    .dim-slider {
+      height: 28px;
+    }
+
     .crop-area-container {
       position: relative;
       width: 320px;
@@ -171,7 +225,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       pointer-events: none;
       z-index: 10;
       border-radius: 4px;
-      transition: width 0.2s ease, height 0.2s ease, left 0.2s ease, top 0.2s ease;
+      transition: width 0.15s ease, height 0.15s ease, left 0.15s ease, top 0.15s ease;
     }
     .aspect-ratio-badge {
       position: absolute;
@@ -186,12 +240,13 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       white-space: nowrap;
     }
 
-    .overlay-dark {
+    /* Light semi-transparent overlays so the entire crop area is fully visible */
+    .overlay-light {
       position: absolute;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.35); // Light overlay to see everything clearly
       pointer-events: none;
       z-index: 5;
-      transition: width 0.2s ease, height 0.2s ease, left 0.2s ease, top 0.2s ease, bottom 0.2s ease, right 0.2s ease;
+      transition: width 0.15s ease, height 0.15s ease, left 0.15s ease, top 0.15s ease, bottom 0.15s ease, right 0.15s ease;
     }
 
     .controls-row {
@@ -209,6 +264,13 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       padding: 12px 24px;
       border-top: 1px solid #eee;
     }
+    .animate-fade-in {
+      animation: fadeIn 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   `]
 })
 export class ImageCropDialogComponent implements OnInit {
@@ -219,11 +281,15 @@ export class ImageCropDialogComponent implements OnInit {
   selectedRatio = '2:3';
 
   // Render & crop state
-  minScale = 0.02;
-  maxScale = 4.0;
+  minScale = 0.01;
+  maxScale = 5.0;
   scale = 1.0;
   panX = 0;
   panY = 0;
+
+  // Free crop dimensions
+  freeWidth = 200;
+  freeHeight = 300;
 
   // Interaction variables
   private isDragging = false;
@@ -258,25 +324,22 @@ export class ImageCropDialogComponent implements OnInit {
   resetZoomAndFit(): void {
     if (!this.imageLoaded) return;
 
-    // Viewport width and height
     const Vw = this.viewportWidth;
     const Vh = this.viewportHeight;
 
     const aspectViewport = Vw / Vh;
     const aspectImg = this.naturalWidth / this.naturalHeight;
 
-    // Set initial scale to contain the full image inside the viewport box
+    // Default: contain the full image inside the viewport box so it starts fully visible
     if (aspectImg > aspectViewport) {
-      // Image is wider -> fit width
       this.scale = Vw / this.naturalWidth;
     } else {
-      // Image is taller -> fit height
       this.scale = Vh / this.naturalHeight;
     }
 
-    // Set min scale to 0.05 to allow complete zoom out so they can see the full image
-    this.minScale = Math.min(this.scale * 0.25, 0.05);
-    this.maxScale = this.scale * 5;
+    // Set minimum scale even lower so they can zoom out completely if desired
+    this.minScale = Math.min(this.scale * 0.2, 0.02);
+    this.maxScale = this.scale * 6;
     this.panX = 0;
     this.panY = 0;
   }
@@ -288,13 +351,12 @@ export class ImageCropDialogComponent implements OnInit {
     switch (this.selectedRatio) {
       case '1:1': return 250;
       case '4:3': return 260;
+      case 'free': return this.freeWidth;
       case 'original':
         const aspect = this.naturalWidth / this.naturalHeight;
         if (aspect > 320/440) {
-          // landscape or moderately portrait -> fit width
           return 270;
         } else {
-          // extremely portrait -> fit height bounds
           return 380 * aspect;
         }
       case '2:3':
@@ -309,6 +371,7 @@ export class ImageCropDialogComponent implements OnInit {
     switch (this.selectedRatio) {
       case '1:1': return 250;
       case '4:3': return 195;
+      case 'free': return this.freeHeight;
       case 'original':
         const aspect = this.naturalWidth / this.naturalHeight;
         if (aspect > 320/440) {
@@ -335,15 +398,27 @@ export class ImageCropDialogComponent implements OnInit {
       case '1:1': return '1:1 مربع / Square';
       case '4:3': return '4:3 عريض / Wide';
       case 'original': return 'الأصلية / Original';
+      case 'free': return `قص حر / Free (${this.freeWidth}x${this.freeHeight})`;
       case '2:3':
       default:
         return '2:3 غلاف كتاب / Cover';
     }
   }
 
-  onRatioChange(ratio: string): void {
-    this.selectedRatio = ratio;
+  onRatioSelect(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.selectedRatio = select.value;
     this.resetZoomAndFit();
+  }
+
+  onFreeWidthChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.freeWidth = Number(input.value);
+  }
+
+  onFreeHeightChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.freeHeight = Number(input.value);
   }
 
   getTransformStyle(): string {
