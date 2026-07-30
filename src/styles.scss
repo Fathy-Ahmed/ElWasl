@@ -104,7 +104,10 @@ button {
 .mat-primary {
   --mdc-theme-primary: #{$primary-color};
   --mdc-theme-on-primary: #ffffff;
-  color: #{$primary-color} !important;
+  
+  &:not(:disabled):not([disabled]) {
+    color: #{$primary-color} !important;
+  }
 }
 
 .mat-mdc-unelevated-button.mat-primary:not(:disabled),
@@ -121,12 +124,12 @@ button {
   color: white !important;
 }
 
-.mat-mdc-outlined-button.mat-primary {
+.mat-mdc-outlined-button.mat-primary:not(:disabled):not([disabled]) {
   border-color: $primary-color !important;
   color: $primary-color !important;
 }
 
-.mat-mdc-button.mat-primary {
+.mat-mdc-button.mat-primary:not(:disabled):not([disabled]) {
   color: $primary-color !important;
 }
 
