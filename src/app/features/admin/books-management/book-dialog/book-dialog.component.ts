@@ -92,10 +92,10 @@ import { ImageCropDialogComponent } from '../image-crop-dialog/image-crop-dialog
         <!-- Image Preview Block -->
         @if (localPreviewUrl() || form.get('coverImageUrl')?.value) {
           <div class="image-preview-container">
-            <span class="preview-label">معاينة الغلاف / Cover Preview:</span>
-            <div class="image-preview">
+            <span class="preview-label">معاينة الغلاف / Cover Preview (انقر للتعديل / Click to Edit):</span>
+            <div class="image-preview" (click)="editCrop()">
               <img [src]="localPreviewUrl() || (form.get('coverImageUrl')?.value | imageUrl)" alt="Preview" class="preview-img">
-              <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage()">
+              <button type="button" mat-icon-button color="warn" class="remove-img-btn" (click)="removeImage(); $event.stopPropagation()">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -225,9 +225,33 @@ import { ImageCropDialogComponent } from '../image-crop-dialog/image-crop-dialog
       position: relative;
       display: inline-block;
       max-width: 120px;
-      border: 1px dashed #ccc;
-      border-radius: 4px;
+      border: 2px dashed #f57c00;
+      border-radius: 6px;
       overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .image-preview:hover {
+      border-color: #e65100;
+      box-shadow: 0 4px 12px rgba(245, 124, 0, 0.15);
+      transform: scale(1.02);
+    }
+    .image-preview::after {
+      content: 'تعديل / Edit';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 4px 0;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .image-preview:hover::after {
+      opacity: 1;
     }
     .preview-img {
       width: 100%;
@@ -387,6 +411,52 @@ export class BookDialogComponent implements OnInit {
         }
       });
     }
+  }
+
+  editCrop(): void {
+    const rawUrl = this.localPreviewUrl() || this.form.get('coverImageUrl')?.value;
+    if (!rawUrl) return;
+
+    this.isUploading.set(true);
+
+    // Grab the fully resolved absolute source URL from the DOM image element
+    const imgEl = document.querySelector('.preview-img') as HTMLImageElement;
+    const resolvedUrl = imgEl ? imgEl.src : rawUrl;
+
+    fetch(resolvedUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], 'cover.jpg', { type: blob.type || 'image/jpeg' });
+        this.isUploading.set(false);
+
+        const cropRef = this.dialog.open(ImageCropDialogComponent, {
+          width: '360px',
+          data: { imageFile: file }
+        });
+
+        cropRef.afterClosed().subscribe((croppedFile: File | null) => {
+          if (croppedFile) {
+            const previewUrl = URL.createObjectURL(croppedFile);
+            this.localPreviewUrl.set(previewUrl);
+            
+            this.isUploading.set(true);
+            this.adminApiService.uploadFile(croppedFile).subscribe({
+              next: (res) => {
+                this.form.patchValue({
+                  coverImageUrl: res
+                });
+                this.isUploading.set(false);
+              },
+              error: () => {
+                this.isUploading.set(false);
+              }
+            });
+          }
+        });
+      })
+      .catch(() => {
+        this.isUploading.set(false);
+      });
   }
 
   removeImage(): void {
