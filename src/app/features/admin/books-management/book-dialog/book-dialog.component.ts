@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -13,6 +13,7 @@ import { AdminApiService } from '../../../../core/services/admin-api.service';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 import { CategoryDto, BookFormat, Language } from '../../../../core/models/api.models';
+import { ImageCropDialogComponent } from '../image-crop-dialog/image-crop-dialog.component';
 
 @Component({
   selector: 'app-book-dialog',
@@ -257,6 +258,7 @@ export class BookDialogComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   private readonly currencyService = inject(CurrencyService);
   private readonly dialogRef = inject(MatDialogRef<BookDialogComponent>);
+  private readonly dialog = inject(MatDialog);
   
   form!: FormGroup;
   categories: CategoryDto[] = [];
@@ -357,22 +359,31 @@ export class BookDialogComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       
-      // Create local object URL for instant preview
-      const previewUrl = URL.createObjectURL(file);
-      this.localPreviewUrl.set(previewUrl);
-      
-      this.isUploading.set(true);
-      this.adminApiService.uploadFile(file).subscribe({
-        next: (res) => {
-          this.form.patchValue({
-            coverImageUrl: res
+      // Open the zoom-and-pan crop dialog
+      const cropRef = this.dialog.open(ImageCropDialogComponent, {
+        width: '360px',
+        data: { imageFile: file }
+      });
+
+      cropRef.afterClosed().subscribe((croppedFile: File | null) => {
+        if (croppedFile) {
+          // Create local object URL for instant preview of cropped image
+          const previewUrl = URL.createObjectURL(croppedFile);
+          this.localPreviewUrl.set(previewUrl);
+          
+          this.isUploading.set(true);
+          this.adminApiService.uploadFile(croppedFile).subscribe({
+            next: (res) => {
+              this.form.patchValue({
+                coverImageUrl: res
+              });
+              this.isUploading.set(false);
+            },
+            error: () => {
+              this.isUploading.set(false);
+              this.localPreviewUrl.set('');
+            }
           });
-          this.isUploading.set(false);
-        },
-        error: () => {
-          this.isUploading.set(false);
-          // Revert preview on upload error
-          this.localPreviewUrl.set('');
         }
       });
     }
