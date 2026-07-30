@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { GameDto, GameDtoPaginatedList } from '../models/api.models';
 import { Product } from '../../shared/components/product-card/product-card.component';
@@ -13,6 +13,35 @@ export class GameService {
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Games`;
 
   getGames(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<GameDtoPaginatedList> {
+    const raw = localStorage.getItem('elwasl_admin_mock_games');
+    if (raw) {
+      try {
+        let items = JSON.parse(raw);
+        items = items.filter((g: any) => g.isActive !== false);
+
+        if (searchTerm) {
+          const s = searchTerm.toLowerCase();
+          items = items.filter((g: any) => 
+            (g.nameAr && g.nameAr.toLowerCase().includes(s)) ||
+            (g.nameEn && g.nameEn.toLowerCase().includes(s)) ||
+            (g.categoryTag && g.categoryTag.toLowerCase().includes(s))
+          );
+        }
+        const start = (pageNumber - 1) * pageSize;
+        const paginated = items.slice(start, start + pageSize);
+
+        return of({
+          items: paginated,
+          pageNumber,
+          pageSize,
+          totalCount: items.length,
+          totalPages: Math.ceil(items.length / pageSize),
+          hasPreviousPage: pageNumber > 1,
+          hasNextPage: start + pageSize < items.length
+        } as GameDtoPaginatedList);
+      } catch {}
+    }
+
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
@@ -31,6 +60,16 @@ export class GameService {
   }
 
   getGameById(id: string): Observable<Product> {
+    const raw = localStorage.getItem('elwasl_admin_mock_games');
+    if (raw) {
+      try {
+        const items = JSON.parse(raw);
+        const game = items.find((g: any) => g.id === id);
+        if (game) {
+          return of(this.mapGameToProduct(game));
+        }
+      } catch {}
+    }
     return this.http.get<GameDto>(`${this.baseUrl}/${id}`).pipe(
       map(g => this.mapGameToProduct(g))
     );

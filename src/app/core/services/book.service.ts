@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { BookDto, BookDtoPaginatedList } from '../models/api.models';
 import { Product } from '../../shared/components/product-card/product-card.component';
@@ -13,6 +13,38 @@ export class BookService {
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Books`;
 
   getBooks(categoryId?: string, searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<BookDtoPaginatedList> {
+    const raw = localStorage.getItem('elwasl_admin_mock_books');
+    if (raw) {
+      try {
+        let items = JSON.parse(raw);
+        items = items.filter((b: any) => b.isActive !== false);
+
+        if (categoryId && categoryId !== 'all') {
+          items = items.filter((b: any) => b.categoryId === categoryId);
+        }
+        if (searchTerm) {
+          const s = searchTerm.toLowerCase();
+          items = items.filter((b: any) => 
+            (b.titleAr && b.titleAr.toLowerCase().includes(s)) ||
+            (b.titleEn && b.titleEn.toLowerCase().includes(s)) ||
+            (b.authorName && b.authorName.toLowerCase().includes(s))
+          );
+        }
+        const start = (pageNumber - 1) * pageSize;
+        const paginated = items.slice(start, start + pageSize);
+
+        return of({
+          items: paginated,
+          pageNumber,
+          pageSize,
+          totalCount: items.length,
+          totalPages: Math.ceil(items.length / pageSize),
+          hasPreviousPage: pageNumber > 1,
+          hasNextPage: start + pageSize < items.length
+        } as BookDtoPaginatedList);
+      } catch {}
+    }
+
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
@@ -34,7 +66,17 @@ export class BookService {
   }
 
   getBookById(id: string): Observable<Product> {
-    return this.http.get<BookDto>(`${this.baseUrl}/${id}`).pipe(
+    const raw = localStorage.getItem('elwasl_admin_mock_books');
+    if (raw) {
+      try {
+        const items = JSON.parse(raw);
+        const book = items.find((b: any) => b.id === id);
+        if (book) {
+          return of(this.mapBookToProduct(book));
+        }
+      } catch {}
+    }
+    return this.http.get<BookDto>(`${`${this.baseUrl}/${id}`}`).pipe(
       map(b => this.mapBookToProduct(b))
     );
   }
