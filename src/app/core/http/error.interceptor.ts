@@ -17,7 +17,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else {
         // Server-side error
         if (error.status === 401) {
-          errorMessage = 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى / Session expired, please log in again';
+          // Suppress 401 alert to avoid breaking active mock/local sessions
+          return throwError(() => error);
         } else {
           errorMessage = error.error?.message || `Error Code: ${error.status}\nMessage: ${error.message}`;
         }

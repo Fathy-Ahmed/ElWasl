@@ -30,15 +30,9 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
               });
               return next(newReq);
             }
-            // If no token was returned, log out and redirect
-            authService.logout();
-            router.navigate(['/auth/login'], { queryParams: { returnUrl: router.url } });
             return throwError(() => error);
           }),
           catchError((refreshErr) => {
-            // If refresh fails, log out and redirect
-            authService.logout();
-            router.navigate(['/auth/login'], { queryParams: { returnUrl: router.url } });
             return throwError(() => refreshErr);
           })
         );

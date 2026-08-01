@@ -50,8 +50,10 @@ export class AuthService {
       setTimeout(() => {
         this.fetchProfile().subscribe({
           error: () => {
-            // If profile fetch fails (e.g. token expired), try to refresh token or logout
-            this.logout();
+            // Try to refresh token silently, but do NOT force logout. Keep local session alive.
+            this.refreshToken().subscribe({
+              error: () => {}
+            });
           }
         });
       });
