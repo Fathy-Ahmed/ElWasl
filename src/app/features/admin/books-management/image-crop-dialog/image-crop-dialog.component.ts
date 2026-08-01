@@ -142,6 +142,7 @@ import { MatIconModule } from '@angular/material/icon';
       background: #fdfaf5;
       border: 1px solid rgba(212, 160, 23, 0.15);
       border-radius: 8px;
+      flex-shrink: 0;
     }
     .control-group {
       display: flex;
@@ -195,6 +196,7 @@ import { MatIconModule } from '@angular/material/icon';
       position: relative;
       width: 300px;
       height: 300px;
+      flex-shrink: 0;
       background-color: #1a1a1a;
       overflow: hidden;
       border-radius: 8px;
@@ -257,6 +259,7 @@ import { MatIconModule } from '@angular/material/icon';
       width: 100%;
       max-width: 300px;
       margin-top: 4px;
+      flex-shrink: 0;
     }
     .zoom-slider {
       flex: 1;
