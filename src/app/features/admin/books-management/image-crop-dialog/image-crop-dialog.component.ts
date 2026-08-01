@@ -38,18 +38,18 @@ import { MatIconModule } from '@angular/material/icon';
           </select>
         </div>
 
-        <!-- Manual dimensions sliders for Free Crop option -->
+        <!-- Manual dimensions sliders for Free Crop option (bounded to 260px to fit in container) -->
         @if (selectedRatio === 'free') {
           <div class="free-dims-container animate-fade-in">
             <div class="dim-control">
               <span class="dim-label">العرض / Width: <strong>{{ freeWidth }}px</strong></span>
-              <mat-slider min="80" max="280" step="5" class="dim-slider">
+              <mat-slider min="60" max="260" step="5" class="dim-slider">
                 <input matSliderThumb [value]="freeWidth" (input)="onFreeWidthChange($event)">
               </mat-slider>
             </div>
             <div class="dim-control">
               <span class="dim-label">الارتفاع / Height: <strong>{{ freeHeight }}px</strong></span>
-              <mat-slider min="80" max="380" step="5" class="dim-slider">
+              <mat-slider min="60" max="260" step="5" class="dim-slider">
                 <input matSliderThumb [value]="freeHeight" (input)="onFreeHeightChange($event)">
               </mat-slider>
             </div>
@@ -57,6 +57,7 @@ import { MatIconModule } from '@angular/material/icon';
         }
       </div>
 
+      <!-- Main Image Crop Area Container (Sized to 300x300 for 100% screen visibility) -->
       <div class="crop-area-container" 
            (mousedown)="onMouseDown($event)"
            (mousemove)="onMouseMove($event)"
@@ -71,11 +72,11 @@ import { MatIconModule } from '@angular/material/icon';
           <img [src]="imageUrl" (load)="onImageLoaded($event)" #cropImage alt="Crop Source" class="source-img">
         </div>
 
-        <!-- Light semi-transparent overlays (opacity reduced from 0.7 to 0.3 to see the entire crop area) -->
+        <!-- Light semi-transparent overlays centered on 300x300 container -->
         <div class="overlay-light" [style.top.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="viewportTop"></div>
-        <div class="overlay-light" [style.bottom.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="440 - viewportTop - viewportHeight"></div>
-        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.left.px]="0" [style.width.px]="viewportLeft"></div>
-        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="440 - viewportTop - viewportHeight" [style.right.px]="0" [style.width.px]="320 - viewportLeft - viewportWidth"></div>
+        <div class="overlay-light" [style.bottom.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="300 - viewportTop - viewportHeight"></div>
+        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="300 - viewportTop - viewportHeight" [style.left.px]="0" [style.width.px]="viewportLeft"></div>
+        <div class="overlay-light" [style.top.px]="viewportTop" [style.bottom.px]="300 - viewportTop - viewportHeight" [style.right.px]="0" [style.width.px]="300 - viewportLeft - viewportWidth"></div>
 
         <!-- Visual boundary of the crop viewport -->
         <div class="crop-viewport-outline" 
@@ -122,9 +123,10 @@ import { MatIconModule } from '@angular/material/icon';
       gap: 12px;
       overflow-y: auto !important;
       max-height: 82vh;
+      padding: 10px 16px;
     }
     .instructions {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: #666;
       text-align: center;
       margin: 0;
@@ -135,7 +137,7 @@ import { MatIconModule } from '@angular/material/icon';
       flex-direction: column;
       gap: 8px;
       width: 100%;
-      max-width: 320px;
+      max-width: 300px;
       padding: 10px;
       background: #fdfaf5;
       border: 1px solid rgba(212, 160, 23, 0.15);
@@ -191,8 +193,8 @@ import { MatIconModule } from '@angular/material/icon';
 
     .crop-area-container {
       position: relative;
-      width: 320px;
-      height: 440px;
+      width: 300px;
+      height: 300px;
       background-color: #1a1a1a;
       overflow: hidden;
       border-radius: 8px;
@@ -240,10 +242,9 @@ import { MatIconModule } from '@angular/material/icon';
       white-space: nowrap;
     }
 
-    /* Light semi-transparent overlays so the entire crop area is fully visible */
     .overlay-light {
       position: absolute;
-      background-color: rgba(0, 0, 0, 0.35); // Light overlay to see everything clearly
+      background-color: rgba(0, 0, 0, 0.35);
       pointer-events: none;
       z-index: 5;
       transition: width 0.15s ease, height 0.15s ease, left 0.15s ease, top 0.15s ease, bottom 0.15s ease, right 0.15s ease;
@@ -254,7 +255,7 @@ import { MatIconModule } from '@angular/material/icon';
       align-items: center;
       gap: 12px;
       width: 100%;
-      max-width: 320px;
+      max-width: 300px;
       margin-top: 4px;
     }
     .zoom-slider {
@@ -287,9 +288,9 @@ export class ImageCropDialogComponent implements OnInit {
   panX = 0;
   panY = 0;
 
-  // Free crop dimensions
-  freeWidth = 200;
-  freeHeight = 300;
+  // Free crop dimensions (bounded to fit 300x300 container)
+  freeWidth = 180;
+  freeHeight = 240;
 
   // Interaction variables
   private isDragging = false;
@@ -330,67 +331,68 @@ export class ImageCropDialogComponent implements OnInit {
     const aspectViewport = Vw / Vh;
     const aspectImg = this.naturalWidth / this.naturalHeight;
 
-    // Default: contain the full image inside the viewport box so it starts fully visible
+    // contain the full image inside the viewport box so it starts fully visible
     if (aspectImg > aspectViewport) {
       this.scale = Vw / this.naturalWidth;
     } else {
       this.scale = Vh / this.naturalHeight;
     }
 
-    // Set minimum scale even lower so they can zoom out completely if desired
     this.minScale = Math.min(this.scale * 0.2, 0.02);
     this.maxScale = this.scale * 6;
     this.panX = 0;
     this.panY = 0;
   }
 
-  // Dynamic Viewport calculations
+  // Dynamic Viewport calculations inside 300x300 container
   get viewportWidth(): number {
-    if (!this.imageLoaded) return 200;
+    if (!this.imageLoaded) return 160;
 
     switch (this.selectedRatio) {
-      case '1:1': return 250;
-      case '4:3': return 260;
+      case '1:1': return 220;
+      case '4:3': return 240;
       case 'free': return this.freeWidth;
       case 'original':
         const aspect = this.naturalWidth / this.naturalHeight;
-        if (aspect > 320/440) {
-          return 270;
+        if (aspect > 1) {
+          // landscape -> fit width bounds
+          return 240;
         } else {
-          return 380 * aspect;
+          // portrait -> fit height bounds
+          return 240 * aspect;
         }
       case '2:3':
       default:
-        return 200;
+        return 160;
     }
   }
 
   get viewportHeight(): number {
-    if (!this.imageLoaded) return 300;
+    if (!this.imageLoaded) return 240;
 
     switch (this.selectedRatio) {
-      case '1:1': return 250;
-      case '4:3': return 195;
+      case '1:1': return 220;
+      case '4:3': return 180;
       case 'free': return this.freeHeight;
       case 'original':
         const aspect = this.naturalWidth / this.naturalHeight;
-        if (aspect > 320/440) {
-          return 270 / aspect;
+        if (aspect > 1) {
+          return 240 / aspect;
         } else {
-          return 380;
+          return 240;
         }
       case '2:3':
       default:
-        return 300;
+        return 240;
     }
   }
 
   get viewportLeft(): number {
-    return (320 - this.viewportWidth) / 2;
+    return (300 - this.viewportWidth) / 2;
   }
 
   get viewportTop(): number {
-    return (440 - this.viewportHeight) / 2;
+    return (300 - this.viewportHeight) / 2;
   }
 
   getRatioLabel(): string {
@@ -403,6 +405,11 @@ export class ImageCropDialogComponent implements OnInit {
       default:
         return '2:3 غلاف كتاب / Cover';
     }
+  }
+
+  onRatioChange(ratio: string): void {
+    this.selectedRatio = ratio;
+    this.resetZoomAndFit();
   }
 
   onRatioSelect(event: Event): void {
