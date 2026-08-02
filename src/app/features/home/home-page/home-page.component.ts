@@ -252,6 +252,7 @@ export class HomePageComponent implements OnInit {
   // Recommendation feature state
   recommendStep = 1;
   recommendedBooks: Product[] = [];
+  recommendationSettings: any;
 
   ngOnInit(): void {
     this.contentService.getHomepageData().subscribe(data => {
@@ -259,6 +260,7 @@ export class HomePageComponent implements OnInit {
       this.authorCount = data.authorCount;
       this.authors = data.authors;
       this.distributors = data.distributors;
+      this.recommendationSettings = data.recommendationSettings;
     });
 
     this.featuredProducts = this.defaultProducts; // Initialize with fallback data
@@ -346,20 +348,28 @@ export class HomePageComponent implements OnInit {
 
   selectGenre(genreKey: string): void {
     let keywords: string[] = [];
-    switch (genreKey) {
-      case 'Horror':
-        keywords = ['رعب', 'غموض', 'تشويق', 'thriller', 'horror', 'mystery', 'جريمة', 'crime', 'فيل', 'عازف', 'وهمي'];
-        break;
-      case 'Self-Dev':
-        keywords = ['تطوير', 'ذات', 'تنمية', 'self-dev', 'habit', 'philosophical', 'فلسفة', 'العشق', 'عادات', 'قوة', 'بشرية'];
-        break;
-      case 'History':
-        keywords = ['تاريخ', 'تاريخية', 'historical', 'history', 'أرض الإله', 'غرناطة', 'عزازيل', 'برمودة', 'مغامرة'];
-        break;
-      case 'Drama':
-      default:
-        keywords = ['دراما', 'رومانسية', 'حب', 'اجتماعية', 'drama', 'romance', 'عبرية', 'حارتنا', 'الهجرة', 'أنثى', 'أولاد'];
-        break;
+
+    // Find the category settings from local recommendationSettings CMS config
+    const category = this.recommendationSettings?.categories?.find((c: any) => c.key === genreKey);
+    if (category && category.keywords) {
+      keywords = category.keywords.split(',').map((k: string) => k.trim().toLowerCase()).filter((k: string) => k.length > 0);
+    } else {
+      // Fallback to static keywords if config is not fully populated yet
+      switch (genreKey) {
+        case 'Horror':
+          keywords = ['رعب', 'غموض', 'تشويق', 'thriller', 'horror', 'mystery', 'جريمة', 'crime', 'فيل', 'عازف', 'وهمي'];
+          break;
+        case 'Self-Dev':
+          keywords = ['تطوير', 'ذات', 'تنمية', 'self-dev', 'habit', 'philosophical', 'فلسفة', 'العشق', 'عادات', 'قوة', 'بشرية'];
+          break;
+        case 'History':
+          keywords = ['تاريخ', 'تاريخية', 'historical', 'history', 'أرض الإله', 'غرناطة', 'عزازيل', 'برمودة', 'مغامرة'];
+          break;
+        case 'Drama':
+        default:
+          keywords = ['دراما', 'رومانسية', 'حب', 'اجتماعية', 'drama', 'romance', 'عبرية', 'حارتنا', 'الهجرة', 'أنثى', 'أولاد'];
+          break;
+      }
     }
 
     // Merge static default products and loaded products

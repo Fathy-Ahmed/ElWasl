@@ -19,6 +19,9 @@
       <mat-button-toggle value="terms" (change)="setTab('terms')" id="tab-terms">
         <mat-icon inline>gavel</mat-icon> شروط النشر / Terms
       </mat-button-toggle>
+      <mat-button-toggle value="recommendation" (change)="setTab('recommendation')" id="tab-recommendation">
+        <mat-icon inline>psychology</mat-icon> ترشيح رواية / Recommendations
+      </mat-button-toggle>
     </mat-button-toggle-group>
 
     <div class="global-actions">
@@ -321,6 +324,79 @@
                 <mat-form-field appearance="outline" class="full-width-cell">
                   <mat-label>Description (EN)</mat-label>
                   <textarea matInput [(ngModel)]="step.descEn" rows="3" required dir="ltr"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Tab 5: Recommendation settings -->
+    @if (activeTab() === 'recommendation') {
+      <div class="section-card" *ngIf="recommendationSettings">
+        <div class="section-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <h3>إعدادات أداة "رشح لي رواية" / Recommend a Novel Widget</h3>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-weight: bold; font-size: 0.85rem; color: #5d4037;">تفعيل الأداة في الصفحة الرئيسية / Enable Widget:</label>
+            <input type="checkbox" [(ngModel)]="recommendationSettings.enabled" style="width: 20px; height: 20px; cursor: pointer; accent-color: #f57c00;">
+          </div>
+        </div>
+
+        <div class="card-form-grid" style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <mat-form-field appearance="outline">
+            <mat-label>عنوان الأداة (عربي) / Title (AR)</mat-label>
+            <input matInput [(ngModel)]="recommendationSettings.titleAr" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Title (EN)</mat-label>
+            <input matInput [(ngModel)]="recommendationSettings.titleEn" required dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>السؤال الرئيسي (عربي) / Subtitle/Question (AR)</mat-label>
+            <input matInput [(ngModel)]="recommendationSettings.questionAr" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Subtitle/Question (EN)</mat-label>
+            <input matInput [(ngModel)]="recommendationSettings.questionEn" required dir="ltr">
+          </mat-form-field>
+        </div>
+
+        <!-- Categories configurations -->
+        <h4 style="margin: 2rem 0 1rem; color: #3e2723; border-bottom: 2px solid rgba(212, 160, 23, 0.2); padding-bottom: 8px; font-weight: bold;">
+          أقسام التصنيفات والكلمات المفتاحية / Categories & Matching Keywords Map
+        </h4>
+        
+        <div class="items-grid" style="display: flex; flex-direction: column; gap: 20px;">
+          @for (cat of recommendationSettings.categories; track cat.key; let idx = $index) {
+            <div class="item-edit-card" style="border: 1px solid rgba(212, 160, 23, 0.2); border-radius: 12px; padding: 16px; background: #fffdfb;">
+              <div class="card-title-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(212,160,23,0.25); padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; color: #5d4037;">
+                <span>التصنيف #{{ idx + 1 }} (ID: {{ cat.key }})</span>
+              </div>
+
+              <div class="card-form-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <mat-form-field appearance="outline">
+                  <mat-label>رمز تعبيري (Emoji)</mat-label>
+                  <input matInput [(ngModel)]="cat.emoji" required style="font-size: 1.25rem; text-align: center;">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>اسم التصنيف (عربي) / Title (AR)</mat-label>
+                  <input matInput [(ngModel)]="cat.labelAr" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Title (EN)</mat-label>
+                  <input matInput [(ngModel)]="cat.labelEn" required dir="ltr">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-cell" style="grid-column: span 3;">
+                  <mat-label>الكلمات المفتاحية للمطابقة (مفصولة بفاصلة) / Keywords for Matching (comma-separated)</mat-label>
+                  <input matInput [(ngModel)]="cat.keywords" required placeholder="رعب, تشويق, غموض...">
+                  <mat-hint>تستخدم للبحث تلقائياً عن الروايات التي تحتوي على هذه الكلمات في العنوان أو التصنيف.</mat-hint>
                 </mat-form-field>
               </div>
             </div>

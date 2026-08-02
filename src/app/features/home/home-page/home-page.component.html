@@ -86,51 +86,46 @@
           <img src="/logo.png" alt="Dar ElWasl Logo" class="hero-logo-large" fetchpriority="high" loading="eager">
         </div>
 
-        <!-- Recommend a Novel Interactive Widget -->
-        <div class="recommend-widget glass-card">
-          <h3 class="widget-title">
-            <mat-icon>psychology</mat-icon>
-            <span>{{ 'HOME.RECOMMEND_TITLE' | translate }}</span>
-          </h3>
+        <!-- Recommend a Novel Interactive Widget (Controlled from Admin Dashboard) -->
+        @if (recommendationSettings?.enabled) {
+          <div class="recommend-widget glass-card">
+            <h3 class="widget-title">
+              <mat-icon>psychology</mat-icon>
+              <span>{{ localeService.currentLocale() === 'ar' ? recommendationSettings.titleAr : recommendationSettings.titleEn }}</span>
+            </h3>
 
-          @if (recommendStep === 1) {
-            <p class="widget-subtitle">{{ 'HOME.RECOMMEND_QUESTION' | translate }}</p>
-            <div class="genre-chips">
-              <button type="button" class="genre-chip" (click)="selectGenre('Horror')">
-                👻 {{ 'HOME.GENRE_HORROR' | translate }}
-              </button>
-              <button type="button" class="genre-chip" (click)="selectGenre('Self-Dev')">
-                💡 {{ 'HOME.GENRE_SELFDEV' | translate }}
-              </button>
-              <button type="button" class="genre-chip" (click)="selectGenre('History')">
-                📜 {{ 'HOME.GENRE_HISTORY' | translate }}
-              </button>
-              <button type="button" class="genre-chip" (click)="selectGenre('Drama')">
-                ❤️ {{ 'HOME.GENRE_DRAMA' | translate }}
-              </button>
-            </div>
-          } @else if (recommendStep === 2) {
-            <p class="widget-subtitle success-msg">✨ {{ 'HOME.RECOMMEND_SUCCESS' | translate }} ✨</p>
-            <div class="recommended-books-list">
-              @for (book of recommendedBooks; track book.id) {
-                <div class="rec-book-card" [routerLink]="['/books']" [queryParams]="{ search: book.titleAr }">
-                  <img [src]="book.coverImage" alt="Cover" class="rec-cover">
-                  <div class="rec-info">
-                    <span class="rec-title">{{ localeService.currentLocale() === 'ar' ? book.titleAr : book.titleEn }}</span>
-                    <span class="rec-author">{{ localeService.currentLocale() === 'ar' ? book.authorAr : book.authorEn }}</span>
-                    <span class="rec-price">{{ book.price }} {{ 'COMMON.EGP' | translate }}</span>
+            @if (recommendStep === 1) {
+              <p class="widget-subtitle">{{ localeService.currentLocale() === 'ar' ? recommendationSettings.questionAr : recommendationSettings.questionEn }}</p>
+              <div class="genre-chips">
+                @for (cat of recommendationSettings.categories; track cat.key) {
+                  <button type="button" class="genre-chip" (click)="selectGenre(cat.key)">
+                    {{ cat.emoji }} {{ localeService.currentLocale() === 'ar' ? cat.labelAr : cat.labelEn }}
+                  </button>
+                }
+              </div>
+            } @else if (recommendStep === 2) {
+              <p class="widget-subtitle success-msg">✨ {{ 'HOME.RECOMMEND_SUCCESS' | translate }} ✨</p>
+              <div class="recommended-books-list">
+                @for (book of recommendedBooks; track book.id) {
+                  <div class="rec-book-card" [routerLink]="['/books']" [queryParams]="{ search: book.titleAr }">
+                    <img [src]="book.coverImage" alt="Cover" class="rec-cover">
+                    <div class="rec-info">
+                      <span class="rec-title">{{ localeService.currentLocale() === 'ar' ? book.titleAr : book.titleEn }}</span>
+                      <span class="rec-author">{{ localeService.currentLocale() === 'ar' ? book.authorAr : book.authorEn }}</span>
+                      <span class="rec-price">{{ book.price }} {{ 'COMMON.EGP' | translate }}</span>
+                    </div>
                   </div>
-                </div>
-              } @empty {
-                <p class="no-books">{{ 'HOME.NO_RECOMMENDATIONS' | translate }}</p>
-              }
-            </div>
-            <button mat-stroked-button class="reset-btn" (click)="resetRecommendation()">
-              <mat-icon>restart_alt</mat-icon>
-              <span>{{ 'HOME.TRY_AGAIN' | translate }}</span>
-            </button>
-          }
-        </div>
+                } @empty {
+                  <p class="no-books">{{ 'HOME.NO_RECOMMENDATIONS' | translate }}</p>
+                }
+              </div>
+              <button mat-stroked-button class="reset-btn" (click)="resetRecommendation()">
+                <mat-icon>restart_alt</mat-icon>
+                <span>{{ 'HOME.TRY_AGAIN' | translate }}</span>
+              </button>
+            }
+          </div>
+        }
 
       </div>
     </div>

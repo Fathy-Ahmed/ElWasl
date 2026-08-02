@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
-import { ContentService, ServiceItem, AuthorItem, DistributorItem, HomepageData, TermStepItem } from '../../../../core/services/content.service';
+import { ContentService, ServiceItem, AuthorItem, DistributorItem, HomepageData, TermStepItem, RecommendationSettings } from '../../../../core/services/content.service';
 
 @Component({
   selector: 'app-homepage-editor-page',
@@ -42,7 +42,7 @@ export class HomepageEditorPageComponent implements OnInit {
     { label: 'تعديل الرئيسية / Homepage CMS' }
   ];
 
-  readonly activeTab = signal<'services' | 'family' | 'distributors' | 'terms'>('services');
+  readonly activeTab = signal<'services' | 'family' | 'distributors' | 'terms' | 'recommendation'>('services');
   readonly isSaving = signal<boolean>(false);
 
   // Editable local copies of state
@@ -51,6 +51,7 @@ export class HomepageEditorPageComponent implements OnInit {
   authors: AuthorItem[] = [];
   distributors: DistributorItem[] = [];
   publishingTerms: TermStepItem[] = [];
+  recommendationSettings?: RecommendationSettings;
 
   ngOnInit(): void {
     this.loadData();
@@ -64,9 +65,12 @@ export class HomepageEditorPageComponent implements OnInit {
     this.authors = JSON.parse(JSON.stringify(data.authors));
     this.distributors = JSON.parse(JSON.stringify(data.distributors));
     this.publishingTerms = JSON.parse(JSON.stringify(data.publishingTerms || []));
+    if (data.recommendationSettings) {
+      this.recommendationSettings = JSON.parse(JSON.stringify(data.recommendationSettings));
+    }
   }
 
-  setTab(tab: 'services' | 'family' | 'distributors' | 'terms'): void {
+  setTab(tab: 'services' | 'family' | 'distributors' | 'terms' | 'recommendation'): void {
     this.activeTab.set(tab);
   }
 
@@ -166,7 +170,8 @@ export class HomepageEditorPageComponent implements OnInit {
       authorCount: this.authorCount,
       authors: this.authors,
       distributors: this.distributors,
-      publishingTerms: this.publishingTerms
+      publishingTerms: this.publishingTerms,
+      recommendationSettings: this.recommendationSettings
     };
 
     setTimeout(() => {

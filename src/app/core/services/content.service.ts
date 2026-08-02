@@ -48,12 +48,30 @@ export interface TermStepItem {
   descEn: string;
 }
 
+export interface RecommendationCategory {
+  key: string;
+  emoji: string;
+  labelAr: string;
+  labelEn: string;
+  keywords: string;
+}
+
+export interface RecommendationSettings {
+  enabled: boolean;
+  titleAr: string;
+  titleEn: string;
+  questionAr: string;
+  questionEn: string;
+  categories: RecommendationCategory[];
+}
+
 export interface HomepageData {
   services: ServiceItem[];
   authorCount: number;
   authors: AuthorItem[];
   distributors: DistributorItem[];
   publishingTerms?: TermStepItem[];
+  recommendationSettings?: RecommendationSettings;
 }
 
 @Injectable({
@@ -61,6 +79,44 @@ export interface HomepageData {
 })
 export class ContentService {
   private readonly STORAGE_KEY = 'elwasl_homepage_content';
+
+  private readonly defaultRecommendationSettings: RecommendationSettings = {
+    enabled: true,
+    titleAr: 'رشح لي رواية',
+    titleEn: 'Recommend a Novel',
+    questionAr: 'ما هو تصنيفك المفضل؟',
+    questionEn: 'What genre do you prefer?',
+    categories: [
+      {
+        key: 'Horror',
+        emoji: '👻',
+        labelAr: 'رعب وإثارة',
+        labelEn: 'Horror & Thriller',
+        keywords: 'رعب, غموض, تشويق, thriller, horror, mystery, جريمة, crime, فيل, عازف, وهمي'
+      },
+      {
+        key: 'Self-Dev',
+        emoji: '💡',
+        labelAr: 'تطوير ذات',
+        labelEn: 'Self-Development',
+        keywords: 'تطوير, ذات, تنمية, self-dev, habit, philosophical, فلسفة, العشق, عادات, قوة, بشرية'
+      },
+      {
+        key: 'History',
+        emoji: '📜',
+        labelAr: 'روايات تاريخية',
+        labelEn: 'Historical Novels',
+        keywords: 'تاريخ, تاريخية, historical, history, أرض الإله, غرناطة, عزازيل, برمودة, مغامرة'
+      },
+      {
+        key: 'Drama',
+        emoji: '❤️',
+        labelAr: 'دراما ورومانسية',
+        labelEn: 'Drama & Romance',
+        keywords: 'دراما, رومانسية, حب, اجتماعية, drama, romance, عبرية, حارتنا, الهجرة, أنثى, أولاد'
+      }
+    ]
+  };
 
   private readonly defaultPublishingTerms: TermStepItem[] = [
     {
@@ -278,6 +334,9 @@ export class ContentService {
         if (!parsed.publishingTerms) {
           parsed.publishingTerms = this.defaultPublishingTerms;
         }
+        if (!parsed.recommendationSettings) {
+          parsed.recommendationSettings = this.defaultRecommendationSettings;
+        }
         // Auto-migration for Fairs service card to Exhibitions
         if (parsed.services) {
           const fairsIndex = parsed.services.findIndex((s: any) => s.id === 'fairs');
@@ -300,7 +359,8 @@ export class ContentService {
       authorCount: 374,
       authors: this.defaultAuthors,
       distributors: this.defaultDistributors,
-      publishingTerms: this.defaultPublishingTerms
+      publishingTerms: this.defaultPublishingTerms,
+      recommendationSettings: this.defaultRecommendationSettings
     };
   }
 
@@ -327,7 +387,8 @@ export class ContentService {
       authorCount: 374,
       authors: this.defaultAuthors,
       distributors: this.defaultDistributors,
-      publishingTerms: this.defaultPublishingTerms
+      publishingTerms: this.defaultPublishingTerms,
+      recommendationSettings: this.defaultRecommendationSettings
     };
     this.saveHomepageData(defaultData);
   }
