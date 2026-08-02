@@ -92,7 +92,16 @@
     "FLYING_BADGE": "Monde de l'Édition",
     "FLYING_TITLE": "Des pages s'envolent avec des histoires infinies",
     "FLYING_DESC": "Explorez l'univers de Dar ElWasl où les mots s'envolent et les histoires naissent au fil des livres imprimés et des romans d'exception.",
-    "FLYING_BTN": "Parcourir les publications"
+    "FLYING_BTN": "Parcourir les publications",
+    "RECOMMEND_TITLE": "Recommander un Roman",
+    "RECOMMEND_QUESTION": "Quel genre préférez-vous?",
+    "RECOMMEND_SUCCESS": "Des romans qui correspondent à votre personnalité!",
+    "NO_RECOMMENDATIONS": "Aucun roman correspondant trouvé",
+    "TRY_AGAIN": "Essayer à nouveau",
+    "GENRE_HORROR": "Horreur & Thriller",
+    "GENRE_SELFDEV": "Développement personnel",
+    "GENRE_HISTORY": "Romans Historiques",
+    "GENRE_DRAMA": "Drame & Romance"
   },
   "CONTACT": {
     "ADDRESS": "Adresse",

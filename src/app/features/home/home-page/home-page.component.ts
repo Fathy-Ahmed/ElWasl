@@ -249,6 +249,10 @@ export class HomePageComponent implements OnInit {
   authors: AuthorItem[] = [];
   distributors: DistributorItem[] = [];
 
+  // Recommendation feature state
+  recommendStep = 1;
+  recommendedBooks: Product[] = [];
+
   ngOnInit(): void {
     this.contentService.getHomepageData().subscribe(data => {
       this.services = data.services;
@@ -338,5 +342,50 @@ export class HomePageComponent implements OnInit {
     if (query && query.trim()) {
       this.router.navigate(['/books'], { queryParams: { search: query.trim() } });
     }
+  }
+
+  selectGenre(genreKey: string): void {
+    let keywords: string[] = [];
+    switch (genreKey) {
+      case 'Horror':
+        keywords = ['رعب', 'غموض', 'تشويق', 'thriller', 'horror', 'mystery', 'جريمة', 'crime', 'فيل', 'عازف', 'وهمي'];
+        break;
+      case 'Self-Dev':
+        keywords = ['تطوير', 'ذات', 'تنمية', 'self-dev', 'habit', 'philosophical', 'فلسفة', 'العشق', 'عادات', 'قوة', 'بشرية'];
+        break;
+      case 'History':
+        keywords = ['تاريخ', 'تاريخية', 'historical', 'history', 'أرض الإله', 'غرناطة', 'عزازيل', 'برمودة', 'مغامرة'];
+        break;
+      case 'Drama':
+      default:
+        keywords = ['دراما', 'رومانسية', 'حب', 'اجتماعية', 'drama', 'romance', 'عبرية', 'حارتنا', 'الهجرة', 'أنثى', 'أولاد'];
+        break;
+    }
+
+    // Merge static default products and loaded products
+    const allProducts = [...this.featuredProducts, ...this.defaultProducts];
+    
+    // Remove duplicates
+    const uniqueProducts = allProducts.filter(
+      (p, index, self) => self.findIndex(t => t.id === p.id) === index
+    );
+
+    // Filter books based on keywords
+    this.recommendedBooks = uniqueProducts.filter(p => {
+      const matchText = `${p.titleAr} ${p.titleEn} ${p.authorAr} ${p.authorEn} ${p.genreAr || ''} ${p.genreEn || ''}`.toLowerCase();
+      return keywords.some(keyword => matchText.includes(keyword));
+    }).slice(0, 3);
+
+    // Fallback if no matching books found
+    if (this.recommendedBooks.length === 0) {
+      this.recommendedBooks = uniqueProducts.slice(0, 3);
+    }
+
+    this.recommendStep = 2;
+  }
+
+  resetRecommendation(): void {
+    this.recommendStep = 1;
+    this.recommendedBooks = [];
   }
 }

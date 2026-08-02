@@ -92,7 +92,16 @@
     "FLYING_BADGE": "عالم الكتب والنشر",
     "FLYING_TITLE": "أوراقٌ تتطاير بحكايات لا تنتهي",
     "FLYING_DESC": "استكشف عالم دار الوصل حيث تحلق الكلمات وتولد القصص بين صفحات الكتب المطبوعة والروايات المتميزة.",
-    "FLYING_BTN": "تصفح المطبوعات"
+    "FLYING_BTN": "تصفح المطبوعات",
+    "RECOMMEND_TITLE": "رشح لي رواية",
+    "RECOMMEND_QUESTION": "ما هو تصنيفك المفضل؟",
+    "RECOMMEND_SUCCESS": "روايات تناسب شخصيتك!",
+    "NO_RECOMMENDATIONS": "لا توجد روايات مطابقة حالياً",
+    "TRY_AGAIN": "اختر مرة أخرى",
+    "GENRE_HORROR": "رعب وإثارة",
+    "GENRE_SELFDEV": "تطوير ذات",
+    "GENRE_HISTORY": "روايات تاريخية",
+    "GENRE_DRAMA": "دراما ورومانسية"
   },
   "CONTACT": {
     "ADDRESS": "العنوان",

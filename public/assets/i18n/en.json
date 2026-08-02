@@ -92,7 +92,16 @@
     "FLYING_BADGE": "World of Publishing",
     "FLYING_TITLE": "Pages Flying with Endless Stories",
     "FLYING_DESC": "Explore the world of Dar ElWasl where words soar and stories are born between printed books and distinguished novels.",
-    "FLYING_BTN": "Browse Publications"
+    "FLYING_BTN": "Browse Publications",
+    "RECOMMEND_TITLE": "Recommend a Novel",
+    "RECOMMEND_QUESTION": "What genre do you prefer?",
+    "RECOMMEND_SUCCESS": "Books that suit your personality!",
+    "NO_RECOMMENDATIONS": "No matching novels found",
+    "TRY_AGAIN": "Try Again",
+    "GENRE_HORROR": "Horror & Thriller",
+    "GENRE_SELFDEV": "Self-Development",
+    "GENRE_HISTORY": "Historical Novels",
+    "GENRE_DRAMA": "Drama & Romance"
   },
   "CONTACT": {
     "ADDRESS": "Address",
