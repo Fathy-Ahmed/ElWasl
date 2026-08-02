@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, of, map } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { 
   AdminBookDtoAdminPaginatedDto, 
@@ -396,12 +396,42 @@ export class AdminApiService {
     );
   }
 
+  // === Admin Orders status persistence helpers ===
+  private getStatusOverrides(): Record<string, OrderStatus> {
+    try {
+      const raw = localStorage.getItem('elwasl_order_status_overrides');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private saveStatusOverride(orderId: string, status: OrderStatus): void {
+    const overrides = this.getStatusOverrides();
+    overrides[orderId] = status;
+    localStorage.setItem('elwasl_order_status_overrides', JSON.stringify(overrides));
+  }
+
   // === Admin Orders ===
   getOrders(pageNumber = 1, pageSize = 20): Observable<AdminPaginatedOrderDto> {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
     return this.http.get<AdminPaginatedOrderDto>(`${this.baseUrl}/orders`, { params }).pipe(
+      map(res => {
+        // Apply status overrides if present
+        const overrides = this.getStatusOverrides();
+        if (res && res.items) {
+          res.items.forEach(o => {
+            if (overrides[o.id] !== undefined) {
+              o.status = overrides[o.id];
+            } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
+              o.status = overrides[o.orderNumber];
+            }
+          });
+        }
+        return res;
+      }),
       catchError(() => {
         const stored = this.getStoredMockOrders();
         return of({
@@ -416,28 +446,34 @@ export class AdminApiService {
   }
 
   updateOrderStatus(orderId: string, status: OrderStatus): Observable<void> {
+    this.saveStatusOverride(orderId, status);
+
+    const orders = this.getStoredMockOrders();
+    const found = orders.find(o => o.id === orderId || o.orderNumber === orderId);
+    if (found) {
+      found.status = status;
+      this.saveStoredMockOrders(orders);
+    }
+
     return this.http.post<void>(`${this.baseUrl}/orders/${orderId}/status`, { newStatus: status }).pipe(
       catchError(() => {
-        const orders = this.getStoredMockOrders();
-        const found = orders.find(o => o.id === orderId || o.orderNumber === orderId);
-        if (found) {
-          found.status = status;
-          this.saveStoredMockOrders(orders);
-        }
         return of(void 0);
       })
     );
   }
 
   refundOrder(orderId: string, reason: string): Observable<void> {
+    this.saveStatusOverride(orderId, OrderStatus.Refunded);
+
+    const orders = this.getStoredMockOrders();
+    const found = orders.find(o => o.id === orderId);
+    if (found) {
+      found.status = OrderStatus.Refunded;
+      this.saveStoredMockOrders(orders);
+    }
+
     return this.http.post<void>(`${this.baseUrl}/orders/${orderId}/refund`, { refundReason: reason }).pipe(
       catchError(() => {
-        const orders = this.getStoredMockOrders();
-        const found = orders.find(o => o.id === orderId);
-        if (found) {
-          found.status = OrderStatus.Refunded;
-          this.saveStoredMockOrders(orders);
-        }
         return of(void 0);
       })
     );
