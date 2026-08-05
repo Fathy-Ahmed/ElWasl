@@ -67,11 +67,14 @@ export class BookService {
     const raw = localStorage.getItem(this.BOOKS_KEY);
     if (raw) {
       try {
-        const parsed = JSON.parse(raw) as BookDto[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const isCorrupted = parsed.some(b => !b.titleAr || !b.titleEn || !b.authorName);
-          if (!isCorrupted) {
-            return parsed;
+        let parsed = JSON.parse(raw) as BookDto[];
+        if (Array.isArray(parsed)) {
+          parsed = parsed.filter(b => b !== null && b !== undefined && typeof b === 'object');
+          if (parsed.length > 0) {
+            const isCorrupted = parsed.some(b => !b || !b.titleAr || !b.titleEn || !b.authorName);
+            if (!isCorrupted) {
+              return parsed;
+            }
           }
         }
       } catch {}
@@ -143,6 +146,21 @@ export class BookService {
   }
 
   private mapBookToProduct(book: BookDto): Product {
+    if (!book) {
+      return {
+        id: 'corrupted',
+        productType: 'Book',
+        titleAr: 'كتاب غير متوفر / Unavailable Book',
+        titleEn: 'Unavailable Book',
+        price: 0,
+        coverImage: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600',
+        authorAr: 'Dar ElWasl',
+        authorEn: 'Dar ElWasl',
+        slug: 'corrupted',
+        descriptionAr: '',
+        descriptionEn: ''
+      } as any;
+    }
     const isDiscounted = book.discountPrice !== null && book.discountPrice !== undefined && book.discountPrice < book.price;
     const isDiscountedUsd = book.discountPriceUsd !== null && book.discountPriceUsd !== undefined && book.priceUsd !== undefined && book.priceUsd !== null && book.discountPriceUsd < book.priceUsd;
     

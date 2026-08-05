@@ -97,11 +97,14 @@ export class AdminApiService {
     const raw = localStorage.getItem(this.BOOKS_KEY);
     if (raw) {
       try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const isCorrupted = parsed.some(b => !b.titleAr || !b.titleEn || !b.authorName);
-          if (!isCorrupted) {
-            return parsed;
+        let parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          parsed = parsed.filter((b: any) => b !== null && b !== undefined && typeof b === 'object');
+          if (parsed.length > 0) {
+            const isCorrupted = parsed.some((b: any) => !b || !b.titleAr || !b.titleEn || !b.authorName);
+            if (!isCorrupted) {
+              return parsed;
+            }
           }
         }
       } catch {}
