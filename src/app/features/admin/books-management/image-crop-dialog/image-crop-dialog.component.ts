@@ -218,9 +218,11 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
     }
     .source-img {
       display: block;
-      max-width: none;
-      max-height: none;
-      transform: translate(-50%, -50%);
+      max-width: none !important;
+      max-height: none !important;
+      width: auto !important;
+      height: auto !important;
+      transform: translate(-50%, -50%) !important;
     }
     
     .crop-viewport-outline {
@@ -316,7 +318,14 @@ export class ImageCropDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.imageFile) {
-      this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.data.imageFile));
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (result) {
+          this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(result as string);
+        }
+      };
+      reader.readAsDataURL(this.data.imageFile);
     }
   }
 
