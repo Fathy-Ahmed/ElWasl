@@ -333,19 +333,19 @@ export class ContentService {
         const parsed = JSON.parse(stored);
         
         // Self-healing check: if critical arrays are empty or corrupted, heal with default values
-        if (!parsed.services || parsed.services.length === 0) {
+        if (!parsed.services || parsed.services.length === 0 || parsed.services.some((s: any) => !s.titleAr || !s.titleEn)) {
           parsed.services = this.defaultServices;
         }
-        if (!parsed.authors || parsed.authors.length === 0) {
+        if (!parsed.authors || parsed.authors.length === 0 || parsed.authors.some((a: any) => !a.nameAr || !a.nameEn)) {
           parsed.authors = this.defaultAuthors;
         }
-        if (!parsed.distributors || parsed.distributors.length === 0) {
+        if (!parsed.distributors || parsed.distributors.length === 0 || parsed.distributors.some((d: any) => !d.nameAr || !d.nameEn)) {
           parsed.distributors = this.defaultDistributors;
         }
-        if (!parsed.publishingTerms || parsed.publishingTerms.length === 0) {
+        if (!parsed.publishingTerms || parsed.publishingTerms.length === 0 || parsed.publishingTerms.some((t: any) => !t.titleAr || !t.titleEn)) {
           parsed.publishingTerms = this.defaultPublishingTerms;
         }
-        if (!parsed.recommendationSettings) {
+        if (!parsed.recommendationSettings || !parsed.recommendationSettings.categories || parsed.recommendationSettings.categories.length === 0) {
           parsed.recommendationSettings = this.defaultRecommendationSettings;
         }
         
