@@ -24,13 +24,26 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Display to user via Material Snackbar
-      snackBar.open(errorMessage, 'Close', {
-        duration: 5000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
+      // Suppress alert for local mock-supported endpoints to prevent confusing error popups
+      const isMockSupported = req.url.includes('/admin/books') ||
+                              req.url.includes('/admin/audiobooks') ||
+                              req.url.includes('/admin/games') ||
+                              req.url.includes('/admin/orders') ||
+                              req.url.includes('/Categories') ||
+                              req.url.includes('/orders') ||
+                              req.url.includes('/Books') ||
+                              req.url.includes('/Audiobooks') ||
+                              req.url.includes('/Games');
+
+      if (!isMockSupported) {
+        // Display to user via Material Snackbar
+        snackBar.open(errorMessage, 'Close', {
+          duration: 5000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
 
       return throwError(() => new Error(errorMessage));
     })
