@@ -81,7 +81,15 @@ export class AdminApiService {
   private getStoredMockBooks(): any[] {
     const raw = localStorage.getItem(this.BOOKS_KEY);
     if (raw) {
-      try { return JSON.parse(raw); } catch {}
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const isCorrupted = parsed.some(b => !b.titleAr || !b.titleEn || !b.authorName);
+          if (!isCorrupted) {
+            return parsed;
+          }
+        }
+      } catch {}
     }
     const initial = [
       {
@@ -152,7 +160,15 @@ export class AdminApiService {
   private getStoredMockAudiobooks(): any[] {
     const raw = localStorage.getItem(this.AUDIOBOOKS_KEY);
     if (raw) {
-      try { return JSON.parse(raw); } catch {}
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const isCorrupted = parsed.some(a => !a.titleAr || !a.titleEn || !a.narratorName);
+          if (!isCorrupted) {
+            return parsed;
+          }
+        }
+      } catch {}
     }
     const initial = [
       {
@@ -178,7 +194,15 @@ export class AdminApiService {
   private getStoredMockGames(): any[] {
     const raw = localStorage.getItem(this.GAMES_KEY);
     if (raw) {
-      try { return JSON.parse(raw); } catch {}
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const isCorrupted = parsed.some(g => !g.nameAr || !g.nameEn);
+          if (!isCorrupted) {
+            return parsed;
+          }
+        }
+      } catch {}
     }
     const initial = [
       {

@@ -66,7 +66,15 @@ export class BookService {
   private getStoredBooks(): BookDto[] {
     const raw = localStorage.getItem(this.BOOKS_KEY);
     if (raw) {
-      try { return JSON.parse(raw) as BookDto[]; } catch {}
+      try {
+        const parsed = JSON.parse(raw) as BookDto[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const isCorrupted = parsed.some(b => !b.titleAr || !b.titleEn || !b.authorName);
+          if (!isCorrupted) {
+            return parsed;
+          }
+        }
+      } catch {}
     }
     const initial: BookDto[] = [
       {

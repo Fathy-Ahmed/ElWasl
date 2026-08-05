@@ -331,12 +331,24 @@ export class ContentService {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (!parsed.publishingTerms) {
+        
+        // Self-healing check: if critical arrays are empty or corrupted, heal with default values
+        if (!parsed.services || parsed.services.length === 0) {
+          parsed.services = this.defaultServices;
+        }
+        if (!parsed.authors || parsed.authors.length === 0) {
+          parsed.authors = this.defaultAuthors;
+        }
+        if (!parsed.distributors || parsed.distributors.length === 0) {
+          parsed.distributors = this.defaultDistributors;
+        }
+        if (!parsed.publishingTerms || parsed.publishingTerms.length === 0) {
           parsed.publishingTerms = this.defaultPublishingTerms;
         }
         if (!parsed.recommendationSettings) {
           parsed.recommendationSettings = this.defaultRecommendationSettings;
         }
+        
         // Auto-migration for Fairs service card to Exhibitions
         if (parsed.services) {
           const fairsIndex = parsed.services.findIndex((s: any) => s.id === 'fairs');
@@ -346,9 +358,10 @@ export class ContentService {
             parsed.services[fairsIndex].descAr = 'تابعوا مشاركاتنا وجداولنا في المعارض الدولية والمحلية الجارية للكتاب وتسوقوا أحدث إصداراتنا مباشرة.';
             parsed.services[fairsIndex].descEn = 'Follow our participation and schedules in ongoing international and local book fairs and shop our latest releases directly.';
             parsed.services[fairsIndex].icon = 'storefront';
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
           }
         }
+        
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsed));
         return parsed;
       }
     } catch (e) {
