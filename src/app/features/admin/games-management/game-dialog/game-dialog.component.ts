@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit, inject, signal } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -216,9 +217,10 @@ export class GameDialogComponent implements OnInit {
   private readonly currencyService = inject(CurrencyService);
   readonly dialogRef = inject(MatDialogRef<GameDialogComponent>);
 
+  private readonly sanitizer = inject(DomSanitizer);
   form!: FormGroup;
   readonly isUploading = signal<boolean>(false);
-  readonly localPreviewUrl = signal<string>('');
+  readonly localPreviewUrl = signal<string | SafeUrl>('');
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { game?: any }
@@ -265,7 +267,7 @@ export class GameDialogComponent implements OnInit {
       
       // Create local object URL for instant preview
       const previewUrl = URL.createObjectURL(file);
-      this.localPreviewUrl.set(previewUrl);
+      this.localPreviewUrl.set(this.sanitizer.bypassSecurityTrustUrl(previewUrl));
       
       this.isUploading.set(true);
       this.adminApiService.uploadFile(file).subscribe({

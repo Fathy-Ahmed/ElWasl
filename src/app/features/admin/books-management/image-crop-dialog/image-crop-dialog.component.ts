@@ -1,9 +1,10 @@
-import { Component, Inject, OnInit, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, signal, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-image-crop-dialog',
@@ -280,7 +281,9 @@ import { MatIconModule } from '@angular/material/icon';
 export class ImageCropDialogComponent implements OnInit {
   @ViewChild('cropImage') cropImageRef!: ElementRef<HTMLImageElement>;
 
-  imageUrl = '';
+  private readonly sanitizer = inject(DomSanitizer);
+
+  imageUrl: string | SafeUrl = '';
   imageLoaded = false;
   selectedRatio = '2:3';
 
@@ -313,7 +316,7 @@ export class ImageCropDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.imageFile) {
-      this.imageUrl = URL.createObjectURL(this.data.imageFile);
+      this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.data.imageFile));
     }
   }
 

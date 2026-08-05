@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit, inject, signal } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -218,10 +219,11 @@ import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 export class AudiobookDialogComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   private readonly currencyService = inject(CurrencyService);
+  private readonly sanitizer = inject(DomSanitizer);
   form!: FormGroup;
   printedBooks: any[] = [];
   readonly isUploading = signal<boolean>(false);
-  readonly localPreviewUrl = signal<string>('');
+  readonly localPreviewUrl = signal<string | SafeUrl>('');
 
   constructor(
     private readonly fb: FormBuilder,
@@ -275,7 +277,7 @@ export class AudiobookDialogComponent implements OnInit {
       
       // Create local object URL for instant preview
       const previewUrl = URL.createObjectURL(file);
-      this.localPreviewUrl.set(previewUrl);
+      this.localPreviewUrl.set(this.sanitizer.bypassSecurityTrustUrl(previewUrl));
       
       this.isUploading.set(true);
       this.adminApiService.uploadFile(file).subscribe({
