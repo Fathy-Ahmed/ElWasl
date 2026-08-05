@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, inject, Input } from '@angular/core';
+import { Component, OnInit, signal, inject, Input, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -35,6 +35,14 @@ export class BookListComponent implements OnInit {
 
   readonly searchQuery = signal<string>('');
   readonly selectedCategory = signal<string>('all');
+
+  @HostListener('window:storage', ['$event'])
+  onStorageChange(event: StorageEvent): void {
+    if (event.key === 'elwasl_admin_mock_books') {
+      this.loadBooks();
+    }
+  }
+
   readonly books = signal<Product[]>([]);
   readonly categories = signal<CategoryDto[]>([]);
   readonly isLoading = signal<boolean>(false);

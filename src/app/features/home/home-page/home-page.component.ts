@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -40,6 +40,13 @@ export class HomePageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly contentService = inject(ContentService);
   private readonly router = inject(Router);
+
+  @HostListener('window:storage', ['$event'])
+  onStorageChange(event: StorageEvent): void {
+    if (event.key === 'elwasl_admin_mock_books') {
+      this.loadFeaturedProducts();
+    }
+  }
 
   featuredProducts: Product[] = [];
 
