@@ -103,6 +103,15 @@
     "GENRE_HISTORY": "روايات تاريخية",
     "GENRE_DRAMA": "دراما ورومانسية"
   },
+  "CART": {
+    "TITLE": "عربة التسوق",
+    "SUMMARY": "ملخص الطلب",
+    "TOTAL_ITEMS": "عدد العناصر",
+    "GRAND_TOTAL": "المجموع الكلي",
+    "PROCEED_CHECKOUT": "متابعة عملية الشراء",
+    "EMPTY": "عربة التسوق فارغة حالياً.",
+    "BROWSE": "تصفح الكتب"
+  },
   "CONTACT": {
     "ADDRESS": "العنوان",
     "PHONE": "الهاتف",

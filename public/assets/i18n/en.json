@@ -103,6 +103,15 @@
     "GENRE_HISTORY": "Historical Novels",
     "GENRE_DRAMA": "Drama & Romance"
   },
+  "CART": {
+    "TITLE": "Shopping Cart",
+    "SUMMARY": "Order Summary",
+    "TOTAL_ITEMS": "Total Items",
+    "GRAND_TOTAL": "Grand Total",
+    "PROCEED_CHECKOUT": "Proceed to Checkout",
+    "EMPTY": "Your shopping cart is empty.",
+    "BROWSE": "Browse Books"
+  },
   "CONTACT": {
     "ADDRESS": "Address",
     "PHONE": "Phone",

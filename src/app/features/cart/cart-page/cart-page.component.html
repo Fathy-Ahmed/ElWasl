@@ -1,5 +1,5 @@
 <div class="cart-page container" id="cart-view">
-  <h1 class="page-title">عربة التسوق / Shopping Cart</h1>
+  <h1 class="page-title">{{ 'CART.TITLE' | translate }}</h1>
 
   @if (cartService.items().length > 0) {
     <div class="cart-layout">
@@ -32,28 +32,28 @@
 
       <!-- Summary panel -->
       <div class="summary-panel">
-        <h2 class="summary-title">ملخص الطلب / Order Summary</h2>
+        <h2 class="summary-title">{{ 'CART.SUMMARY' | translate }}</h2>
         
         <div class="summary-row">
-          <span>عدد العناصر / Total Items</span>
+          <span>{{ 'CART.TOTAL_ITEMS' | translate }}</span>
           <span class="val">{{ cartService.totalItemsCount() }}</span>
         </div>
         
         <div class="summary-row total-row">
-          <span>المجموع الكلي / Grand Total</span>
+          <span>{{ 'CART.GRAND_TOTAL' | translate }}</span>
           <span class="val">{{ cartService.totalPrice() | currencyEgp }}</span>
         </div>
 
         <button mat-flat-button color="accent" class="checkout-btn" (click)="checkout()" id="cart-checkout-btn">
-          متابعة عملية الشراء / Proceed to Checkout
+          {{ 'CART.PROCEED_CHECKOUT' | translate }}
         </button>
       </div>
     </div>
   } @else {
     <div class="empty-cart-state" id="cart-empty">
       <mat-icon class="empty-icon">shopping_cart</mat-icon>
-      <p class="empty-text">عربة التسوق فارغة حالياً / Your shopping cart is empty.</p>
-      <a routerLink="/books" mat-flat-button color="primary" class="browse-btn">تصفح الكتب / Browse Books</a>
+      <p class="empty-text">{{ 'CART.EMPTY' | translate }}</p>
+      <a routerLink="/books" mat-flat-button color="primary" class="browse-btn">{{ 'CART.BROWSE' | translate }}</a>
     </div>
   }
 </div>

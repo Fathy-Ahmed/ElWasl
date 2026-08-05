@@ -103,6 +103,15 @@
     "GENRE_HISTORY": "Romans Historiques",
     "GENRE_DRAMA": "Drame & Romance"
   },
+  "CART": {
+    "TITLE": "Panier d'achat",
+    "SUMMARY": "Récapitulatif de la commande",
+    "TOTAL_ITEMS": "Nombre d'articles",
+    "GRAND_TOTAL": "Total général",
+    "PROCEED_CHECKOUT": "Passer à la caisse",
+    "EMPTY": "Votre panier est vide.",
+    "BROWSE": "Feuilleter les livres"
+  },
   "CONTACT": {
     "ADDRESS": "Adresse",
     "PHONE": "Téléphone",
