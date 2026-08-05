@@ -21,6 +21,19 @@
           @if (item.format) {
             <p class="format">تنسيق الكتاب / Format: <span>{{ getLocalizedFormat(item.format) }}</span></p>
           }
+          @if (item.isbn) {
+            <p class="meta-info">ISBN / ردمك: <span>{{ item.isbn }}</span></p>
+          }
+          @if (item.publishedDate) {
+            <p class="meta-info">تاريخ النشر / Published: <span>{{ item.publishedDate | date:'yyyy-MM-dd' }}</span></p>
+          }
+          @if (item.stock !== undefined) {
+            <p class="meta-info">المخزون / Stock: 
+              <span [style.color]="item.stock > 0 ? '#2e7d32' : '#c62828'">
+                {{ item.stock > 0 ? (item.stock + ' (متوفر / In Stock)') : 'نفذ من المخزن / Out of Stock' }}
+              </span>
+            </p>
+          }
           
           <div class="price-section">
             @if (item.originalPrice) {

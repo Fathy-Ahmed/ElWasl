@@ -31,6 +31,9 @@ export interface Product {
   descriptionAr?: string;
   descriptionEn?: string;
   format?: string;
+  isbn?: string | null;
+  publishedDate?: string | null;
+  stock?: number;
 }
 
 

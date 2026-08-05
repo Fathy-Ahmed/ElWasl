@@ -170,7 +170,10 @@ export class BookService {
       category: book.categoryNameEn || book.categoryId,
       descriptionAr: book.descriptionAr || '',
       descriptionEn: book.descriptionEn || '',
-      format: book.format || undefined
+      format: book.format || undefined,
+      isbn: book.isbn,
+      publishedDate: book.publishedDate,
+      stock: book.stock
     };
   }
 }
