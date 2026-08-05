@@ -233,7 +233,7 @@
           @for (item of newsItems; track item.id) {
             <div class="news-card clickable-news-card" (click)="openNewsDetail(item)">
               <div class="news-img-box">
-                <img [src]="item.imageUrl" [alt]="item | localizedText:'title'" class="news-img">
+                <img [src]="item.imageUrl" [alt]="item | localizedText:'title'" class="news-img" loading="lazy" decoding="async">
               </div>
               <div class="news-content">
                 <span class="news-date"><mat-icon>calendar_month</mat-icon> {{ item | localizedText:'date' }}</span>
@@ -262,7 +262,7 @@
           <div class="authors-faces-grid">
             @for (author of authors; track author.nameAr) {
               <div class="author-face-card clickable-author-face" [attr.title]="author | localizedText:'name'" (click)="openAuthorDetail(author)">
-                <img [src]="author.photo" [alt]="author | localizedText:'name'" class="author-photo">
+                <img [src]="author.photo" [alt]="author | localizedText:'name'" class="author-photo" loading="lazy" decoding="async">
                 <div class="author-tooltip">
                   <p class="tooltip-name">{{ author | localizedText:'name' }}</p>
                   <p class="tooltip-count">{{ author | localizedText:'count' }}</p>

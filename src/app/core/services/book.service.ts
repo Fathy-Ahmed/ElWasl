@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, of, catchError } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { BookDto, BookDtoPaginatedList } from '../models/api.models';
 import { Product } from '../../shared/components/product-card/product-card.component';
@@ -11,52 +11,35 @@ import { Product } from '../../shared/components/product-card/product-card.compo
 export class BookService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/Books`;
+  private readonly BOOKS_KEY = 'elwasl_admin_mock_books';
 
   getBooks(categoryId?: string, searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<BookDtoPaginatedList> {
-    const raw = localStorage.getItem('elwasl_admin_mock_books');
-    if (raw) {
-      try {
-        let items = JSON.parse(raw);
-        items = items.filter((b: any) => b.isActive !== false);
-
-        if (categoryId && categoryId !== 'all') {
-          items = items.filter((b: any) => b.categoryId === categoryId);
-        }
-        if (searchTerm) {
-          const s = searchTerm.toLowerCase();
-          items = items.filter((b: any) => 
-            (b.titleAr && b.titleAr.toLowerCase().includes(s)) ||
-            (b.titleEn && b.titleEn.toLowerCase().includes(s)) ||
-            (b.authorName && b.authorName.toLowerCase().includes(s))
-          );
-        }
-        const start = (pageNumber - 1) * pageSize;
-        const paginated = items.slice(start, start + pageSize);
-
-        return of({
-          items: paginated,
-          pageNumber,
-          pageSize,
-          totalCount: items.length,
-          totalPages: Math.ceil(items.length / pageSize),
-          hasPreviousPage: pageNumber > 1,
-          hasNextPage: start + pageSize < items.length
-        } as BookDtoPaginatedList);
-      } catch {}
-    }
-
-    let params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
+    let items = this.getStoredBooks();
+    items = items.filter((b: any) => b.isActive !== false);
 
     if (categoryId && categoryId !== 'all') {
-      params = params.set('categoryId', categoryId);
+      items = items.filter((b: any) => b.categoryId === categoryId);
     }
     if (searchTerm) {
-      params = params.set('searchTerm', searchTerm);
+      const s = searchTerm.toLowerCase();
+      items = items.filter((b: any) => 
+        (b.titleAr && b.titleAr.toLowerCase().includes(s)) ||
+        (b.titleEn && b.titleEn.toLowerCase().includes(s)) ||
+        (b.authorName && b.authorName.toLowerCase().includes(s))
+      );
     }
+    const start = (pageNumber - 1) * pageSize;
+    const paginated = items.slice(start, start + pageSize);
 
-    return this.http.get<BookDtoPaginatedList>(this.baseUrl, { params });
+    return of({
+      items: paginated,
+      pageNumber,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize),
+      hasPreviousPage: pageNumber > 1,
+      hasNextPage: start + pageSize < items.length
+    } as BookDtoPaginatedList);
   }
 
   getBooksAsProducts(categoryId?: string, searchTerm?: string): Observable<Product[]> {
@@ -66,19 +49,89 @@ export class BookService {
   }
 
   getBookById(id: string): Observable<Product> {
-    const raw = localStorage.getItem('elwasl_admin_mock_books');
-    if (raw) {
-      try {
-        const items = JSON.parse(raw);
-        const book = items.find((b: any) => b.id === id);
-        if (book) {
-          return of(this.mapBookToProduct(book));
-        }
-      } catch {}
+    const items = this.getStoredBooks();
+    const book = items.find((b: any) => b.id === id);
+    if (book) {
+      return of(this.mapBookToProduct(book));
     }
-    return this.http.get<BookDto>(`${`${this.baseUrl}/${id}`}`).pipe(
-      map(b => this.mapBookToProduct(b))
+    return this.http.get<BookDto>(`${this.baseUrl}/${id}`).pipe(
+      map(b => this.mapBookToProduct(b)),
+      catchError(() => {
+        // Fallback to first book as safety
+        return of(this.mapBookToProduct(items[0]));
+      })
     );
+  }
+
+  private getStoredBooks(): BookDto[] {
+    const raw = localStorage.getItem(this.BOOKS_KEY);
+    if (raw) {
+      try { return JSON.parse(raw) as BookDto[]; } catch {}
+    }
+    const initial: BookDto[] = [
+      {
+        id: 'book-1',
+        titleAr: 'حساب وهمي',
+        titleEn: 'Fake Account',
+        authorName: 'يوسف حسن يوسف',
+        isbn: '9789770154823',
+        coverImageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600',
+        categoryId: 'cat-1',
+        price: 80,
+        discountPrice: null,
+        priceUsd: 1.6,
+        discountPriceUsd: null,
+        stock: 0,
+        format: 'Paperback',
+        language: 'Arabic',
+        publishedDate: '2026-06-01',
+        descriptionAr: 'رواية مشوقة حول الحسابات الوهمية على منصات التواصل الاجتماعي.',
+        descriptionEn: 'An exciting novel about fake accounts on social media platforms.',
+        isActive: true
+      },
+      {
+        id: 'book-2',
+        titleAr: 'اسرار مثلث برمودة',
+        titleEn: 'The Blue Elephant',
+        authorName: 'Ahmed Mourad',
+        isbn: '9789770154824',
+        coverImageUrl: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=600',
+        categoryId: 'cat-1',
+        price: 120,
+        discountPrice: null,
+        priceUsd: 2.4,
+        discountPriceUsd: null,
+        stock: 50,
+        format: 'Paperback',
+        language: 'Arabic',
+        publishedDate: '2014-10-12',
+        descriptionAr: 'رواية تأخذك إلى عوالم الغموض والإثارة.',
+        descriptionEn: 'A novel that takes you to worlds of mystery and excitement.',
+        isActive: true
+      },
+      {
+        id: 'book-3',
+        titleAr: 'ملف الظل',
+        titleEn: 'The Power of Habit',
+        authorName: 'Charles Duhigg',
+        isbn: '9789770154825',
+        coverImageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=600',
+        categoryId: 'cat-1',
+        price: 250,
+        discountPrice: null,
+        priceUsd: 5.0,
+        discountPriceUsd: null,
+        stock: 30,
+        format: 'Paperback',
+        language: 'English',
+        publishedDate: '2012-02-28',
+        descriptionAr: 'لماذا نفعل ما نفعل في الحياة والعمل.',
+        descriptionEn: 'Why we do what we do in life and business.',
+        isActive: true
+      }
+    ];
+    localStorage.setItem(this.BOOKS_KEY, JSON.stringify(initial));
+    return initial;
   }
 
   private mapBookToProduct(book: BookDto): Product {
@@ -105,7 +158,7 @@ export class BookService {
       coverImage: book.coverImageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600',
       authorAr: book.authorName || '',
       authorEn: book.authorName || '',
-      slug: book.id, // Routing by ID
+      slug: book.id,
       category: book.categoryNameEn || book.categoryId,
       descriptionAr: book.descriptionAr || '',
       descriptionEn: book.descriptionEn || '',
