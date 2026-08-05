@@ -287,7 +287,7 @@ export class ImageCropDialogComponent implements OnInit {
 
   imageUrl: string | SafeUrl = '';
   imageLoaded = false;
-  selectedRatio = '2:3';
+  selectedRatio = 'original';
 
   // Render & crop state
   minScale = 0.01;
