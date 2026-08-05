@@ -111,26 +111,26 @@ export class ProductCardComponent {
     return `/games/${this.product.slug}`;
   }
 
-  getLocalizedFormat(format: string | undefined): string {
+  getLocalizedFormat(format: any): string {
     if (!format) return '';
     const lang = this.localeService.currentLocale();
-    const fmtLower = format.toLowerCase();
+    const fmtStr = String(format).toLowerCase();
     
-    if (fmtLower.includes('hardcover')) {
+    if (fmtStr.includes('hardcover') || fmtStr === '1') {
       if (lang === 'ar') return 'غلاف ورقي سميك (مجلد)';
       if (lang === 'fr') return 'Couverture rigide';
       return 'Hardcover';
     }
-    if (fmtLower.includes('paperback')) {
+    if (fmtStr.includes('paperback') || fmtStr === '2') {
       if (lang === 'ar') return 'غلاف ورقي عادي';
       if (lang === 'fr') return 'Livre broché';
       return 'Paperback';
     }
-    if (fmtLower.includes('ebook') || fmtLower.includes('e-book') || fmtLower.includes('digital') || fmtLower.includes('electronic')) {
+    if (fmtStr.includes('ebook') || fmtStr.includes('e-book') || fmtStr === '3') {
       if (lang === 'ar') return 'كتاب إلكتروني';
       if (lang === 'fr') return 'Livre numérique';
       return 'E-Book';
     }
-    return format;
+    return String(format);
   }
 }
