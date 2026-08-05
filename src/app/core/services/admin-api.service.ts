@@ -378,21 +378,82 @@ export class AdminApiService {
   }
 
   // === Admin Categories ===
+  private getLocalCategories(): CategoryDto[] {
+    const raw = localStorage.getItem('elwasl_mock_categories');
+    if (raw) {
+      try { return JSON.parse(raw) as CategoryDto[]; } catch {}
+    }
+    return [
+      { id: 'cat-1', nameAr: 'روايات وروايات مصورة', nameEn: 'Novels & Graphic Novels', slug: 'novels' },
+      { id: 'cat-2', nameAr: 'كتب صوتية فاخرة', nameEn: 'Premium Audiobooks', slug: 'audiobooks' },
+      { id: 'cat-3', nameAr: 'ألعاب ورقية ممتعة', nameEn: 'Card Games', slug: 'games' }
+    ];
+  }
+
+  private saveLocalCategories(categories: CategoryDto[]): void {
+    localStorage.setItem('elwasl_mock_categories', JSON.stringify(categories));
+  }
+
   createCategory(command: CreateCategoryCommand): Observable<CategoryDto> {
+    const newCategory: CategoryDto = {
+      id: 'cat-' + Date.now().toString(),
+      nameAr: command.nameAr,
+      nameEn: command.nameEn,
+      slug: command.slug || (command.nameEn ? command.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'cat-' + Date.now().toString())
+    };
+
+    const list = this.getLocalCategories();
+    list.push(newCategory);
+    this.saveLocalCategories(list);
+
     return this.http.post<CategoryDto>(this.categoryUrl, command).pipe(
-      catchError(() => of({ id: Date.now().toString(), nameAr: command.nameAr, nameEn: command.nameEn }))
+      catchError(() => {
+        return of(newCategory);
+      }),
+      map(res => {
+        if (res && res.id && res.id !== newCategory.id) {
+          const currentList = this.getLocalCategories();
+          const idx = currentList.findIndex(c => c.id === newCategory.id);
+          if (idx > -1) {
+            currentList[idx] = res;
+            this.saveLocalCategories(currentList);
+          }
+          return res;
+        }
+        return newCategory;
+      })
     );
   }
 
   updateCategory(id: string, command: UpdateCategoryCommand): Observable<void> {
+    const list = this.getLocalCategories();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx > -1) {
+      list[idx] = {
+        ...list[idx],
+        nameAr: command.nameAr,
+        nameEn: command.nameEn,
+        slug: command.slug || list[idx].slug
+      };
+      this.saveLocalCategories(list);
+    }
+
     return this.http.put<void>(`${this.categoryUrl}/${id}`, command).pipe(
-      catchError(() => of(void 0))
+      catchError(() => {
+        return of(void 0);
+      })
     );
   }
 
   deleteCategory(id: string): Observable<void> {
+    const list = this.getLocalCategories();
+    const filtered = list.filter(c => c.id !== id);
+    this.saveLocalCategories(filtered);
+
     return this.http.delete<void>(`${this.categoryUrl}/${id}`).pipe(
-      catchError(() => of(void 0))
+      catchError(() => {
+        return of(void 0);
+      })
     );
   }
 
