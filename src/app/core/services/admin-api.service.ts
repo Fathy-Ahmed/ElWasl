@@ -70,7 +70,22 @@ export class AdminApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<string>(`${this.baseUrl}/files/upload`, formData).pipe(
-      catchError(() => of(URL.createObjectURL(file)))
+      catchError(() => {
+        return new Observable<string>(observer => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const result = e.target?.result;
+            if (typeof result === 'string') {
+              observer.next(result);
+              observer.complete();
+            } else {
+              observer.error(new Error('Failed to read file as base64'));
+            }
+          };
+          reader.onerror = () => observer.error(reader.error);
+          reader.readAsDataURL(file);
+        });
+      })
     );
   }
 
