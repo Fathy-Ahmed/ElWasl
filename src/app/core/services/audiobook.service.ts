@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, of, catchError } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { AudiobookDto, AudiobookDtoPaginatedList } from '../models/api.models';
@@ -14,35 +14,36 @@ export class AudiobookService {
   private readonly AUDIOBOOKS_KEY = 'elwasl_admin_mock_audiobooks';
 
   getAudiobooks(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<AudiobookDtoPaginatedList> {
-    let items = this.getStoredAudiobooks();
-    items = items.filter((a: any) => a.isActive !== false);
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
 
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
-      items = items.filter((a: any) => 
-        (a.titleAr && a.titleAr.toLowerCase().includes(s)) ||
-        (a.titleEn && a.titleEn.toLowerCase().includes(s)) ||
-        (a.narratorName && a.narratorName.toLowerCase().includes(s))
-      );
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
     }
-    const start = (pageNumber - 1) * pageSize;
-    const paginated = items.slice(start, start + pageSize);
 
-    return of({
-      items: paginated,
-      pageNumber,
-      pageSize,
-      totalCount: items.length,
-      totalPages: Math.ceil(items.length / pageSize),
-      hasPreviousPage: pageNumber > 1,
-      hasNextPage: start + pageSize < items.length
-    } as AudiobookDtoPaginatedList);
+    return this.http.get<AudiobookDtoPaginatedList>(this.baseUrl, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if (!searchTerm && pageNumber === 1) {
+            this.syncStoredAudiobooks(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredFilteredAudiobooks(searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => of(this.getStoredFilteredAudiobooks(searchTerm, pageNumber, pageSize)))
+    );
   }
 
   getAudiobooksAsProducts(searchTerm?: string): Observable<Product[]> {
     return this.getAudiobooks(searchTerm, 1, 100).pipe(
       map(res => (res.items || []).map(a => this.mapAudiobookToProduct(a)))
     );
+  }
+
+  getBookById(id: string): Observable<Product> {
+    return this.getAudiobookById(id);
   }
 
   getAudiobookById(id: string): Observable<Product> {
@@ -57,6 +58,45 @@ export class AudiobookService {
         return of(this.mapAudiobookToProduct(items[0]));
       })
     );
+  }
+
+  private syncStoredAudiobooks(fetched: AudiobookDto[]): void {
+    try {
+      const existing = this.getStoredAudiobooks();
+      const localOnly = existing.filter(a => a.id && String(a.id).startsWith('audiobook-'));
+      const fetchedIds = new Set(fetched.map(a => a.id));
+      const merged = [
+        ...localOnly.filter(a => !fetchedIds.has(a.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredFilteredAudiobooks(searchTerm?: string, pageNumber = 1, pageSize = 20): AudiobookDtoPaginatedList {
+    let items = this.getStoredAudiobooks();
+    items = items.filter((a: any) => a.isActive !== false);
+
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      items = items.filter((a: any) => 
+        (a.titleAr && a.titleAr.toLowerCase().includes(s)) ||
+        (a.titleEn && a.titleEn.toLowerCase().includes(s)) ||
+        (a.narratorName && a.narratorName.toLowerCase().includes(s))
+      );
+    }
+    const start = (pageNumber - 1) * pageSize;
+    const paginated = items.slice(start, start + pageSize);
+
+    return {
+      items: paginated,
+      pageNumber,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize),
+      hasPreviousPage: pageNumber > 1,
+      hasNextPage: start + pageSize < items.length
+    };
   }
 
   private getStoredAudiobooks(): AudiobookDto[] {

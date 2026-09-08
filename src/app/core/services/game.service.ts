@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, of, catchError } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { GameDto, GameDtoPaginatedList } from '../models/api.models';
@@ -14,35 +14,36 @@ export class GameService {
   private readonly GAMES_KEY = 'elwasl_admin_mock_games';
 
   getGames(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<GameDtoPaginatedList> {
-    let items = this.getStoredGames();
-    items = items.filter((g: any) => g.isActive !== false);
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
 
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
-      items = items.filter((g: any) => 
-        (g.nameAr && g.nameAr.toLowerCase().includes(s)) ||
-        (g.nameEn && g.nameEn.toLowerCase().includes(s)) ||
-        (g.categoryTag && g.categoryTag.toLowerCase().includes(s))
-      );
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
     }
-    const start = (pageNumber - 1) * pageSize;
-    const paginated = items.slice(start, start + pageSize);
 
-    return of({
-      items: paginated,
-      pageNumber,
-      pageSize,
-      totalCount: items.length,
-      totalPages: Math.ceil(items.length / pageSize),
-      hasPreviousPage: pageNumber > 1,
-      hasNextPage: start + pageSize < items.length
-    } as GameDtoPaginatedList);
+    return this.http.get<GameDtoPaginatedList>(this.baseUrl, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if (!searchTerm && pageNumber === 1) {
+            this.syncStoredGames(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredFilteredGames(searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => of(this.getStoredFilteredGames(searchTerm, pageNumber, pageSize)))
+    );
   }
 
   getGamesAsProducts(searchTerm?: string): Observable<Product[]> {
     return this.getGames(searchTerm, 1, 100).pipe(
       map(res => (res.items || []).map(g => this.mapGameToProduct(g)))
     );
+  }
+
+  getBookById(id: string): Observable<Product> {
+    return this.getGameById(id);
   }
 
   getGameById(id: string): Observable<Product> {
@@ -57,6 +58,45 @@ export class GameService {
         return of(this.mapGameToProduct(items[0]));
       })
     );
+  }
+
+  private syncStoredGames(fetched: GameDto[]): void {
+    try {
+      const existing = this.getStoredGames();
+      const localOnly = existing.filter(g => g.id && String(g.id).startsWith('game-'));
+      const fetchedIds = new Set(fetched.map(g => g.id));
+      const merged = [
+        ...localOnly.filter(g => !fetchedIds.has(g.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.GAMES_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredFilteredGames(searchTerm?: string, pageNumber = 1, pageSize = 20): GameDtoPaginatedList {
+    let items = this.getStoredGames();
+    items = items.filter((g: any) => g.isActive !== false);
+
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      items = items.filter((g: any) => 
+        (g.nameAr && g.nameAr.toLowerCase().includes(s)) ||
+        (g.nameEn && g.nameEn.toLowerCase().includes(s)) ||
+        (g.categoryTag && g.categoryTag.toLowerCase().includes(s))
+      );
+    }
+    const start = (pageNumber - 1) * pageSize;
+    const paginated = items.slice(start, start + pageSize);
+
+    return {
+      items: paginated,
+      pageNumber,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize),
+      hasPreviousPage: pageNumber > 1,
+      hasNextPage: start + pageSize < items.length
+    };
   }
 
   private getStoredGames(): GameDto[] {

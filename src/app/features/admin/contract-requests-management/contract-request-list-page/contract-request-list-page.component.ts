@@ -26,7 +26,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styles: []
 })
 export class ContractRequestListPageComponent {
-  constructor(private snackBar: MatSnackBar) {}
+  private readonly CONTRACTS_KEY = 'elwasl_contract_requests';
+
+  constructor(private snackBar: MatSnackBar) {
+    this.loadRequests();
+  }
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -47,28 +51,62 @@ export class ContractRequestListPageComponent {
     { name: 'reject', icon: 'cancel', color: 'warn', idPrefix: 'reject-contract-' }
   ];
 
-  readonly contractRequests = signal([
-    { id: 'cr-101', authorName: 'أحمد صالح', bookTitle: 'صرخة الأندلس', date: '2026-06-20', status: 'under_review' },
-    { id: 'cr-102', authorName: 'منى غانم', bookTitle: 'رحلة البحث عن الذات', date: '2026-06-19', status: 'delivered' }
-  ]);
+  readonly contractRequests = signal<any[]>([]);
+
+  private loadRequests(): void {
+    const defaultRequests = [
+      { id: 'cr-101', authorName: 'أحمد صالح', bookTitle: 'صرخة الأندلس', date: '2026-06-20', status: 'under_review' },
+      { id: 'cr-102', authorName: 'منى غانم', bookTitle: 'رحلة البحث عن الذات', date: '2026-06-19', status: 'delivered' }
+    ];
+
+    try {
+      const raw = localStorage.getItem(this.CONTRACTS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const ids = new Set(parsed.map(p => p.id));
+          const combined = [
+            ...parsed,
+            ...defaultRequests.filter(d => !ids.has(d.id))
+          ];
+          this.contractRequests.set(combined);
+          return;
+        }
+      }
+    } catch {}
+
+    this.contractRequests.set(defaultRequests);
+  }
+
+  private saveRequests(requests: any[]): void {
+    try {
+      localStorage.setItem(this.CONTRACTS_KEY, JSON.stringify(requests));
+    } catch {}
+  }
 
   handleAction(event: { action: string; row: any }): void {
     const requestId = event.row.id;
+    let newStatus = '';
+    let message = '';
+
     if (event.action === 'review') {
-      this.contractRequests.update(current => 
-        current.map(cr => cr.id === requestId ? { ...cr, status: 'under_review' } : cr)
-      );
-      this.snackBar.open(`تم تغيير حالة الطلب ${requestId} إلى قيد المراجعة / Under Review`, 'إغلاق / Close', { duration: 3000 });
+      newStatus = 'under_review';
+      message = `تم تغيير حالة الطلب ${requestId} إلى قيد المراجعة / Under Review`;
     } else if (event.action === 'approve') {
-      this.contractRequests.update(current => 
-        current.map(cr => cr.id === requestId ? { ...cr, status: 'delivered' } : cr)
-      );
-      this.snackBar.open(`تم قبول المسودة والطلب ${requestId} بنجاح / Request approved`, 'إغلاق / Close', { duration: 3000 });
+      newStatus = 'delivered';
+      message = `تم قبول المسودة والطلب ${requestId} بنجاح / Request approved`;
     } else if (event.action === 'reject') {
-      this.contractRequests.update(current => 
-        current.map(cr => cr.id === requestId ? { ...cr, status: 'canceled' } : cr)
-      );
-      this.snackBar.open(`تم رفض طلب التعاقد ${requestId} / Request rejected`, 'إغلاق / Close', { duration: 3000 });
+      newStatus = 'canceled';
+      message = `تم رفض طلب التعاقد ${requestId} / Request rejected`;
+    }
+
+    if (newStatus) {
+      this.contractRequests.update(current => {
+        const updated = current.map(cr => cr.id === requestId ? { ...cr, status: newStatus } : cr);
+        this.saveRequests(updated);
+        return updated;
+      });
+      this.snackBar.open(message, 'إغلاق / Close', { duration: 3000 });
     }
   }
 }

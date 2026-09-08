@@ -98,14 +98,13 @@ export class AdminApiService {
     if (raw) {
       try {
         let parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          parsed = parsed.filter((b: any) => b !== null && b !== undefined && typeof b === 'object');
-          if (parsed.length > 0) {
-            const isCorrupted = parsed.some((b: any) => !b || !b.titleAr || !b.titleEn || !b.authorName);
-            if (!isCorrupted) {
-              return parsed;
-            }
-          }
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((b: any) => b && typeof b === 'object').map((b: any) => ({
+            ...b,
+            titleAr: b.titleAr || b.titleEn || 'كتاب بدون عنوان',
+            titleEn: b.titleEn || b.titleAr || 'Untitled Book',
+            authorName: b.authorName || b.authorAr || 'دار الوصل'
+          }));
         }
       } catch {}
     }
@@ -171,8 +170,42 @@ export class AdminApiService {
         isActive: true
       }
     ];
-    localStorage.setItem(this.BOOKS_KEY, JSON.stringify(initial));
     return initial;
+  }
+
+  private syncStoredMockBooks(fetched: any[]): void {
+    try {
+      const existing = this.getStoredMockBooks();
+      const localOnly = existing.filter((b: any) => b.id && String(b.id).startsWith('book-'));
+      const fetchedIds = new Set(fetched.map((b: any) => b.id));
+      const merged = [
+        ...localOnly.filter((b: any) => !fetchedIds.has(b.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.BOOKS_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredMockBooksPaginated(searchTerm?: string, pageNumber = 1, pageSize = 20): AdminBookDtoAdminPaginatedDto {
+    let items = this.getStoredMockBooks();
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      items = items.filter(b => 
+        (b.titleAr && b.titleAr.toLowerCase().includes(s)) ||
+        (b.titleEn && b.titleEn.toLowerCase().includes(s)) ||
+        (b.authorName && b.authorName.toLowerCase().includes(s))
+      );
+    }
+    const start = (pageNumber - 1) * pageSize;
+    const paginated = items.slice(start, start + pageSize);
+
+    return {
+      items: paginated,
+      pageNumber,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize)
+    };
   }
 
   private getStoredMockAudiobooks(): any[] {
@@ -181,10 +214,12 @@ export class AdminApiService {
       try {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const isCorrupted = parsed.some(a => !a.titleAr || !a.titleEn || !a.narratorName);
-          if (!isCorrupted) {
-            return parsed;
-          }
+          return parsed.filter((a: any) => a && typeof a === 'object').map((a: any) => ({
+            ...a,
+            titleAr: a.titleAr || a.titleEn || 'كتاب صوتي بدون عنوان',
+            titleEn: a.titleEn || a.titleAr || 'Untitled Audiobook',
+            narratorName: a.narratorName || 'دار الوصل'
+          }));
         }
       } catch {}
     }
@@ -205,8 +240,44 @@ export class AdminApiService {
         isActive: true
       }
     ];
-    localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(initial));
     return initial;
+  }
+
+  private syncStoredMockAudiobooks(fetched: any[]): void {
+    try {
+      const existing = this.getStoredMockAudiobooks();
+      const localOnly = existing.filter((a: any) => a.id && String(a.id).startsWith('audiobook-'));
+      const fetchedIds = new Set(fetched.map((a: any) => a.id));
+      const merged = [
+        ...localOnly.filter((a: any) => !fetchedIds.has(a.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredMockAudiobooksPaginated(searchTerm?: string, pageNumber = 1, pageSize = 20): AudiobookDtoPaginatedList {
+    let items = this.getStoredMockAudiobooks();
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      items = items.filter(a => 
+        (a.titleAr && a.titleAr.toLowerCase().includes(s)) ||
+        (a.titleEn && a.titleEn.toLowerCase().includes(s)) ||
+        (a.narratorName && a.narratorName.toLowerCase().includes(s))
+      );
+    }
+    const start = (pageNumber - 1) * pageSize;
+    const paginated = items.slice(start, start + pageSize);
+
+    return {
+      items: paginated,
+      pageNumber,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize),
+      hasPreviousPage: pageNumber > 1,
+      hasNextPage: start + pageSize < items.length
+    };
   }
 
   private getStoredMockGames(): any[] {
@@ -215,10 +286,11 @@ export class AdminApiService {
       try {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const isCorrupted = parsed.some(g => !g.nameAr || !g.nameEn);
-          if (!isCorrupted) {
-            return parsed;
-          }
+          return parsed.filter((g: any) => g && typeof g === 'object').map((g: any) => ({
+            ...g,
+            nameAr: g.nameAr || g.nameEn || 'لعبة بدون اسم',
+            nameEn: g.nameEn || g.nameAr || 'Untitled Game'
+          }));
         }
       } catch {}
     }
@@ -238,25 +310,36 @@ export class AdminApiService {
         isActive: true
       }
     ];
-    localStorage.setItem(this.GAMES_KEY, JSON.stringify(initial));
     return initial;
   }
 
-  // === Admin Books ===
-  getBooks(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<AdminBookDtoAdminPaginatedDto> {
-    let items = this.getStoredMockBooks();
+  private syncStoredMockGames(fetched: any[]): void {
+    try {
+      const existing = this.getStoredMockGames();
+      const localOnly = existing.filter((g: any) => g.id && String(g.id).startsWith('game-'));
+      const fetchedIds = new Set(fetched.map((g: any) => g.id));
+      const merged = [
+        ...localOnly.filter((g: any) => !fetchedIds.has(g.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.GAMES_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredMockGamesPaginated(searchTerm?: string, pageNumber = 1, pageSize = 20): GameDtoPaginatedList {
+    let items = this.getStoredMockGames();
     if (searchTerm) {
       const s = searchTerm.toLowerCase();
-      items = items.filter(b => 
-        (b.titleAr && b.titleAr.toLowerCase().includes(s)) ||
-        (b.titleEn && b.titleEn.toLowerCase().includes(s)) ||
-        (b.authorName && b.authorName.toLowerCase().includes(s))
+      items = items.filter(g => 
+        (g.nameAr && g.nameAr.toLowerCase().includes(s)) ||
+        (g.nameEn && g.nameEn.toLowerCase().includes(s)) ||
+        (g.categoryTag && g.categoryTag.toLowerCase().includes(s))
       );
     }
     const start = (pageNumber - 1) * pageSize;
     const paginated = items.slice(start, start + pageSize);
 
-    return of({
+    return {
       items: paginated,
       pageNumber,
       pageSize,
@@ -264,7 +347,51 @@ export class AdminApiService {
       totalPages: Math.ceil(items.length / pageSize),
       hasPreviousPage: pageNumber > 1,
       hasNextPage: start + pageSize < items.length
-    } as AdminBookDtoAdminPaginatedDto);
+    };
+  }
+
+  // === Admin Books ===
+  getBooks(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<AdminBookDtoAdminPaginatedDto> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
+    }
+
+    return this.http.get<AdminBookDtoAdminPaginatedDto>(`${this.baseUrl}/books`, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if (!searchTerm && pageNumber === 1) {
+            this.syncStoredMockBooks(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredMockBooksPaginated(searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => {
+        // Fallback to public Books API
+        return this.http.get<any>(`${API_CONFIG.baseUrl}/api/v1/Books`, { params }).pipe(
+          map(publicRes => {
+            if (publicRes && publicRes.items && publicRes.items.length > 0) {
+              if (!searchTerm && pageNumber === 1) {
+                this.syncStoredMockBooks(publicRes.items);
+              }
+              return {
+                items: publicRes.items,
+                pageNumber: publicRes.pageNumber || pageNumber,
+                pageSize: publicRes.pageSize || pageSize,
+                totalCount: publicRes.totalCount || publicRes.items.length,
+                totalPages: publicRes.totalPages || Math.ceil((publicRes.totalCount || publicRes.items.length) / pageSize)
+              } as AdminBookDtoAdminPaginatedDto;
+            }
+            return this.getStoredMockBooksPaginated(searchTerm, pageNumber, pageSize);
+          }),
+          catchError(() => of(this.getStoredMockBooksPaginated(searchTerm, pageNumber, pageSize)))
+        );
+      })
+    );
   }
 
   createBook(command: CreateBookCommand): Observable<string> {
@@ -278,7 +405,10 @@ export class AdminApiService {
     books.unshift(newBook); // Prepend to show up first in dashboard
     localStorage.setItem(this.BOOKS_KEY, JSON.stringify(books));
 
-    this.http.post<string>(`${this.baseUrl}/books`, command).subscribe({ error: () => {} });
+    this.http.post<string>(`${this.baseUrl}/books`, command).pipe(
+      catchError(() => this.http.post<string>(`${API_CONFIG.baseUrl}/api/v1/Books`, command))
+    ).subscribe({ error: () => {} });
+
     return of(newId);
   }
 
@@ -289,7 +419,9 @@ export class AdminApiService {
       books[idx] = { ...books[idx], ...command };
       localStorage.setItem(this.BOOKS_KEY, JSON.stringify(books));
     }
-    this.http.put<void>(`${this.baseUrl}/books/${id}`, command).subscribe({ error: () => {} });
+    this.http.put<void>(`${this.baseUrl}/books/${id}`, command).pipe(
+      catchError(() => this.http.put<void>(`${API_CONFIG.baseUrl}/api/v1/Books/${id}`, command))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 
@@ -297,33 +429,47 @@ export class AdminApiService {
     const books = this.getStoredMockBooks();
     const filtered = books.filter(b => b.id !== id);
     localStorage.setItem(this.BOOKS_KEY, JSON.stringify(filtered));
-    this.http.delete<void>(`${this.baseUrl}/books/${id}`).subscribe({ error: () => {} });
+    this.http.delete<void>(`${this.baseUrl}/books/${id}`).pipe(
+      catchError(() => this.http.delete<void>(`${API_CONFIG.baseUrl}/api/v1/Books/${id}`))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 
   // === Admin Audiobooks ===
   getAudiobooks(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<AudiobookDtoPaginatedList> {
-    let items = this.getStoredMockAudiobooks();
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
-      items = items.filter(a => 
-        (a.titleAr && a.titleAr.toLowerCase().includes(s)) ||
-        (a.titleEn && a.titleEn.toLowerCase().includes(s)) ||
-        (a.narratorName && a.narratorName.toLowerCase().includes(s))
-      );
-    }
-    const start = (pageNumber - 1) * pageSize;
-    const paginated = items.slice(start, start + pageSize);
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
 
-    return of({
-      items: paginated,
-      pageNumber,
-      pageSize,
-      totalCount: items.length,
-      totalPages: Math.ceil(items.length / pageSize),
-      hasPreviousPage: pageNumber > 1,
-      hasNextPage: start + pageSize < items.length
-    } as AudiobookDtoPaginatedList);
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
+    }
+
+    return this.http.get<AudiobookDtoPaginatedList>(`${this.baseUrl}/audiobooks`, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if (!searchTerm && pageNumber === 1) {
+            this.syncStoredMockAudiobooks(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredMockAudiobooksPaginated(searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => {
+        return this.http.get<AudiobookDtoPaginatedList>(`${API_CONFIG.baseUrl}/api/v1/Audiobooks`, { params }).pipe(
+          map(publicRes => {
+            if (publicRes && publicRes.items && publicRes.items.length > 0) {
+              if (!searchTerm && pageNumber === 1) {
+                this.syncStoredMockAudiobooks(publicRes.items);
+              }
+              return publicRes;
+            }
+            return this.getStoredMockAudiobooksPaginated(searchTerm, pageNumber, pageSize);
+          }),
+          catchError(() => of(this.getStoredMockAudiobooksPaginated(searchTerm, pageNumber, pageSize)))
+        );
+      })
+    );
   }
 
   createAudiobook(command: CreateAudiobookCommand): Observable<string> {
@@ -337,7 +483,10 @@ export class AdminApiService {
     audiobooks.unshift(newAudio);
     localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(audiobooks));
 
-    this.http.post<string>(`${this.baseUrl}/audiobooks`, command).subscribe({ error: () => {} });
+    this.http.post<string>(`${this.baseUrl}/audiobooks`, command).pipe(
+      catchError(() => this.http.post<string>(`${API_CONFIG.baseUrl}/api/v1/Audiobooks`, command))
+    ).subscribe({ error: () => {} });
+
     return of(newId);
   }
 
@@ -348,7 +497,9 @@ export class AdminApiService {
       audiobooks[idx] = { ...audiobooks[idx], ...command };
       localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(audiobooks));
     }
-    this.http.put<void>(`${this.baseUrl}/audiobooks/${id}`, command).subscribe({ error: () => {} });
+    this.http.put<void>(`${this.baseUrl}/audiobooks/${id}`, command).pipe(
+      catchError(() => this.http.put<void>(`${API_CONFIG.baseUrl}/api/v1/Audiobooks/${id}`, command))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 
@@ -356,33 +507,47 @@ export class AdminApiService {
     const audiobooks = this.getStoredMockAudiobooks();
     const filtered = audiobooks.filter(a => a.id !== id);
     localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(filtered));
-    this.http.delete<void>(`${this.baseUrl}/audiobooks/${id}`).subscribe({ error: () => {} });
+    this.http.delete<void>(`${this.baseUrl}/audiobooks/${id}`).pipe(
+      catchError(() => this.http.delete<void>(`${API_CONFIG.baseUrl}/api/v1/Audiobooks/${id}`))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 
   // === Admin Games ===
   getGames(searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<GameDtoPaginatedList> {
-    let items = this.getStoredMockGames();
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
-      items = items.filter(g => 
-        (g.nameAr && g.nameAr.toLowerCase().includes(s)) ||
-        (g.nameEn && g.nameEn.toLowerCase().includes(s)) ||
-        (g.categoryTag && g.categoryTag.toLowerCase().includes(s))
-      );
-    }
-    const start = (pageNumber - 1) * pageSize;
-    const paginated = items.slice(start, start + pageSize);
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
 
-    return of({
-      items: paginated,
-      pageNumber,
-      pageSize,
-      totalCount: items.length,
-      totalPages: Math.ceil(items.length / pageSize),
-      hasPreviousPage: pageNumber > 1,
-      hasNextPage: start + pageSize < items.length
-    } as GameDtoPaginatedList);
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
+    }
+
+    return this.http.get<GameDtoPaginatedList>(`${this.baseUrl}/games`, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if (!searchTerm && pageNumber === 1) {
+            this.syncStoredMockGames(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredMockGamesPaginated(searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => {
+        return this.http.get<GameDtoPaginatedList>(`${API_CONFIG.baseUrl}/api/v1/Games`, { params }).pipe(
+          map(publicRes => {
+            if (publicRes && publicRes.items && publicRes.items.length > 0) {
+              if (!searchTerm && pageNumber === 1) {
+                this.syncStoredMockGames(publicRes.items);
+              }
+              return publicRes;
+            }
+            return this.getStoredMockGamesPaginated(searchTerm, pageNumber, pageSize);
+          }),
+          catchError(() => of(this.getStoredMockGamesPaginated(searchTerm, pageNumber, pageSize)))
+        );
+      })
+    );
   }
 
   createGame(command: CreateGameCommand): Observable<string> {
@@ -396,7 +561,10 @@ export class AdminApiService {
     games.unshift(newGame);
     localStorage.setItem(this.GAMES_KEY, JSON.stringify(games));
 
-    this.http.post<string>(`${this.baseUrl}/games`, command).subscribe({ error: () => {} });
+    this.http.post<string>(`${this.baseUrl}/games`, command).pipe(
+      catchError(() => this.http.post<string>(`${API_CONFIG.baseUrl}/api/v1/Games`, command))
+    ).subscribe({ error: () => {} });
+
     return of(newId);
   }
 
@@ -407,7 +575,9 @@ export class AdminApiService {
       games[idx] = { ...games[idx], ...command };
       localStorage.setItem(this.GAMES_KEY, JSON.stringify(games));
     }
-    this.http.put<void>(`${this.baseUrl}/games/${id}`, command).subscribe({ error: () => {} });
+    this.http.put<void>(`${this.baseUrl}/games/${id}`, command).pipe(
+      catchError(() => this.http.put<void>(`${API_CONFIG.baseUrl}/api/v1/Games/${id}`, command))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 
@@ -415,7 +585,9 @@ export class AdminApiService {
     const games = this.getStoredMockGames();
     const filtered = games.filter(g => g.id !== id);
     localStorage.setItem(this.GAMES_KEY, JSON.stringify(filtered));
-    this.http.delete<void>(`${this.baseUrl}/games/${id}`).subscribe({ error: () => {} });
+    this.http.delete<void>(`${this.baseUrl}/games/${id}`).pipe(
+      catchError(() => this.http.delete<void>(`${API_CONFIG.baseUrl}/api/v1/Games/${id}`))
+    ).subscribe({ error: () => {} });
     return of(void 0);
   }
 

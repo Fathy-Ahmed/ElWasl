@@ -76,7 +76,26 @@ export class ContractTermsComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
-    // Simulate multipart request submission
+    const formVal = this.requestForm.value;
+    const newRequest = {
+      id: `cr-${Date.now()}`,
+      authorName: formVal.authorName,
+      email: formVal.email,
+      bookTitle: formVal.bookTitle,
+      summary: formVal.summary,
+      fileName: this.selectedFile()?.name || 'manuscript.pdf',
+      cvFileName: this.selectedCv()?.name || 'cv.pdf',
+      date: new Date().toISOString().split('T')[0],
+      status: 'under_review'
+    };
+
+    try {
+      const stored = localStorage.getItem('elwasl_contract_requests');
+      const list = stored ? JSON.parse(stored) : [];
+      list.unshift(newRequest);
+      localStorage.setItem('elwasl_contract_requests', JSON.stringify(list));
+    } catch {}
+
     setTimeout(() => {
       this.isSubmitting.set(false);
       this.snackBar.open('تم تقديم طلبك بنجاح! سنقوم بمراجعة طلبك والرد عليك.', 'إغلاق / Close', {
@@ -87,6 +106,6 @@ export class ContractTermsComponent implements OnInit {
       this.requestForm.reset();
       this.selectedFile.set(null);
       this.selectedCv.set(null);
-    }, 2000);
+    }, 1000);
   }
 }

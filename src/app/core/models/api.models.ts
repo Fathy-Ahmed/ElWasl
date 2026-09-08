@@ -125,6 +125,7 @@ export interface BookDto {
 export interface BookDtoPaginatedList {
   items?: BookDto[] | null;
   pageNumber: number;
+  pageSize?: number;
   totalPages: number;
   totalCount: number;
   hasPreviousPage: boolean;
@@ -229,6 +230,7 @@ export interface AudiobookDto {
 export interface AudiobookDtoPaginatedList {
   items?: AudiobookDto[] | null;
   pageNumber: number;
+  pageSize?: number;
   totalPages: number;
   totalCount: number;
   hasPreviousPage: boolean;
@@ -285,6 +287,7 @@ export interface GameDto {
 export interface GameDtoPaginatedList {
   items?: GameDto[] | null;
   pageNumber: number;
+  pageSize?: number;
   totalPages: number;
   totalCount: number;
   hasPreviousPage: boolean;

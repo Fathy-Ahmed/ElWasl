@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, of, catchError } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { BookDto, BookDtoPaginatedList } from '../models/api.models';
@@ -14,6 +14,73 @@ export class BookService {
   private readonly BOOKS_KEY = 'elwasl_admin_mock_books';
 
   getBooks(categoryId?: string, searchTerm?: string, pageNumber = 1, pageSize = 20): Observable<BookDtoPaginatedList> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (categoryId && categoryId !== 'all') {
+      params = params.set('categoryId', categoryId);
+    }
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('searchTerm', searchTerm.trim());
+    }
+
+    return this.http.get<BookDtoPaginatedList>(this.baseUrl, { params }).pipe(
+      map(res => {
+        if (res && res.items && res.items.length > 0) {
+          if ((!categoryId || categoryId === 'all') && !searchTerm && pageNumber === 1) {
+            this.syncStoredBooks(res.items);
+          }
+          return res;
+        }
+        return res || this.getStoredFilteredBooks(categoryId, searchTerm, pageNumber, pageSize);
+      }),
+      catchError(() => {
+        return of(this.getStoredFilteredBooks(categoryId, searchTerm, pageNumber, pageSize));
+      })
+    );
+  }
+
+  getBooksAsProducts(categoryId?: string, searchTerm?: string): Observable<Product[]> {
+    return this.getBooks(categoryId, searchTerm, 1, 100).pipe(
+      map(res => (res.items || []).map(b => this.mapBookToProduct(b)))
+    );
+  }
+
+  getBookById(id: string): Observable<Product> {
+    const items = this.getStoredBooks();
+    const localBook = items.find((b: any) => b.id === id);
+
+    // If local mock id, return directly
+    if (id && id.startsWith('book-') && localBook) {
+      return of(this.mapBookToProduct(localBook));
+    }
+
+    return this.http.get<BookDto>(`${this.baseUrl}/${id}`).pipe(
+      map(b => this.mapBookToProduct(b)),
+      catchError(() => {
+        if (localBook) {
+          return of(this.mapBookToProduct(localBook));
+        }
+        return of(this.mapBookToProduct(items[0]));
+      })
+    );
+  }
+
+  private syncStoredBooks(fetched: BookDto[]): void {
+    try {
+      const existing = this.getStoredBooks();
+      const localOnly = existing.filter(b => b.id && b.id.startsWith('book-'));
+      const fetchedIds = new Set(fetched.map(b => b.id));
+      const merged = [
+        ...localOnly.filter(b => !fetchedIds.has(b.id)),
+        ...fetched
+      ];
+      localStorage.setItem(this.BOOKS_KEY, JSON.stringify(merged));
+    } catch {}
+  }
+
+  private getStoredFilteredBooks(categoryId?: string, searchTerm?: string, pageNumber = 1, pageSize = 20): BookDtoPaginatedList {
     let items = this.getStoredBooks();
     items = items.filter((b: any) => b.isActive !== false);
 
@@ -31,7 +98,7 @@ export class BookService {
     const start = (pageNumber - 1) * pageSize;
     const paginated = items.slice(start, start + pageSize);
 
-    return of({
+    return {
       items: paginated,
       pageNumber,
       pageSize,
@@ -39,28 +106,7 @@ export class BookService {
       totalPages: Math.ceil(items.length / pageSize),
       hasPreviousPage: pageNumber > 1,
       hasNextPage: start + pageSize < items.length
-    } as BookDtoPaginatedList);
-  }
-
-  getBooksAsProducts(categoryId?: string, searchTerm?: string): Observable<Product[]> {
-    return this.getBooks(categoryId, searchTerm, 1, 100).pipe(
-      map(res => (res.items || []).map(b => this.mapBookToProduct(b)))
-    );
-  }
-
-  getBookById(id: string): Observable<Product> {
-    const items = this.getStoredBooks();
-    const book = items.find((b: any) => b.id === id);
-    if (book) {
-      return of(this.mapBookToProduct(book));
-    }
-    return this.http.get<BookDto>(`${this.baseUrl}/${id}`).pipe(
-      map(b => this.mapBookToProduct(b)),
-      catchError(() => {
-        // Fallback to first book as safety
-        return of(this.mapBookToProduct(items[0]));
-      })
-    );
+    };
   }
 
   private getStoredBooks(): BookDto[] {
@@ -68,14 +114,13 @@ export class BookService {
     if (raw) {
       try {
         let parsed = JSON.parse(raw) as BookDto[];
-        if (Array.isArray(parsed)) {
-          parsed = parsed.filter(b => b !== null && b !== undefined && typeof b === 'object');
-          if (parsed.length > 0) {
-            const isCorrupted = parsed.some(b => !b || !b.titleAr || !b.titleEn || !b.authorName);
-            if (!isCorrupted) {
-              return parsed;
-            }
-          }
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter(b => b && typeof b === 'object').map(b => ({
+            ...b,
+            titleAr: b.titleAr || b.titleEn || 'كتاب بدون عنوان',
+            titleEn: b.titleEn || b.titleAr || 'Untitled Book',
+            authorName: b.authorName || (b as any).authorAr || 'دار الوصل'
+          }));
         }
       } catch {}
     }
@@ -141,7 +186,6 @@ export class BookService {
         isActive: true
       }
     ];
-    localStorage.setItem(this.BOOKS_KEY, JSON.stringify(initial));
     return initial;
   }
 
@@ -175,15 +219,15 @@ export class BookService {
     return {
       id: book.id,
       productType: 'Book',
-      titleAr: book.titleAr || '',
-      titleEn: book.titleEn || '',
+      titleAr: book.titleAr || book.titleEn || '',
+      titleEn: book.titleEn || book.titleAr || '',
       price: isDiscounted ? book.discountPrice! : book.price,
       originalPrice: isDiscounted ? book.price : undefined,
       priceUsd,
       originalPriceUsd,
       coverImage: book.coverImageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600',
-      authorAr: book.authorName || '',
-      authorEn: book.authorName || '',
+      authorAr: book.authorName || (book as any).authorAr || '',
+      authorEn: book.authorName || (book as any).authorEn || '',
       slug: book.id,
       category: book.categoryNameEn || book.categoryId,
       descriptionAr: book.descriptionAr || '',
