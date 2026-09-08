@@ -331,9 +331,21 @@ export interface OrderItemRequest {
   quantity: number;
 }
 
+export interface CustomerDetails {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  paymentMethod?: string;
+}
+
 export interface CreateOrderCommand {
   items?: OrderItemRequest[] | null;
   shippingAddressId?: string | null;
+  customerDetails?: CustomerDetails;
+  totalAmount?: number;
+  orderItemsSnapshot?: OrderItemDto[];
 }
 
 export interface OrderItemDto {
@@ -353,6 +365,12 @@ export interface OrderDto {
   shippingAddressId?: string | null;
   createdAt: string;
   orderItems?: OrderItemDto[] | null;
+  customerName?: string | null;
+  userEmail?: string | null;
+  phoneNumber?: string | null;
+  shippingAddress?: string | null;
+  city?: string | null;
+  paymentMethod?: string | null;
 }
 
 export interface OrderDtoPaginatedList {

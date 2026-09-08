@@ -25,15 +25,20 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       // Suppress alert for local mock-supported endpoints to prevent confusing error popups
-      const isMockSupported = req.url.includes('/admin/books') ||
-                              req.url.includes('/admin/audiobooks') ||
-                              req.url.includes('/admin/games') ||
-                              req.url.includes('/admin/orders') ||
-                              req.url.includes('/Categories') ||
-                              req.url.includes('/orders') ||
-                              req.url.includes('/Books') ||
-                              req.url.includes('/Audiobooks') ||
-                              req.url.includes('/Games');
+      const urlLower = req.url.toLowerCase();
+      const isMockSupported = urlLower.includes('/admin/books') ||
+                              urlLower.includes('/admin/audiobooks') ||
+                              urlLower.includes('/admin/games') ||
+                              urlLower.includes('/admin/orders') ||
+                              urlLower.includes('/admin/payments') ||
+                              urlLower.includes('/admin/exhibitions') ||
+                              urlLower.includes('/categories') ||
+                              urlLower.includes('/orders') ||
+                              urlLower.includes('/payments') ||
+                              urlLower.includes('/books') ||
+                              urlLower.includes('/audiobooks') ||
+                              urlLower.includes('/games') ||
+                              urlLower.includes('/exhibitions');
 
       if (!isMockSupported) {
         // Display to user via Material Snackbar

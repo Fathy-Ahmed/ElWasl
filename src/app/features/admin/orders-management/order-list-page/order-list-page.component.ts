@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, HostListener } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
@@ -56,13 +56,18 @@ export class OrderListPageComponent implements OnInit {
     this.loadOrders();
   }
 
+  @HostListener('window:storage')
+  onStorageChange(): void {
+    this.loadOrders();
+  }
+
   loadOrders(): void {
     this.adminApiService.getOrders(1, 50).subscribe({
       next: (res) => {
         const mapped = (res.items || []).map(o => ({
           id: o.id,
           idDisplay: o.orderNumber || o.id.substring(0, 8),
-          customerName: o.userEmail || 'Client',
+          customerName: (o as any).customerName || o.userEmail || 'Client',
           date: new Date(o.createdAt).toLocaleDateString(),
           total: o.totalAmount,
           status: this.mapStatusEnumToString(o.status),
