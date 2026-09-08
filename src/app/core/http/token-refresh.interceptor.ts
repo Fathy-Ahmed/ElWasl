@@ -12,16 +12,17 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // Intercept 401 Unauthorized errors
       // Exclude requests to Auth endpoints to avoid infinite redirection loops
+      const urlLower = req.url.toLowerCase();
       if (
         error.status === 401 &&
-        !req.url.includes('/Auth/refresh') &&
-        !req.url.includes('/Auth/login') &&
-        !req.url.includes('/Auth/register')
+        !urlLower.includes('/auth/refresh') &&
+        !urlLower.includes('/auth/login') &&
+        !urlLower.includes('/auth/register')
       ) {
         const authService = injector.get(AuthService);
         return authService.refreshToken().pipe(
           switchMap((res: any) => {
-            if (res.accessToken) {
+            if (res && res.accessToken) {
               // Clone the request with the new access token
               const newReq = req.clone({
                 setHeaders: {
@@ -32,8 +33,8 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
             }
             return throwError(() => error);
           }),
-          catchError((refreshErr) => {
-            return throwError(() => refreshErr);
+          catchError(() => {
+            return throwError(() => error);
           })
         );
       }

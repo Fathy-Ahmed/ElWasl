@@ -143,8 +143,9 @@ export class AuthService {
       }),
       catchError(err => {
         this.refreshSubscription$ = null;
-        this.logout();
-        throw err;
+        // Purge expired or invalid refresh token so subsequent calls don't retry and hit 500
+        localStorage.removeItem('refresh_token');
+        return of({} as AuthResponse);
       }),
       shareReplay(1)
     );

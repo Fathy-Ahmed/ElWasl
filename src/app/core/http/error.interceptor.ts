@@ -43,6 +43,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                            urlLower.includes('/games') ||
                            urlLower.includes('/exhibitions') ||
                            urlLower.includes('/auth/me') ||
+                           urlLower.includes('/auth/refresh') ||
                            req.method === 'GET' ||
                            error.status === 403 ||
                            error.status === 405;
