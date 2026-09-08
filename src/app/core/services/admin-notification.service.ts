@@ -35,6 +35,10 @@ export class AdminNotificationService {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', () => this.refresh());
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => this.refresh();
+      } catch {}
     }
   }
 

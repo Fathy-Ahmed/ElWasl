@@ -43,6 +43,13 @@ export class PaymentListPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPayments();
+
+    if (typeof window !== 'undefined') {
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => this.loadPayments();
+      } catch {}
+    }
   }
 
   @HostListener('window:storage')

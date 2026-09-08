@@ -618,27 +618,60 @@ export class AdminApiService {
       .set('pageSize', pageSize.toString());
     return this.http.get<AdminPaginatedOrderDto>(`${this.baseUrl}/orders`, { params }).pipe(
       map(res => {
+        const stored = this.getStoredMockOrders();
+        const serverItems = res && Array.isArray(res.items) ? res.items : [];
+
+        // Deduplicate: identify server items by id and orderNumber
+        const serverIds = new Set(serverItems.map(s => s.id));
+        const serverNumbers = new Set(serverItems.map(s => s.orderNumber).filter(Boolean));
+
+        // Keep local orders that are not on the server
+        const localOnly = stored.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
+
+        // Combine with newest local orders at top, followed by server items
+        const combined = [...localOnly, ...serverItems];
+
         // Apply status overrides if present
         const overrides = this.getStatusOverrides();
-        if (res && res.items) {
-          res.items.forEach(o => {
-            if (overrides[o.id] !== undefined) {
-              o.status = overrides[o.id];
-            } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
-              o.status = overrides[o.orderNumber];
-            }
-          });
-        }
-        return res;
+        combined.forEach(o => {
+          if (overrides[o.id] !== undefined) {
+            o.status = overrides[o.id];
+          } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
+            o.status = overrides[o.orderNumber];
+          }
+        });
+
+        const start = (pageNumber - 1) * pageSize;
+        const paged = combined.slice(start, start + pageSize);
+
+        return {
+          items: paged,
+          pageNumber,
+          pageSize,
+          totalCount: combined.length,
+          totalPages: Math.ceil(combined.length / pageSize) || 1
+        } as AdminPaginatedOrderDto;
       }),
       catchError(() => {
         const stored = this.getStoredMockOrders();
+        const overrides = this.getStatusOverrides();
+        stored.forEach(o => {
+          if (overrides[o.id] !== undefined) {
+            o.status = overrides[o.id];
+          } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
+            o.status = overrides[o.orderNumber];
+          }
+        });
+
+        const start = (pageNumber - 1) * pageSize;
+        const paged = stored.slice(start, start + pageSize);
+
         return of({
-          items: stored,
+          items: paged,
           pageNumber,
           pageSize,
           totalCount: stored.length,
-          totalPages: Math.ceil(stored.length / pageSize)
+          totalPages: Math.ceil(stored.length / pageSize) || 1
         } as AdminPaginatedOrderDto);
       })
     );
@@ -654,7 +687,16 @@ export class AdminApiService {
       this.saveStoredMockOrders(orders);
     }
 
-    return this.http.post<void>(`${this.baseUrl}/orders/${orderId}/status`, { newStatus: status }).pipe(
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.postMessage({ type: 'ORDER_STATUS_UPDATED', orderId, status });
+        channel.close();
+      } catch {}
+    }
+
+    return this.http.put<void>(`${this.baseUrl}/orders/${orderId}/status`, { newStatus: status }).pipe(
       catchError(() => {
         return of(void 0);
       })
@@ -665,10 +707,19 @@ export class AdminApiService {
     this.saveStatusOverride(orderId, OrderStatus.Refunded);
 
     const orders = this.getStoredMockOrders();
-    const found = orders.find(o => o.id === orderId);
+    const found = orders.find(o => o.id === orderId || o.orderNumber === orderId);
     if (found) {
       found.status = OrderStatus.Refunded;
       this.saveStoredMockOrders(orders);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.postMessage({ type: 'ORDER_REFUNDED', orderId });
+        channel.close();
+      } catch {}
     }
 
     return this.http.post<void>(`${this.baseUrl}/orders/${orderId}/refund`, { refundReason: reason }).pipe(

@@ -10,12 +10,14 @@ import {
   LibraryItemDtoPaginatedList,
   OrderStatus
 } from '../models/api.models';
+import { AdminNotificationService } from './admin-notification.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
   private readonly http = inject(HttpClient);
+  private readonly adminNotificationService = inject(AdminNotificationService);
   private readonly ordersUrl = `${API_CONFIG.baseUrl}/api/v1/Orders`;
   private readonly paymentsUrl = `${API_CONFIG.baseUrl}/api/v1/Payments`;
   private readonly entitlementsUrl = `${API_CONFIG.baseUrl}/api/v1/Entitlements`;
@@ -62,9 +64,17 @@ export class OrderService {
     // 3. Save to User / Recent orders storage
     this.saveToUserOrders(localOrder);
 
+    // Refresh notifications immediately
+    this.adminNotificationService.refresh();
+
     // Notify any listening components across tabs
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.postMessage({ type: 'NEW_ORDER', order: localOrder });
+        channel.close();
+      } catch {}
     }
 
     // 4. Send to backend with graceful catch-and-fallback

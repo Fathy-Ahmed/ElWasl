@@ -54,6 +54,13 @@ export class OrderListPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    if (typeof window !== 'undefined') {
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => this.loadOrders();
+      } catch {}
+    }
   }
 
   @HostListener('window:storage')
@@ -64,11 +71,21 @@ export class OrderListPageComponent implements OnInit {
   loadOrders(): void {
     this.adminApiService.getOrders(1, 50).subscribe({
       next: (res) => {
-        const mapped = (res.items || []).map(o => ({
+        let items = res && Array.isArray(res.items) ? res.items : [];
+        if (items.length === 0) {
+          try {
+            const raw = localStorage.getItem('elwasl_admin_mock_orders');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) items = parsed;
+            }
+          } catch {}
+        }
+        const mapped = items.map(o => ({
           id: o.id,
-          idDisplay: o.orderNumber || o.id.substring(0, 8),
-          customerName: (o as any).customerName || o.userEmail || 'Client',
-          date: new Date(o.createdAt).toLocaleDateString(),
+          idDisplay: o.orderNumber || (o.id ? o.id.substring(0, 8) : 'ORD'),
+          customerName: (o as any).customerName || o.userEmail || 'عميل دار الوصل',
+          date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
           total: o.totalAmount,
           status: this.mapStatusEnumToString(o.status),
           raw: o
@@ -106,17 +123,30 @@ export class OrderListPageComponent implements OnInit {
     }
   }
 
-  private mapStatusEnumToString(status: OrderStatus): string {
+  private mapStatusEnumToString(status: any): string {
+    if (typeof status === 'string') {
+      const lower = status.toLowerCase();
+      if (lower.includes('pend')) return 'pending';
+      if (lower.includes('ship')) return 'shipped';
+      if (lower.includes('deliv') || lower.includes('paid') || lower.includes('comp')) return 'delivered';
+      if (lower.includes('canc') || lower.includes('refun')) return 'canceled';
+      return lower;
+    }
     switch (status) {
       case OrderStatus.Pending:
+      case 1:
         return 'pending';
       case OrderStatus.Paid:
-        return 'delivered'; // treated as completed/paid
+      case 2:
+        return 'delivered';
       case OrderStatus.Shipped:
+      case 3:
         return 'shipped';
       case OrderStatus.Cancelled:
+      case 4:
         return 'canceled';
       case OrderStatus.Refunded:
+      case 5:
         return 'canceled';
       default:
         return 'pending';

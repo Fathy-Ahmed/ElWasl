@@ -9,6 +9,7 @@ import { StatCardComponent } from '../../shared/components/stat-card/stat-card.c
 import { ChartCardWrapperComponent } from '../../shared/components/chart-card-wrapper/chart-card-wrapper.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { AdminNotificationService } from '../../../../core/services/admin-notification.service';
 import { OrderStatus } from '../../../../core/models/api.models';
 import { forkJoin } from 'rxjs';
 
@@ -31,6 +32,7 @@ import { forkJoin } from 'rxjs';
 })
 export class DashboardPageComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
+  private readonly adminNotificationService = inject(AdminNotificationService);
 
   // KPI Stats
   readonly stats = signal([
@@ -58,11 +60,22 @@ export class DashboardPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboardData();
+
+    if (typeof window !== 'undefined') {
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => {
+          this.loadDashboardData();
+          this.adminNotificationService.refresh();
+        };
+      } catch {}
+    }
   }
 
   @HostListener('window:storage')
   onStorageChange(): void {
     this.loadDashboardData();
+    this.adminNotificationService.refresh();
   }
 
   loadDashboardData(): void {
@@ -74,8 +87,19 @@ export class DashboardPageComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         // Calculate Revenue and Orders count
-        const ordersList = res.orders.items || [];
-        const totalRevenue = ordersList.reduce((sum, o) => sum + o.totalAmount, 0);
+        let ordersList = res.orders.items || [];
+        if (ordersList.length === 0) {
+          try {
+            const raw = localStorage.getItem('elwasl_admin_mock_orders');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                ordersList = parsed;
+              }
+            }
+          } catch {}
+        }
+        const totalRevenue = ordersList.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
         const ordersCount = ordersList.length;
         const avgOrderVal = ordersCount > 0 ? Math.round(totalRevenue / ordersCount) : 0;
 
@@ -109,6 +133,7 @@ export class DashboardPageComponent implements OnInit {
 
         // Load real pending actions
         this.loadPendingActions(ordersList);
+        this.adminNotificationService.refresh();
       }
     });
   }
@@ -116,8 +141,20 @@ export class DashboardPageComponent implements OnInit {
   private loadPendingActions(ordersList: any[]): void {
     const pending: any[] = [];
 
+    let listToCheck = ordersList;
+    if (!listToCheck || listToCheck.length === 0) {
+      try {
+        const raw = localStorage.getItem('elwasl_admin_mock_orders');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) listToCheck = parsed;
+        }
+      } catch {}
+    }
+    if (!Array.isArray(listToCheck)) listToCheck = [];
+
     // 1. Pending orders
-    ordersList.forEach(o => {
+    listToCheck.forEach(o => {
       const s = o.status;
       if (s === OrderStatus.Pending || s === 1 || String(s).toLowerCase() === 'pending') {
         pending.push({
