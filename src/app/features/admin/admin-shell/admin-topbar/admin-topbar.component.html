@@ -6,8 +6,74 @@
       <input type="text" placeholder="البحث في لوحة التحكم... / Search..." class="search-input" id="admin-global-search">
     </div>
   </div>
-
   <div class="topbar-right">
+    <!-- Notification Bell -->
+    <button mat-icon-button 
+            [matMenuTriggerFor]="notifMenu" 
+            class="notif-btn" 
+            id="admin-notifications-btn"
+            [matBadge]="notificationService.totalNotificationsCount()" 
+            [matBadgeHidden]="notificationService.totalNotificationsCount() === 0" 
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            title="الإشعارات / Notifications">
+      <mat-icon>notifications</mat-icon>
+    </button>
+
+    <mat-menu #notifMenu="matMenu" xPosition="before" class="admin-notif-menu">
+      <div class="notif-menu-header" (click)="$event.stopPropagation()">
+        <div class="notif-header-title">
+          <mat-icon>notifications_active</mat-icon>
+          <span>الإشعارات / Notifications</span>
+        </div>
+        @if (notificationService.totalNotificationsCount() > 0) {
+          <span class="notif-badge-pill">
+            {{ notificationService.totalNotificationsCount() }} جديد
+          </span>
+        }
+      </div>
+
+      <div class="notif-items-list">
+        @if (notificationService.recentNotifications().length === 0) {
+          <div class="notif-empty-state">
+            <mat-icon>done_all</mat-icon>
+            <p>لا توجد إشعارات أو إجراءات معلقة حالياً</p>
+            <span>All caught up! No pending requests.</span>
+          </div>
+        } @else {
+          @for (n of notificationService.recentNotifications(); track n.id) {
+            <a [routerLink]="n.route" class="notif-item-link" [class]="'type-' + n.type">
+              <div class="notif-icon-col">
+                <mat-icon>{{ n.icon }}</mat-icon>
+              </div>
+              <div class="notif-content-col">
+                <div class="notif-title-row">
+                  <span class="notif-title">{{ n.title }}</span>
+                </div>
+                <span class="notif-subtitle">{{ n.subtitle }}</span>
+                <span class="notif-time">{{ n.date | date:'shortDate' }}</span>
+              </div>
+            </a>
+          }
+        }
+      </div>
+
+      <div class="notif-menu-footer" (click)="$event.stopPropagation()">
+        <a routerLink="/admin/orders" class="footer-link">
+          <mat-icon>shopping_basket</mat-icon>
+          <span>الطلبات ({{ notificationService.pendingOrdersCount() }})</span>
+        </a>
+        <a routerLink="/admin/contract-requests" class="footer-link">
+          <mat-icon>rate_review</mat-icon>
+          <span>التعاقدات ({{ notificationService.pendingContractsCount() }})</span>
+        </a>
+        <a routerLink="/admin/contact-messages" class="footer-link">
+          <mat-icon>forum</mat-icon>
+          <span>الرسائل ({{ notificationService.pendingMessagesCount() }})</span>
+        </a>
+      </div>
+    </mat-menu>
+
     <!-- Language Selector -->
     <app-language-switcher></app-language-switcher>
 

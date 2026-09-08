@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, HostListener } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { StatCardComponent } from '../../shared/components/stat-card/stat-card.c
 import { ChartCardWrapperComponent } from '../../shared/components/chart-card-wrapper/chart-card-wrapper.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
+import { OrderStatus } from '../../../../core/models/api.models';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -43,10 +44,7 @@ export class DashboardPageComponent implements OnInit {
   readonly lowStockItems = signal<any[]>([]);
 
   // Pending Actions
-  readonly pendingRequests = signal([
-    { id: 'cr1', title: 'طلب تعاقد رواية - أحمد صالح', type: 'Contract Request', date: '2026-06-20' },
-    { id: 'cm1', title: 'شكوى تأخر توصيل - ياسمين طه', type: 'Contact Message', date: '2026-06-21' }
-  ]);
+  readonly pendingRequests = signal<any[]>([]);
 
   // Custom SVG sales chart data points
   readonly salesPoints = '10,210 50,180 90,195 130,120 170,140 210,80 250,95 290,40';
@@ -59,6 +57,11 @@ export class DashboardPageComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  @HostListener('window:storage')
+  onStorageChange(): void {
     this.loadDashboardData();
   }
 
@@ -103,8 +106,80 @@ export class DashboardPageComponent implements OnInit {
           }
         });
         this.lowStockItems.set(lowStock);
+
+        // Load real pending actions
+        this.loadPendingActions(ordersList);
       }
     });
+  }
+
+  private loadPendingActions(ordersList: any[]): void {
+    const pending: any[] = [];
+
+    // 1. Pending orders
+    ordersList.forEach(o => {
+      const s = o.status;
+      if (s === OrderStatus.Pending || s === 1 || String(s).toLowerCase() === 'pending') {
+        pending.push({
+          id: o.id,
+          title: `طلب شراء جديد: ${o.orderNumber || o.id.substring(0, 8)} - ${o.customerName || o.userEmail || 'عميل'}`,
+          type: 'Order',
+          route: '/admin/orders',
+          date: (o.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+          icon: 'shopping_basket'
+        });
+      }
+    });
+
+    // 2. Pending contracts
+    try {
+      const contractsRaw = localStorage.getItem('elwasl_contract_requests');
+      if (contractsRaw) {
+        const contracts = JSON.parse(contractsRaw);
+        if (Array.isArray(contracts)) {
+          contracts.forEach(c => {
+            const s = String(c.status || '').toLowerCase();
+            if (s === 'pending' || s === 'under_review' || s === '') {
+              pending.push({
+                id: c.id,
+                title: `طلب تعاقد مسودة: ${c.bookTitle || 'عمل جديد'} - ${c.authorName || 'مؤلف'}`,
+                type: 'Contract Request',
+                route: '/admin/contract-requests',
+                date: (c.date || c.createdAt || '').slice(0, 10),
+                icon: 'rate_review'
+              });
+            }
+          });
+        }
+      }
+    } catch {}
+
+    // 3. Pending contact messages
+    try {
+      const messagesRaw = localStorage.getItem('elwasl_contact_messages');
+      if (messagesRaw) {
+        const messages = JSON.parse(messagesRaw);
+        if (Array.isArray(messages)) {
+          messages.forEach(m => {
+            const s = String(m.status || '').toLowerCase();
+            if (s === 'pending' || s === '') {
+              pending.push({
+                id: m.id,
+                title: `رسالة تواصل: ${m.subject || 'استفسار'} - ${m.senderName || 'عميل'}`,
+                type: 'Contact Message',
+                route: '/admin/contact-messages',
+                date: (m.date || m.createdAt || '').slice(0, 10),
+                icon: 'forum'
+              });
+            }
+          });
+        }
+      }
+    } catch {}
+
+    // Sort by date descending and take latest 6
+    pending.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    this.pendingRequests.set(pending.slice(0, 6));
   }
 
   getDashOffset(percent: number, offset: number): number {

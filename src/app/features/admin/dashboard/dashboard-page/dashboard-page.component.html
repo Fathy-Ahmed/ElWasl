@@ -109,20 +109,35 @@
 
     <!-- Pending Action Requests Panel -->
     <div class="ops-panel pending-actions-panel">
-      <h3 class="panel-title">إجراءات معلقة / Pending Actions</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 class="panel-title" style="margin: 0;">إجراءات معلقة / Pending Actions</h3>
+        @if (pendingRequests().length > 0) {
+          <span style="background: #ef4444; color: white; border-radius: 12px; font-size: 0.75rem; font-weight: 700; padding: 2px 8px;">
+            {{ pendingRequests().length }} معلق
+          </span>
+        }
+      </div>
       <div class="ops-list">
-        @for (act of pendingRequests(); track act.id) {
-          <div class="ops-item">
-            <mat-icon class="pending-icon">pending_actions</mat-icon>
-            <div class="ops-details">
-              <h4>{{ act.title }}</h4>
-              <p>تاريخ الطلب / Date: {{ act.date }}</p>
-            </div>
-            <app-status-badge status="pending" label="معلق"></app-status-badge>
-            <a [routerLink]="act.type === 'Contract Request' ? '/admin/contract-requests' : '/admin/contact-messages'" class="action-link" style="margin-inline-start: 10px; color: #1e3a8a;" [id]="'view-pending-' + act.id">
-              <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;">visibility</mat-icon>
-            </a>
+        @if (pendingRequests().length === 0) {
+          <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+            <mat-icon style="font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: #cbd5e1;">done_all</mat-icon>
+            <p style="margin: 0.5rem 0 0; font-weight: 600;">لا توجد إجراءات معلقة حالياً</p>
+            <span style="font-size: 0.8rem;">All pending orders, contracts, and messages are handled.</span>
           </div>
+        } @else {
+          @for (act of pendingRequests(); track act.id) {
+            <div class="ops-item">
+              <mat-icon class="pending-icon">{{ act.icon || 'pending_actions' }}</mat-icon>
+              <div class="ops-details">
+                <h4>{{ act.title }}</h4>
+                <p>تاريخ الطلب / Date: {{ act.date }}</p>
+              </div>
+              <app-status-badge status="pending" label="معلق"></app-status-badge>
+              <a [routerLink]="act.route" class="action-link" style="margin-inline-start: 10px; color: #1e3a8a;" [id]="'view-pending-' + act.id" title="عرض التفاصيل / View">
+                <mat-icon style="font-size: 1.2rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;">visibility</mat-icon>
+              </a>
+            </div>
+          }
         }
       </div>
     </div>

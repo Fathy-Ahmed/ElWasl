@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { AdminNotificationService } from '../../../../core/services/admin-notification.service';
 
 interface NavGroup {
   label: string;
@@ -24,10 +25,11 @@ interface NavGroup {
   styleUrls: ['./admin-sidebar.component.scss']
 })
 export class AdminSidebarComponent {
-  // Pending badges mock counts
-  readonly pendingOrdersCount = signal<number>(2);
-  readonly pendingContractsCount = signal<number>(4);
-  readonly pendingMessagesCount = signal<number>(3);
+  private readonly notificationService = inject(AdminNotificationService);
+
+  readonly pendingOrdersCount = this.notificationService.pendingOrdersCount;
+  readonly pendingContractsCount = this.notificationService.pendingContractsCount;
+  readonly pendingMessagesCount = this.notificationService.pendingMessagesCount;
 
   readonly navGroups: NavGroup[] = [
     {

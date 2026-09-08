@@ -94,6 +94,10 @@ export class ContractTermsComponent implements OnInit {
       const list = stored ? JSON.parse(stored) : [];
       list.unshift(newRequest);
       localStorage.setItem('elwasl_contract_requests', JSON.stringify(list));
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+      }
     } catch {}
 
     setTimeout(() => {

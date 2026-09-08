@@ -50,7 +50,32 @@ export class ContactFormComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
-    // Simulate API submission
+    const formVal = this.contactForm.value;
+    const typeLabel = this.mapTypeToLabel(formVal.type);
+
+    const newMsg = {
+      id: `cm-${Date.now().toString().slice(-4)}`,
+      senderName: formVal.name,
+      email: formVal.email,
+      subject: formVal.subject,
+      message: formVal.message,
+      type: typeLabel,
+      date: new Date().toISOString().slice(0, 10),
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    try {
+      const stored = localStorage.getItem('elwasl_contact_messages');
+      const list = stored ? JSON.parse(stored) : [];
+      list.unshift(newMsg);
+      localStorage.setItem('elwasl_contact_messages', JSON.stringify(list));
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch {}
+
     setTimeout(() => {
       this.isSubmitting.set(false);
       this.snackBar.open('تم إرسال رسالتك بنجاح! سنرد عليك في أقرب وقت.', 'إغلاق / Close', {
@@ -61,6 +86,19 @@ export class ContactFormComponent implements OnInit {
       this.contactForm.reset({
         type: 'general'
       });
-    }, 1500);
+    }, 800);
+  }
+
+  private mapTypeToLabel(type: string): string {
+    switch (type) {
+      case 'complaint':
+        return 'شكوى / Complaint';
+      case 'suggestion':
+        return 'اقتراح / Suggestion';
+      case 'inquiry':
+        return 'استفسار / Inquiry';
+      default:
+        return 'عام / General';
+    }
   }
 }

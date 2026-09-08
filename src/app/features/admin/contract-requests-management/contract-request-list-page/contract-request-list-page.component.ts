@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
@@ -25,10 +25,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   `,
   styles: []
 })
-export class ContractRequestListPageComponent {
+export class ContractRequestListPageComponent implements OnInit {
   private readonly CONTRACTS_KEY = 'elwasl_contract_requests';
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor(private snackBar: MatSnackBar) {}
+
+  ngOnInit(): void {
+    this.loadRequests();
+  }
+
+  @HostListener('window:storage')
+  onStorageChange(): void {
     this.loadRequests();
   }
 
@@ -81,6 +88,9 @@ export class ContractRequestListPageComponent {
   private saveRequests(requests: any[]): void {
     try {
       localStorage.setItem(this.CONTRACTS_KEY, JSON.stringify(requests));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+      }
     } catch {}
   }
 
