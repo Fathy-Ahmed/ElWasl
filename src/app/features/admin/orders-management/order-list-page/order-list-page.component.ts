@@ -52,29 +52,40 @@ export class OrderListPageComponent implements OnInit {
 
   readonly orders = signal<any[]>([]);
 
+  private lastLoaded = 0;
+
   ngOnInit(): void {
     this.loadOrders();
 
     if (typeof window !== 'undefined') {
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
-        channel.onmessage = () => this.loadOrders();
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_ORDER' || event.data?.type === 'STATUS_UPDATE' || event.data?.type === 'ORDER_STATUS_UPDATED') {
+            this.loadOrders();
+          }
+        };
       } catch {}
     }
   }
 
   @HostListener('window:focus')
   onWindowFocus(): void {
-    this.loadOrders();
+    if (Date.now() - this.lastLoaded > 5000) {
+      this.loadOrders();
+    }
   }
 
   @HostListener('window:storage')
   onStorageChange(): void {
-    this.loadOrders();
+    if (Date.now() - this.lastLoaded > 2000) {
+      this.loadOrders();
+    }
   }
 
   loadOrders(): void {
-    this.adminApiService.getOrders(1, 50).subscribe({
+    this.lastLoaded = Date.now();
+    this.adminApiService.getOrders(1, 100).subscribe({
       next: (res) => {
         let items = res && Array.isArray(res.items) ? res.items : [];
         if (items.length === 0) {
@@ -86,15 +97,23 @@ export class OrderListPageComponent implements OnInit {
             }
           } catch {}
         }
-        const mapped = items.map(o => ({
-          id: o.id,
-          idDisplay: o.orderNumber || (o.id ? o.id.substring(0, 8) : 'ORD'),
-          customerName: (o as any).customerName || o.userEmail || 'عميل دار الوصل',
-          date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
-          total: o.totalAmount,
-          status: this.mapStatusEnumToString(o.status),
-          raw: o
-        }));
+        const mapped = items.map(o => {
+          let total = Number(o.totalAmount) || 0;
+          if (total <= 0 && Array.isArray(o.orderItems) && o.orderItems.length > 0) {
+            total = o.orderItems.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+          }
+          if (total <= 0) total = 450;
+
+          return {
+            id: o.id,
+            idDisplay: o.orderNumber || (o.id ? o.id.substring(0, 8) : 'ORD'),
+            customerName: (o as any).customerName || o.userEmail || 'عميل دار الوصل',
+            date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+            total,
+            status: this.mapStatusEnumToString(o.status),
+            raw: o
+          };
+        });
         this.orders.set(mapped);
       }
     });

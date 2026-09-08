@@ -43,28 +43,39 @@ export class PaymentListPageComponent implements OnInit {
 
   readonly payments = signal<any[]>([]);
 
+  private lastLoaded = 0;
+
   ngOnInit(): void {
     this.loadPayments();
 
     if (typeof window !== 'undefined') {
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
-        channel.onmessage = () => this.loadPayments();
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_ORDER' || event.data?.type === 'STATUS_UPDATE' || event.data?.type === 'ORDER_STATUS_UPDATED') {
+            this.loadPayments();
+          }
+        };
       } catch {}
     }
   }
 
   @HostListener('window:focus')
   onWindowFocus(): void {
-    this.loadPayments();
+    if (Date.now() - this.lastLoaded > 5000) {
+      this.loadPayments();
+    }
   }
 
   @HostListener('window:storage')
   onStorageChange(): void {
-    this.loadPayments();
+    if (Date.now() - this.lastLoaded > 2000) {
+      this.loadPayments();
+    }
   }
 
   loadPayments(): void {
+    this.lastLoaded = Date.now();
     this.sharedOrderSyncService.getOrders().subscribe({
       next: () => this.refreshPaymentsList(),
       error: () => this.refreshPaymentsList()

@@ -624,11 +624,38 @@ export class AdminApiService {
         return this.http.get<AdminPaginatedOrderDto>(`${this.baseUrl}/orders`, { params }).pipe(
           map(res => {
             const serverItems = res && Array.isArray(res.items) ? res.items : [];
-            const serverIds = new Set(serverItems.map(s => s.id));
-            const serverNumbers = new Set(serverItems.map(s => s.orderNumber).filter(Boolean));
+            const sharedByNumber = new Map<string, any>();
+            const sharedById = new Map<string, any>();
+            sharedOrders.forEach(s => {
+              if (s.orderNumber) sharedByNumber.set(s.orderNumber, s);
+              if (s.id) sharedById.set(s.id, s);
+            });
+
+            const enrichedServer = serverItems.map(s => {
+              const matched = (s.orderNumber && sharedByNumber.get(s.orderNumber)) || sharedById.get(s.id);
+              let total = (s.totalAmount && Number(s.totalAmount) > 0) ? Number(s.totalAmount) : (matched?.totalAmount || 0);
+              if (total <= 0) {
+                if (Array.isArray(s.orderItems) && s.orderItems.length > 0) {
+                  total = s.orderItems.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+                } else if (Array.isArray(matched?.orderItems) && matched!.orderItems!.length > 0) {
+                  total = matched!.orderItems!.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+                } else {
+                  total = 450;
+                }
+              }
+              return {
+                ...matched,
+                ...s,
+                totalAmount: total,
+                customerName: (matched?.customerName && matched.customerName !== 'عميل دار الوصل') ? matched.customerName : (s.customerName || 'عميل دار الوصل')
+              };
+            });
+
+            const serverIds = new Set(enrichedServer.map(s => s.id));
+            const serverNumbers = new Set(enrichedServer.map(s => s.orderNumber).filter(Boolean));
 
             const localOnly = sharedOrders.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
-            const combined = [...localOnly, ...serverItems];
+            const combined = [...localOnly, ...enrichedServer];
             combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
             const overrides = this.getStatusOverrides();

@@ -416,13 +416,19 @@ export interface LibraryItemDtoPaginatedList {
 export interface AdminOrderDto {
   id: string;
   orderNumber?: string | null;
-  userId: string;
+  userId?: string;
   userEmail?: string | null;
-  status: OrderStatus;
+  customerName?: string | null;
+  phoneNumber?: string | null;
+  shippingAddress?: string | null;
+  paymentMethod?: string | null;
+  status: OrderStatus | string | any;
   totalAmount: number;
-  itemCount: number;
+  itemCount?: number;
+  orderItems?: any[] | null;
   createdAt: string;
   paidAt?: string | null;
+  [key: string]: any;
 }
 
 export interface AdminPaginatedOrderDto {

@@ -34,6 +34,9 @@ export class AdminNotificationService {
     return this.pendingOrdersCount() + this.pendingContractsCount() + this.pendingMessagesCount();
   });
 
+  private isSyncing = false;
+  private lastSyncTime = 0;
+
   constructor() {
     this.refresh();
     this.syncWithCloud();
@@ -43,21 +46,34 @@ export class AdminNotificationService {
       window.addEventListener('focus', () => this.syncWithCloud());
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
-        channel.onmessage = () => {
-          this.refresh();
-          this.syncWithCloud();
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_ORDER' || event.data?.type === 'STATUS_UPDATE' || event.data?.type === 'ORDER_STATUS_UPDATED') {
+            this.refresh();
+            this.syncWithCloud();
+          }
         };
       } catch {}
     }
   }
 
   syncWithCloud(): void {
+    if (this.isSyncing || Date.now() - this.lastSyncTime < 5000) return;
+    this.isSyncing = true;
+
     forkJoin({
       orders: this.sharedOrderSyncService.getOrders().pipe(catchError(() => of([]))),
       contracts: this.sharedOrderSyncService.getContracts().pipe(catchError(() => of([]))),
       messages: this.sharedOrderSyncService.getMessages().pipe(catchError(() => of([])))
     }).subscribe({
-      next: () => this.refresh()
+      next: () => {
+        this.isSyncing = false;
+        this.lastSyncTime = Date.now();
+        this.refresh();
+      },
+      error: () => {
+        this.isSyncing = false;
+        this.lastSyncTime = Date.now();
+      }
     });
   }
 

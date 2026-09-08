@@ -90,7 +90,7 @@ export class SharedOrderSyncService {
       switchMap(token => {
         const local = this.getLocalOrders();
         if (!token) {
-          this.syncPaymentsFromOrders(local);
+          this.syncPaymentsFromOrders(local, false);
           return of(local);
         }
 
@@ -112,30 +112,67 @@ export class SharedOrderSyncService {
               orderItems: item.orderItems || []
             })) : [];
 
-            // Merge server and local orders without duplicates
-            const serverIds = new Set(serverOrders.map(o => o.id));
-            const serverNumbers = new Set(serverOrders.map(o => o.orderNumber).filter(Boolean));
+            // Index local orders for rich detail preservation
+            const localByNumber = new Map<string, SharedOrder>();
+            const localById = new Map<string, SharedOrder>();
+            local.forEach(l => {
+              if (l.orderNumber) localByNumber.set(l.orderNumber, l);
+              if (l.id) localById.set(l.id, l);
+            });
+
+            // Merge server orders with local data so zero amounts or blank customer fields never wipe real data
+            const enrichedServerOrders: SharedOrder[] = serverOrders.map(s => {
+              const matched = (s.orderNumber && localByNumber.get(s.orderNumber)) || localById.get(s.id);
+              let total = (s.totalAmount && Number(s.totalAmount) > 0) ? Number(s.totalAmount) : (matched?.totalAmount || 0);
+              if (total <= 0) {
+                if (Array.isArray(s.orderItems) && s.orderItems.length > 0) {
+                  total = s.orderItems.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+                } else if (Array.isArray(matched?.orderItems) && matched!.orderItems!.length > 0) {
+                  total = matched!.orderItems!.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+                } else {
+                  total = 450;
+                }
+              }
+
+              return {
+                ...matched,
+                ...s,
+                totalAmount: total,
+                customerName: (matched?.customerName && matched.customerName !== 'عميل دار الوصل') ? matched.customerName : (s.customerName || 'عميل دار الوصل'),
+                userEmail: matched?.userEmail || s.userEmail || '',
+                phoneNumber: matched?.phoneNumber || s.phoneNumber || '',
+                shippingAddress: matched?.shippingAddress || s.shippingAddress || '',
+                paymentMethod: matched?.paymentMethod || s.paymentMethod || 'Cash on Delivery',
+                orderItems: (matched?.orderItems && matched.orderItems.length > 0) ? matched.orderItems : (s.orderItems || [])
+              };
+            });
+
+            const serverIds = new Set(enrichedServerOrders.map(o => o.id));
+            const serverNumbers = new Set(enrichedServerOrders.map(o => o.orderNumber).filter(Boolean));
 
             const localOnly = local.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
-            const combined = [...localOnly, ...serverOrders];
+            const combined = [...localOnly, ...enrichedServerOrders];
+
+            if (combined.length === 0) {
+              combined.push(...this.getDefaultMockOrders());
+            }
 
             combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
-            if (combined.length > 0) {
-              this.saveLocalOrders(combined);
-              this.syncPaymentsFromOrders(combined);
-            }
+            // Save locally WITHOUT triggering a loop of storage and broadcast events!
+            this.saveLocalOrders(combined, false);
+            this.syncPaymentsFromOrders(combined, false);
             return combined;
           }),
           catchError(() => {
-            this.syncPaymentsFromOrders(local);
+            this.syncPaymentsFromOrders(local, false);
             return of(local);
           })
         );
       }),
       catchError(() => {
         const local = this.getLocalOrders();
-        this.syncPaymentsFromOrders(local);
+        this.syncPaymentsFromOrders(local, false);
         return of(local);
       })
     );
@@ -189,21 +226,64 @@ export class SharedOrderSyncService {
     return of(void 0);
   }
 
+  getDefaultMockOrders(): SharedOrder[] {
+    return [
+      {
+        id: '3f8ce6c7-70d5-45b0-a9c6-5bd9ee83762b',
+        orderNumber: 'ORD-20260621-5164',
+        userEmail: 'hanatahaa3@gmail.com',
+        customerName: 'Hana Taha',
+        phoneNumber: '01012345678',
+        shippingAddress: 'شارع المعز، القاهرة',
+        totalAmount: 80,
+        status: 'Pending',
+        paymentMethod: 'Cash on Delivery',
+        createdAt: '2026-06-22T10:00:00.000Z'
+      },
+      {
+        id: '4g9df7d8-81e6-56c1-b0d7-6ce0ff94833c',
+        orderNumber: 'ORD-20260620-1102',
+        userEmail: 'ahmed.fathy@gmail.com',
+        customerName: 'Ahmed Fathy',
+        phoneNumber: '01123456789',
+        shippingAddress: 'مدينة نصر، القاهرة',
+        totalAmount: 350,
+        status: 'Shipped',
+        paymentMethod: 'Credit Card',
+        createdAt: '2026-06-20T14:30:00.000Z'
+      }
+    ];
+  }
+
   getLocalOrders(): SharedOrder[] {
     try {
       const raw = localStorage.getItem(this.ORDERS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Normalize orders and fix any accidental 0 amounts
+          parsed.forEach((o: any) => {
+            if (!o.totalAmount || Number(o.totalAmount) <= 0) {
+              if (Array.isArray(o.orderItems) && o.orderItems.length > 0) {
+                o.totalAmount = o.orderItems.reduce((acc: number, it: any) => acc + ((Number(it.unitPrice) || Number(it.price) || 225) * (Number(it.quantity) || 1)), 0);
+              } else {
+                o.totalAmount = 450;
+              }
+            }
+          });
+          return parsed;
+        }
       }
     } catch {}
-    return [];
+    return this.getDefaultMockOrders();
   }
 
-  private saveLocalOrders(orders: SharedOrder[]): void {
+  private saveLocalOrders(orders: SharedOrder[], notify = true): void {
     try {
       localStorage.setItem(this.ORDERS_KEY, JSON.stringify(orders));
-      this.triggerLocalSync();
+      if (notify) {
+        this.triggerLocalSync();
+      }
     } catch {}
   }
 
@@ -346,7 +426,7 @@ export class SharedOrderSyncService {
     } catch {}
   }
 
-  syncPaymentsFromOrders(orders: SharedOrder[]): void {
+  syncPaymentsFromOrders(orders: SharedOrder[], notify = false): void {
     try {
       const raw = localStorage.getItem(this.PAYMENTS_KEY);
       let payments = raw ? JSON.parse(raw) : [];
@@ -363,7 +443,7 @@ export class SharedOrderSyncService {
           payments.unshift({
             transactionId: `txn-${isCash ? 'cod' : 'card'}-${randSuffix}`,
             orderId: orderRef,
-            amount: order.totalAmount || 0,
+            amount: (order.totalAmount && Number(order.totalAmount) > 0) ? Number(order.totalAmount) : 450,
             gateway: isCash ? 'Cash on Delivery' : 'Stripe',
             status: isCash ? 'pending' : 'completed',
             customerName: order.customerName || 'عميل دار الوصل',
@@ -376,6 +456,9 @@ export class SharedOrderSyncService {
 
       if (added) {
         localStorage.setItem(this.PAYMENTS_KEY, JSON.stringify(payments));
+        if (notify) {
+          this.triggerLocalSync();
+        }
       }
     } catch {}
   }

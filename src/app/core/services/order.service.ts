@@ -91,7 +91,18 @@ export class OrderService {
     return this.http.post<OrderDto>(this.ordersUrl, apiPayload).pipe(
       map(res => {
         if (res && res.id) {
-          const merged: OrderDto = { ...localOrder, ...res };
+          const merged: OrderDto = { 
+            ...localOrder, 
+            ...res,
+            totalAmount: (res.totalAmount && Number(res.totalAmount) > 0) ? Number(res.totalAmount) : localOrder.totalAmount,
+            customerName: localOrder.customerName,
+            userEmail: localOrder.userEmail,
+            phoneNumber: localOrder.phoneNumber,
+            shippingAddress: localOrder.shippingAddress,
+            city: localOrder.city,
+            paymentMethod: localOrder.paymentMethod,
+            orderItems: (res.orderItems && res.orderItems.length > 0) ? res.orderItems : localOrder.orderItems
+          };
           this.updateLocalOrder(localOrder.id, merged);
           return merged;
         }
