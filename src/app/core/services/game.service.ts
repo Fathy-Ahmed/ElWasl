@@ -60,10 +60,12 @@ export class GameService {
     );
   }
 
+  private readonly DUMMY_GAME_IDS = new Set(['game-1']);
+
   private syncStoredGames(fetched: GameDto[]): void {
     try {
       const existing = this.getStoredGames();
-      const localOnly = existing.filter(g => g.id && String(g.id).startsWith('game-'));
+      const localOnly = existing.filter(g => g.id && String(g.id).startsWith('game-') && !this.DUMMY_GAME_IDS.has(g.id));
       const fetchedIds = new Set(fetched.map(g => g.id));
       const merged = [
         ...localOnly.filter(g => !fetchedIds.has(g.id)),
@@ -74,7 +76,7 @@ export class GameService {
   }
 
   private getStoredFilteredGames(searchTerm?: string, pageNumber = 1, pageSize = 20): GameDtoPaginatedList {
-    let items = this.getStoredGames();
+    let items = this.getStoredGames().filter(g => !this.DUMMY_GAME_IDS.has(g.id));
     items = items.filter((g: any) => g.isActive !== false);
 
     if (searchTerm) {
@@ -102,28 +104,23 @@ export class GameService {
   private getStoredGames(): GameDto[] {
     const raw = localStorage.getItem(this.GAMES_KEY);
     if (raw) {
-      try { return JSON.parse(raw) as GameDto[]; } catch {}
+      try {
+        const parsed = JSON.parse(raw) as GameDto[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed
+            .filter(g => g && typeof g === 'object' && !this.DUMMY_GAME_IDS.has(g.id))
+            .map(g => ({
+              ...g,
+              nameAr: g.nameAr || g.nameEn || 'لعبة بدون اسم',
+              nameEn: g.nameEn || g.nameAr || 'Untitled Game'
+            }));
+          if (filtered.length > 0) {
+            return filtered;
+          }
+        }
+      } catch {}
     }
-    const initial: any[] = [
-      {
-        id: 'game-1',
-        nameAr: 'لعبة ترتيب الكلمات',
-        nameEn: 'Word Builder',
-        price: 220,
-        priceUsd: 4.4,
-        imageUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&q=80&w=600',
-        categoryId: 'cat-3',
-        playerCountMin: 2,
-        playerCountMax: 6,
-        categoryTag: 'ألعاب تفكير',
-        publishedDate: '2026-06-15',
-        descriptionAr: 'لعبة ورقية مبتكرة لبناء الكلمات العربية وزيادة الحصيلة اللغوية.',
-        descriptionEn: 'An innovative card game to build Arabic words and increase vocabulary.',
-        isActive: true
-      }
-    ];
-    localStorage.setItem(this.GAMES_KEY, JSON.stringify(initial));
-    return initial;
+    return [];
   }
 
   private mapGameToProduct(game: GameDto): Product {

@@ -60,10 +60,12 @@ export class AudiobookService {
     );
   }
 
+  private readonly DUMMY_AUDIO_IDS = new Set(['audiobook-1']);
+
   private syncStoredAudiobooks(fetched: AudiobookDto[]): void {
     try {
       const existing = this.getStoredAudiobooks();
-      const localOnly = existing.filter(a => a.id && String(a.id).startsWith('audiobook-'));
+      const localOnly = existing.filter(a => a.id && String(a.id).startsWith('audiobook-') && !this.DUMMY_AUDIO_IDS.has(a.id));
       const fetchedIds = new Set(fetched.map(a => a.id));
       const merged = [
         ...localOnly.filter(a => !fetchedIds.has(a.id)),
@@ -74,7 +76,7 @@ export class AudiobookService {
   }
 
   private getStoredFilteredAudiobooks(searchTerm?: string, pageNumber = 1, pageSize = 20): AudiobookDtoPaginatedList {
-    let items = this.getStoredAudiobooks();
+    let items = this.getStoredAudiobooks().filter(a => !this.DUMMY_AUDIO_IDS.has(a.id));
     items = items.filter((a: any) => a.isActive !== false);
 
     if (searchTerm) {
@@ -102,27 +104,24 @@ export class AudiobookService {
   private getStoredAudiobooks(): AudiobookDto[] {
     const raw = localStorage.getItem(this.AUDIOBOOKS_KEY);
     if (raw) {
-      try { return JSON.parse(raw) as AudiobookDto[]; } catch {}
+      try {
+        const parsed = JSON.parse(raw) as AudiobookDto[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed
+            .filter(a => a && typeof a === 'object' && !this.DUMMY_AUDIO_IDS.has(a.id))
+            .map(a => ({
+              ...a,
+              titleAr: a.titleAr || a.titleEn || 'كتاب صوتي بدون عنوان',
+              titleEn: a.titleEn || a.titleAr || 'Untitled Audiobook',
+              narratorName: a.narratorName || 'دار الوصل'
+            }));
+          if (filtered.length > 0) {
+            return filtered;
+          }
+        }
+      } catch {}
     }
-    const initial: any[] = [
-      {
-        id: 'audiobook-1',
-        titleAr: 'رواية أولاد حارتنا',
-        titleEn: 'Children of Gebelawi',
-        narratorName: 'أحمد حجازي',
-        coverImageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=600',
-        categoryId: 'cat-2',
-        price: 150,
-        priceUsd: 3.0,
-        durationMinutes: 480,
-        publishedDate: '2026-07-01',
-        descriptionAr: 'كتاب صوتي رائع بصوت المعلق أحمد حجازي.',
-        descriptionEn: 'A wonderful audiobook narrated by Ahmed Hegazi.',
-        isActive: true
-      }
-    ];
-    localStorage.setItem(this.AUDIOBOOKS_KEY, JSON.stringify(initial));
-    return initial;
+    return [];
   }
 
   private mapAudiobookToProduct(audiobook: AudiobookDto): Product {

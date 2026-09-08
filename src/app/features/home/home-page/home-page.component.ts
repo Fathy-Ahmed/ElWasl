@@ -270,7 +270,12 @@ export class HomePageComponent implements OnInit {
       this.recommendationSettings = data.recommendationSettings;
     });
 
-    this.featuredProducts = this.defaultProducts; // Initialize with fallback data
+    const stored = this.bookService.getStoredBooks();
+    if (stored && stored.length > 0) {
+      this.featuredProducts = stored.slice(0, 10).map(b => this.bookService.mapBookToProduct(b));
+    } else {
+      this.featuredProducts = this.defaultProducts; // Initialize with fallback data
+    }
     this.updateBestsellers();
     this.loadFeaturedProducts();
   }

@@ -67,10 +67,12 @@ export class BookService {
     );
   }
 
+  private readonly DUMMY_BOOK_IDS = new Set(['book-1', 'book-2', 'book-3']);
+
   private syncStoredBooks(fetched: BookDto[]): void {
     try {
       const existing = this.getStoredBooks();
-      const localOnly = existing.filter(b => b.id && b.id.startsWith('book-'));
+      const localOnly = existing.filter(b => b.id && b.id.startsWith('book-') && !this.DUMMY_BOOK_IDS.has(b.id));
       const fetchedIds = new Set(fetched.map(b => b.id));
       const merged = [
         ...localOnly.filter(b => !fetchedIds.has(b.id)),
@@ -81,7 +83,7 @@ export class BookService {
   }
 
   private getStoredFilteredBooks(categoryId?: string, searchTerm?: string, pageNumber = 1, pageSize = 20): BookDtoPaginatedList {
-    let items = this.getStoredBooks();
+    let items = this.getStoredBooks().filter(b => !this.DUMMY_BOOK_IDS.has(b.id));
     items = items.filter((b: any) => b.isActive !== false);
 
     if (categoryId && categoryId !== 'all') {
@@ -109,87 +111,30 @@ export class BookService {
     };
   }
 
-  private getStoredBooks(): BookDto[] {
+  getStoredBooks(): BookDto[] {
     const raw = localStorage.getItem(this.BOOKS_KEY);
     if (raw) {
       try {
         let parsed = JSON.parse(raw) as BookDto[];
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.filter(b => b && typeof b === 'object').map(b => ({
-            ...b,
-            titleAr: b.titleAr || b.titleEn || 'كتاب بدون عنوان',
-            titleEn: b.titleEn || b.titleAr || 'Untitled Book',
-            authorName: b.authorName || (b as any).authorAr || 'دار الوصل'
-          }));
+          const filtered = parsed
+            .filter(b => b && typeof b === 'object' && !this.DUMMY_BOOK_IDS.has(b.id))
+            .map(b => ({
+              ...b,
+              titleAr: b.titleAr || b.titleEn || 'كتاب بدون عنوان',
+              titleEn: b.titleEn || b.titleAr || 'Untitled Book',
+              authorName: b.authorName || (b as any).authorAr || 'دار الوصل'
+            }));
+          if (filtered.length > 0) {
+            return filtered;
+          }
         }
       } catch {}
     }
-    const initial: BookDto[] = [
-      {
-        id: 'book-1',
-        titleAr: 'حساب وهمي',
-        titleEn: 'Fake Account',
-        authorName: 'يوسف حسن يوسف',
-        isbn: '9789770154823',
-        coverImageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600',
-        categoryId: 'cat-1',
-        price: 80,
-        discountPrice: null,
-        priceUsd: 1.6,
-        discountPriceUsd: null,
-        stock: 0,
-        format: 'Paperback',
-        language: 'Arabic',
-        publishedDate: '2026-06-01',
-        descriptionAr: 'رواية مشوقة حول الحسابات الوهمية على منصات التواصل الاجتماعي.',
-        descriptionEn: 'An exciting novel about fake accounts on social media platforms.',
-        isActive: true
-      },
-      {
-        id: 'book-2',
-        titleAr: 'اسرار مثلث برمودة',
-        titleEn: 'The Blue Elephant',
-        authorName: 'Ahmed Mourad',
-        isbn: '9789770154824',
-        coverImageUrl: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=600',
-        categoryId: 'cat-1',
-        price: 120,
-        discountPrice: null,
-        priceUsd: 2.4,
-        discountPriceUsd: null,
-        stock: 50,
-        format: 'Paperback',
-        language: 'Arabic',
-        publishedDate: '2014-10-12',
-        descriptionAr: 'رواية تأخذك إلى عوالم الغموض والإثارة.',
-        descriptionEn: 'A novel that takes you to worlds of mystery and excitement.',
-        isActive: true
-      },
-      {
-        id: 'book-3',
-        titleAr: 'ملف الظل',
-        titleEn: 'The Power of Habit',
-        authorName: 'Charles Duhigg',
-        isbn: '9789770154825',
-        coverImageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=600',
-        categoryId: 'cat-1',
-        price: 250,
-        discountPrice: null,
-        priceUsd: 5.0,
-        discountPriceUsd: null,
-        stock: 30,
-        format: 'Paperback',
-        language: 'English',
-        publishedDate: '2012-02-28',
-        descriptionAr: 'لماذا نفعل ما نفعل في الحياة والعمل.',
-        descriptionEn: 'Why we do what we do in life and business.',
-        isActive: true
-      }
-    ];
-    return initial;
+    return [];
   }
 
-  private mapBookToProduct(book: BookDto): Product {
+  mapBookToProduct(book: BookDto): Product {
     if (!book) {
       return {
         id: 'corrupted',
