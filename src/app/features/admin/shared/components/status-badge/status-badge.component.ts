@@ -33,6 +33,7 @@ export class StatusBadgeComponent {
     delivered: { bg: '#e6f4ea', text: '#137333' },
     completed: { bg: '#e6f4ea', text: '#137333' },
     
+    upcoming: { bg: '#e8f0fe', text: '#1a73e8' },      // Blue
     pending: { bg: '#fef7e0', text: '#b06000' },       // Amber
     under_review: { bg: '#e8f0fe', text: '#1a73e8' },   // Blue
     shipped: { bg: '#e8f0fe', text: '#1a73e8' },       // Blue
@@ -41,6 +42,7 @@ export class StatusBadgeComponent {
     rejected: { bg: '#fce8e6', text: '#c5221f' },
     failed: { bg: '#fce8e6', text: '#c5221f' },
     
+    past: { bg: '#f1f3f4', text: '#5f6368' },          // Gray
     inactive: { bg: '#f1f3f4', text: '#3c4043' }       // Gray
   };
 

@@ -1,14 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ExhibitionService } from '../../../../core/services/exhibition.service';
+import { ExhibitionDialogComponent } from '../exhibition-dialog/exhibition-dialog.component';
+import { ExhibitionDto } from '../../../../core/models/api.models';
 
 @Component({
   selector: 'app-exhibition-list-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent],
+  imports: [CommonModule, TranslateModule, AdminPageHeaderComponent, AdminDataTableComponent, MatDialogModule],
   template: `
     <div class="management-page">
       <app-admin-page-header title="إدارة معارض الكتاب / Exhibitions Management" 
@@ -28,8 +32,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   `,
   styles: []
 })
-export class ExhibitionListPageComponent {
-  constructor(private snackBar: MatSnackBar) {}
+export class ExhibitionListPageComponent implements OnInit {
+  private readonly exhibitionService = inject(ExhibitionService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -37,9 +43,11 @@ export class ExhibitionListPageComponent {
   ];
 
   readonly tableColumns: TableColumn[] = [
+    { key: 'image', label: 'الصورة / Image', type: 'image' },
     { key: 'titleAr', label: 'المعرض (عربي) / Title (AR)' },
     { key: 'titleEn', label: 'المعرض (إنجليزي) / Title (EN)' },
     { key: 'locationAr', label: 'الموقع / Location' },
+    { key: 'dateAr', label: 'التاريخ / Date' },
     { key: 'status', label: 'حالة المعرض / Status', type: 'badge' }
   ];
 
@@ -48,35 +56,62 @@ export class ExhibitionListPageComponent {
     { name: 'delete', icon: 'delete', color: 'warn', idPrefix: 'del-ex-' }
   ];
 
-  readonly exhibitions = signal([
-    {
-      id: 'ex1',
-      titleAr: 'معرض القاهرة الدولي للكتاب ٢٠٢٦',
-      titleEn: 'Cairo International Book Fair 2026',
-      locationAr: 'مركز مصر للمعارض الدولية',
-      locationEn: 'Egypt International Exhibition Center',
-      status: 'active'
-    },
-    {
-      id: 'ex2',
-      titleAr: 'معرض الشارقة الدولي للكتاب ٢٠٢٦',
-      titleEn: 'Sharjah International Book Fair 2026',
-      locationAr: 'إكسبو الشارقة',
-      locationEn: 'Expo Centre Sharjah',
-      status: 'upcoming'
-    }
-  ]);
+  readonly exhibitions = signal<ExhibitionDto[]>([]);
+
+  ngOnInit(): void {
+    this.loadExhibitions();
+  }
+
+  loadExhibitions(): void {
+    this.exhibitionService.getExhibitions().subscribe({
+      next: (data) => {
+        this.exhibitions.set(data);
+      }
+    });
+  }
 
   addNewExhibition(): void {
-    this.snackBar.open('إضافة معرض جديد (سيتم دعم النموذج في النسخة القادمة) / Add form placeholder', 'إغلاق / Close', { duration: 3000 });
+    const dialogRef = this.dialog.open(ExhibitionDialogComponent, {
+      width: '700px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.exhibitionService.createExhibition(result).subscribe({
+          next: () => {
+            this.loadExhibitions();
+            this.snackBar.open('تم إضافة المعرض بنجاح / Exhibition added successfully', 'إغلاق / Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
     if (event.action === 'edit') {
-      this.snackBar.open(`تعديل المعرض: ${event.row.titleAr} / Edit action`, 'إغلاق / Close', { duration: 3000 });
+      const dialogRef = this.dialog.open(ExhibitionDialogComponent, {
+        width: '700px',
+        data: { exhibition: event.row }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          this.exhibitionService.updateExhibition(event.row.id, result).subscribe({
+            next: () => {
+              this.loadExhibitions();
+              this.snackBar.open('تم تحديث المعرض بنجاح / Exhibition updated successfully', 'إغلاق / Close', { duration: 3000 });
+            }
+          });
+        }
+      });
     } else if (event.action === 'delete') {
-      this.exhibitions.update(current => current.filter(e => e.id !== event.row.id));
-      this.snackBar.open(`تم حذف المعرض بنجاح / Exhibition deleted successfully`, 'إغلاق / Close', { duration: 3000 });
+      this.exhibitionService.deleteExhibition(event.row.id).subscribe({
+        next: () => {
+          this.loadExhibitions();
+          this.snackBar.open(`تم حذف المعرض بنجاح / Exhibition deleted successfully`, 'إغلاق / Close', { duration: 3000 });
+        }
+      });
     }
   }
 }

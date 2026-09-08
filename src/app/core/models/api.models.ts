@@ -422,3 +422,39 @@ export interface UpdateOrderStatusRequest {
 export interface RefundOrderRequest {
   refundReason?: string | null;
 }
+
+// Exhibition Models
+export interface ExhibitionDto {
+  id: string;
+  titleAr?: string | null;
+  titleEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  location?: string | null;
+  locationAr?: string | null;
+  locationEn?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  dateAr?: string | null;
+  dateEn?: string | null;
+  imageUrl?: string | null;
+  image?: string | null;
+  status: 'active' | 'upcoming' | 'past' | string;
+}
+
+export interface ExhibitionCreateDto {
+  titleAr: string;
+  titleEn: string;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  location?: string | null;
+  locationAr?: string | null;
+  locationEn?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  dateAr?: string | null;
+  dateEn?: string | null;
+  imageUrl?: string | null;
+  image?: string | null;
+  status: 'active' | 'upcoming' | 'past' | string;
+}

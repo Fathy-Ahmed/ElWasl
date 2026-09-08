@@ -8,7 +8,7 @@
     @for (ex of exhibitions(); track ex.id) {
       <div class="exhibition-card" [id]="'exhibition-card-' + ex.id">
         <div class="visual-pane">
-          <img [src]="ex.image" [alt]="ex | localizedText:'title'" class="ex-img">
+          <img [src]="(ex.image || ex.imageUrl) | imageUrl" [alt]="ex | localizedText:'title'" class="ex-img">
         </div>
         
         <div class="info-pane">
