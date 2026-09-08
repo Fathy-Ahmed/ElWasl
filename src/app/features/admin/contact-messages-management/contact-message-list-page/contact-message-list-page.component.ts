@@ -54,7 +54,6 @@ export class ContactMessageListPageComponent implements OnInit {
     this.loadMessages();
 
     if (typeof window !== 'undefined') {
-      setInterval(() => this.loadMessages(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => this.loadMessages();

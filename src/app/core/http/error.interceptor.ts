@@ -24,24 +24,31 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Suppress alert for local mock-supported endpoints to prevent confusing error popups
+      // Suppress alert for background sync, external endpoints, and mock-supported endpoints
       const urlLower = req.url.toLowerCase();
-      const isMockSupported = urlLower.includes('/admin/books') ||
-                              urlLower.includes('/admin/audiobooks') ||
-                              urlLower.includes('/admin/games') ||
-                              urlLower.includes('/admin/orders') ||
-                              urlLower.includes('/admin/payments') ||
-                              urlLower.includes('/admin/exhibitions') ||
-                              urlLower.includes('/categories') ||
-                              urlLower.includes('/orders') ||
-                              urlLower.includes('/payments') ||
-                              urlLower.includes('/books') ||
-                              urlLower.includes('/audiobooks') ||
-                              urlLower.includes('/games') ||
-                              urlLower.includes('/exhibitions');
+      const isSuppressed = urlLower.includes('api.restful-api.dev') ||
+                           urlLower.includes('restful-api') ||
+                           urlLower.includes('sync') ||
+                           urlLower.includes('/admin/books') ||
+                           urlLower.includes('/admin/audiobooks') ||
+                           urlLower.includes('/admin/games') ||
+                           urlLower.includes('/admin/orders') ||
+                           urlLower.includes('/admin/payments') ||
+                           urlLower.includes('/admin/exhibitions') ||
+                           urlLower.includes('/categories') ||
+                           urlLower.includes('/orders') ||
+                           urlLower.includes('/payments') ||
+                           urlLower.includes('/books') ||
+                           urlLower.includes('/audiobooks') ||
+                           urlLower.includes('/games') ||
+                           urlLower.includes('/exhibitions') ||
+                           urlLower.includes('/auth/me') ||
+                           req.method === 'GET' ||
+                           error.status === 403 ||
+                           error.status === 405;
 
-      if (!isMockSupported) {
-        // Display to user via Material Snackbar
+      if (!isSuppressed) {
+        // Display user-facing errors (e.g. form submissions, payments) via Material Snackbar
         snackBar.open(errorMessage, 'Close', {
           duration: 5000,
           horizontalPosition: 'end',

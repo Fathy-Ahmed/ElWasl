@@ -34,7 +34,6 @@ export class ContractRequestListPageComponent implements OnInit {
     this.loadRequests();
 
     if (typeof window !== 'undefined') {
-      setInterval(() => this.loadRequests(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => this.loadRequests();

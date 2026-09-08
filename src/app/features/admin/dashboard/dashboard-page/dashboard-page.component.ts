@@ -64,7 +64,6 @@ export class DashboardPageComponent implements OnInit {
     this.loadDashboardData();
 
     if (typeof window !== 'undefined') {
-      setInterval(() => this.loadDashboardData(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => {

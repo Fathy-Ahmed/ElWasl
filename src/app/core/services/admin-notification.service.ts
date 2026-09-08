@@ -41,7 +41,6 @@ export class AdminNotificationService {
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', () => this.refresh());
       window.addEventListener('focus', () => this.syncWithCloud());
-      setInterval(() => this.syncWithCloud(), 20000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => {

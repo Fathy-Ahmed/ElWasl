@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap, switchMap } from 'rxjs';
+import { API_CONFIG } from '../config/api.config';
 
 export interface SharedOrder {
   id: string;
@@ -42,50 +43,95 @@ export interface SharedContactMessage {
   status: string;
 }
 
-export interface CloudStorePayload {
-  orders: SharedOrder[];
-  contracts?: SharedContractRequest[];
-  messages?: SharedContactMessage[];
-  payments?: any[];
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class SharedOrderSyncService {
   private readonly http = inject(HttpClient);
-  private readonly CLOUD_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a067127101a0809181894857';
 
   private readonly ORDERS_KEY = 'elwasl_admin_mock_orders';
   private readonly CONTRACTS_KEY = 'elwasl_contract_requests';
   private readonly MESSAGES_KEY = 'elwasl_contact_messages';
   private readonly PAYMENTS_KEY = 'elwasl_admin_mock_payments';
 
+  private syncToken: string | null = null;
+  private tokenExpiry: number = 0;
+
+  // ==========================================
+  // BACKEND SYNC AUTHENTICATION
+  // ==========================================
+
+  private getBackendToken(): Observable<string | null> {
+    if (this.syncToken && Date.now() < this.tokenExpiry) {
+      return of(this.syncToken);
+    }
+    return this.http.post<any>(`${API_CONFIG.baseUrl}/api/v1/Auth/login`, {
+      email: 'sync@el-wasl.com',
+      password: 'SyncPassword123!'
+    }).pipe(
+      map(res => {
+        if (res && res.accessToken) {
+          this.syncToken = res.accessToken;
+          this.tokenExpiry = Date.now() + 3600 * 1000;
+          return res.accessToken;
+        }
+        return null;
+      }),
+      catchError(() => of(null))
+    );
+  }
+
   // ==========================================
   // ORDERS
   // ==========================================
 
   getOrders(): Observable<SharedOrder[]> {
-    return this.http.get<any>(this.CLOUD_STORE_URL).pipe(
-      map(res => {
-        const cloudOrders: SharedOrder[] = (res && res.data && Array.isArray(res.data.orders)) ? res.data.orders : [];
-        const localOrders = this.getLocalOrders();
-
-        const cloudIds = new Set(cloudOrders.map(o => o.id));
-        const cloudNumbers = new Set(cloudOrders.map(o => o.orderNumber).filter(Boolean));
-
-        const localOnly = localOrders.filter(l => !cloudIds.has(l.id) && (!l.orderNumber || !cloudNumbers.has(l.orderNumber)));
-        const combined = [...localOnly, ...cloudOrders];
-
-        // Sort descending by date
-        combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-
-        // Cache back locally
-        if (combined.length > 0) {
-          this.saveLocalOrders(combined);
-          this.syncPaymentsFromOrders(combined);
+    return this.getBackendToken().pipe(
+      switchMap(token => {
+        const local = this.getLocalOrders();
+        if (!token) {
+          this.syncPaymentsFromOrders(local);
+          return of(local);
         }
-        return combined;
+
+        return this.http.get<any>(`${API_CONFIG.baseUrl}/api/v1/Orders?pageNumber=1&pageSize=100`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).pipe(
+          map(res => {
+            const serverOrders: SharedOrder[] = (res && Array.isArray(res.items)) ? res.items.map((item: any) => ({
+              id: item.id,
+              orderNumber: item.orderNumber,
+              customerName: item.customerName || 'عميل دار الوصل',
+              userEmail: item.userEmail || '',
+              phoneNumber: item.phoneNumber || '',
+              shippingAddress: item.shippingAddress || '',
+              totalAmount: item.totalAmount || 0,
+              status: item.status || 'Pending',
+              createdAt: item.createdAt || new Date().toISOString(),
+              paymentMethod: item.paymentMethod || 'Cash on Delivery',
+              orderItems: item.orderItems || []
+            })) : [];
+
+            // Merge server and local orders without duplicates
+            const serverIds = new Set(serverOrders.map(o => o.id));
+            const serverNumbers = new Set(serverOrders.map(o => o.orderNumber).filter(Boolean));
+
+            const localOnly = local.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
+            const combined = [...localOnly, ...serverOrders];
+
+            combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+            if (combined.length > 0) {
+              this.saveLocalOrders(combined);
+              this.syncPaymentsFromOrders(combined);
+            }
+            return combined;
+          }),
+          catchError(() => {
+            this.syncPaymentsFromOrders(local);
+            return of(local);
+          })
+        );
       }),
       catchError(() => {
         const local = this.getLocalOrders();
@@ -106,20 +152,31 @@ export class SharedOrderSyncService {
     this.saveLocalOrders(local);
     this.savePaymentRecord(order);
 
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedOrder[] = Array.isArray(data.orders) ? data.orders : [];
-        const idx = list.findIndex(o => o.id === order.id || (o.orderNumber && o.orderNumber === order.orderNumber));
-        if (idx === -1) {
-          list.unshift(order);
-        } else {
-          list[idx] = order;
-        }
-        data.orders = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
-    );
+    // Also persist to real backend if items exist
+    if (order.orderItems && order.orderItems.length > 0) {
+      return this.getBackendToken().pipe(
+        switchMap(token => {
+          if (!token) return of(void 0);
+          const payload = {
+            items: order.orderItems!.map(i => ({
+              productType: i.productType !== undefined ? i.productType : 0,
+              productId: i.productId,
+              quantity: i.quantity || 1
+            })),
+            shippingAddressId: null
+          };
+          return this.http.post<any>(`${API_CONFIG.baseUrl}/api/v1/Orders`, payload, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).pipe(
+            map(() => void 0),
+            catchError(() => of(void 0))
+          );
+        }),
+        catchError(() => of(void 0))
+      );
+    }
+
+    return of(void 0);
   }
 
   updateOrderStatus(orderId: string, status: any): Observable<void> {
@@ -129,19 +186,7 @@ export class SharedOrderSyncService {
       found.status = status;
       this.saveLocalOrders(local);
     }
-
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedOrder[] = Array.isArray(data.orders) ? data.orders : [];
-        const target = list.find(o => o.id === orderId || o.orderNumber === orderId);
-        if (target) {
-          target.status = status;
-        }
-        data.orders = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
-    );
+    return of(void 0);
   }
 
   getLocalOrders(): SharedOrder[] {
@@ -167,24 +212,7 @@ export class SharedOrderSyncService {
   // ==========================================
 
   getContracts(): Observable<SharedContractRequest[]> {
-    return this.http.get<any>(this.CLOUD_STORE_URL).pipe(
-      map(res => {
-        const cloudContracts: SharedContractRequest[] = (res && res.data && Array.isArray(res.data.contracts)) ? res.data.contracts : [];
-        const localContracts = this.getLocalContracts();
-
-        const cloudIds = new Set(cloudContracts.map(c => c.id));
-        const localOnly = localContracts.filter(l => !cloudIds.has(l.id));
-        const combined = [...localOnly, ...cloudContracts];
-
-        combined.sort((a, b) => new Date(b.date || b.createdAt || 0).getTime() - new Date(a.date || a.createdAt || 0).getTime());
-
-        if (combined.length > 0) {
-          this.saveLocalContracts(combined);
-        }
-        return combined;
-      }),
-      catchError(() => of(this.getLocalContracts()))
-    );
+    return of(this.getLocalContracts());
   }
 
   saveContract(contract: SharedContractRequest): Observable<void> {
@@ -196,21 +224,7 @@ export class SharedOrderSyncService {
       local[existingIdx] = contract;
     }
     this.saveLocalContracts(local);
-
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedContractRequest[] = Array.isArray(data.contracts) ? data.contracts : [];
-        const idx = list.findIndex(c => c.id === contract.id);
-        if (idx === -1) {
-          list.unshift(contract);
-        } else {
-          list[idx] = contract;
-        }
-        data.contracts = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
-    );
+    return of(void 0);
   }
 
   updateContractStatus(contractId: string, status: string): Observable<void> {
@@ -220,19 +234,7 @@ export class SharedOrderSyncService {
       found.status = status;
       this.saveLocalContracts(local);
     }
-
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedContractRequest[] = Array.isArray(data.contracts) ? data.contracts : [];
-        const target = list.find(c => c.id === contractId);
-        if (target) {
-          target.status = status;
-        }
-        data.contracts = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
-    );
+    return of(void 0);
   }
 
   getLocalContracts(): SharedContractRequest[] {
@@ -258,24 +260,7 @@ export class SharedOrderSyncService {
   // ==========================================
 
   getMessages(): Observable<SharedContactMessage[]> {
-    return this.http.get<any>(this.CLOUD_STORE_URL).pipe(
-      map(res => {
-        const cloudMessages: SharedContactMessage[] = (res && res.data && Array.isArray(res.data.messages)) ? res.data.messages : [];
-        const localMessages = this.getLocalMessages();
-
-        const cloudIds = new Set(cloudMessages.map(m => m.id));
-        const localOnly = localMessages.filter(l => !cloudIds.has(l.id));
-        const combined = [...localOnly, ...cloudMessages];
-
-        combined.sort((a, b) => new Date(b.date || b.createdAt || 0).getTime() - new Date(a.date || a.createdAt || 0).getTime());
-
-        if (combined.length > 0) {
-          this.saveLocalMessages(combined);
-        }
-        return combined;
-      }),
-      catchError(() => of(this.getLocalMessages()))
-    );
+    return of(this.getLocalMessages());
   }
 
   saveMessage(message: SharedContactMessage): Observable<void> {
@@ -288,19 +273,15 @@ export class SharedOrderSyncService {
     }
     this.saveLocalMessages(local);
 
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedContactMessage[] = Array.isArray(data.messages) ? data.messages : [];
-        const idx = list.findIndex(m => m.id === message.id);
-        if (idx === -1) {
-          list.unshift(message);
-        } else {
-          list[idx] = message;
-        }
-        data.messages = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
+    // Forward to real backend Contact API
+    return this.http.post<any>(`${API_CONFIG.baseUrl}/api/v1/Contact`, {
+      name: message.senderName,
+      email: message.email,
+      subject: message.subject,
+      message: message.message || message.subject
+    }).pipe(
+      map(() => void 0),
+      catchError(() => of(void 0))
     );
   }
 
@@ -311,19 +292,7 @@ export class SharedOrderSyncService {
       found.status = status;
       this.saveLocalMessages(local);
     }
-
-    return this.fetchCloudData().pipe(
-      tap(data => {
-        let list: SharedContactMessage[] = Array.isArray(data.messages) ? data.messages : [];
-        const target = list.find(m => m.id === messageId);
-        if (target) {
-          target.status = status;
-        }
-        data.messages = list;
-        this.putCloudData(data);
-      }),
-      map(() => void 0)
-    );
+    return of(void 0);
   }
 
   getLocalMessages(): SharedContactMessage[] {
@@ -364,11 +333,11 @@ export class SharedOrderSyncService {
       const paymentRecord = {
         transactionId: `txn-${isCash ? 'cod' : 'card'}-${randSuffix}`,
         orderId: orderRef,
-        amount: order.totalAmount,
+        amount: order.totalAmount || 0,
         gateway: isCash ? 'Cash on Delivery' : 'Stripe',
         status: isCash ? 'pending' : 'completed',
         customerName: order.customerName,
-        createdAt: order.createdAt
+        createdAt: order.createdAt || new Date().toISOString()
       };
 
       payments.unshift(paymentRecord);
@@ -394,11 +363,11 @@ export class SharedOrderSyncService {
           payments.unshift({
             transactionId: `txn-${isCash ? 'cod' : 'card'}-${randSuffix}`,
             orderId: orderRef,
-            amount: order.totalAmount,
+            amount: order.totalAmount || 0,
             gateway: isCash ? 'Cash on Delivery' : 'Stripe',
             status: isCash ? 'pending' : 'completed',
             customerName: order.customerName || 'عميل دار الوصل',
-            createdAt: order.createdAt
+            createdAt: order.createdAt || new Date().toISOString()
           });
           existingOrderIds.add(orderRef);
           added = true;
@@ -414,33 +383,6 @@ export class SharedOrderSyncService {
   // ==========================================
   // HELPERS
   // ==========================================
-
-  private fetchCloudData(): Observable<CloudStorePayload> {
-    return this.http.get<any>(this.CLOUD_STORE_URL).pipe(
-      map(res => {
-        const d = (res && res.data) ? res.data : {};
-        return {
-          orders: Array.isArray(d.orders) ? d.orders : this.getLocalOrders(),
-          contracts: Array.isArray(d.contracts) ? d.contracts : this.getLocalContracts(),
-          messages: Array.isArray(d.messages) ? d.messages : this.getLocalMessages(),
-          payments: Array.isArray(d.payments) ? d.payments : []
-        };
-      }),
-      catchError(() => of({
-        orders: this.getLocalOrders(),
-        contracts: this.getLocalContracts(),
-        messages: this.getLocalMessages(),
-        payments: []
-      }))
-    );
-  }
-
-  private putCloudData(payload: CloudStorePayload): void {
-    this.http.put(this.CLOUD_STORE_URL, {
-      name: 'elwasl_shared_orders_store',
-      data: payload
-    }).subscribe({ error: () => {} });
-  }
 
   private triggerLocalSync(): void {
     if (typeof window !== 'undefined') {

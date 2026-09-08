@@ -47,7 +47,6 @@ export class PaymentListPageComponent implements OnInit {
     this.loadPayments();
 
     if (typeof window !== 'undefined') {
-      setInterval(() => this.loadPayments(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => this.loadPayments();
