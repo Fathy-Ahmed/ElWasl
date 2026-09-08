@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, of, map } from 'rxjs';
+import { Observable, catchError, of, map, switchMap } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { 
   AdminBookDtoAdminPaginatedDto, 
@@ -21,12 +21,14 @@ import {
   CreateCategoryCommand,
   UpdateCategoryCommand
 } from '../models/api.models';
+import { SharedOrderSyncService } from './shared-order-sync.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminApiService {
   private readonly http = inject(HttpClient);
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
   private readonly baseUrl = `${API_CONFIG.baseUrl}/api/v1/admin`;
   private readonly categoryUrl = `${API_CONFIG.baseUrl}/api/v1/Categories`;
 
@@ -616,56 +618,68 @@ export class AdminApiService {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<AdminPaginatedOrderDto>(`${this.baseUrl}/orders`, { params }).pipe(
-      map(res => {
-        const stored = this.getStoredMockOrders();
-        const serverItems = res && Array.isArray(res.items) ? res.items : [];
 
-        // Deduplicate: identify server items by id and orderNumber
-        const serverIds = new Set(serverItems.map(s => s.id));
-        const serverNumbers = new Set(serverItems.map(s => s.orderNumber).filter(Boolean));
+    return this.sharedOrderSyncService.getOrders().pipe(
+      switchMap(sharedOrders => {
+        return this.http.get<AdminPaginatedOrderDto>(`${this.baseUrl}/orders`, { params }).pipe(
+          map(res => {
+            const serverItems = res && Array.isArray(res.items) ? res.items : [];
+            const serverIds = new Set(serverItems.map(s => s.id));
+            const serverNumbers = new Set(serverItems.map(s => s.orderNumber).filter(Boolean));
 
-        // Keep local orders that are not on the server
-        const localOnly = stored.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
+            const localOnly = sharedOrders.filter(l => !serverIds.has(l.id) && (!l.orderNumber || !serverNumbers.has(l.orderNumber)));
+            const combined = [...localOnly, ...serverItems];
+            combined.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
-        // Combine with newest local orders at top, followed by server items
-        const combined = [...localOnly, ...serverItems];
+            const overrides = this.getStatusOverrides();
+            combined.forEach(o => {
+              if (overrides[o.id] !== undefined) {
+                o.status = overrides[o.id];
+              } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
+                o.status = overrides[o.orderNumber];
+              }
+            });
 
-        // Apply status overrides if present
-        const overrides = this.getStatusOverrides();
-        combined.forEach(o => {
-          if (overrides[o.id] !== undefined) {
-            o.status = overrides[o.id];
-          } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
-            o.status = overrides[o.orderNumber];
-          }
-        });
+            const start = (pageNumber - 1) * pageSize;
+            const paged = combined.slice(start, start + pageSize);
 
-        const start = (pageNumber - 1) * pageSize;
-        const paged = combined.slice(start, start + pageSize);
+            return {
+              items: paged,
+              pageNumber,
+              pageSize,
+              totalCount: combined.length,
+              totalPages: Math.ceil(combined.length / pageSize) || 1
+            } as AdminPaginatedOrderDto;
+          }),
+          catchError(() => {
+            const sortedShared = [...sharedOrders];
+            sortedShared.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            const overrides = this.getStatusOverrides();
+            sortedShared.forEach(o => {
+              if (overrides[o.id] !== undefined) {
+                o.status = overrides[o.id];
+              } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
+                o.status = overrides[o.orderNumber];
+              }
+            });
 
-        return {
-          items: paged,
-          pageNumber,
-          pageSize,
-          totalCount: combined.length,
-          totalPages: Math.ceil(combined.length / pageSize) || 1
-        } as AdminPaginatedOrderDto;
+            const start = (pageNumber - 1) * pageSize;
+            const paged = sortedShared.slice(start, start + pageSize);
+
+            return of({
+              items: paged,
+              pageNumber,
+              pageSize,
+              totalCount: sharedOrders.length,
+              totalPages: Math.ceil(sharedOrders.length / pageSize) || 1
+            } as AdminPaginatedOrderDto);
+          })
+        );
       }),
       catchError(() => {
         const stored = this.getStoredMockOrders();
-        const overrides = this.getStatusOverrides();
-        stored.forEach(o => {
-          if (overrides[o.id] !== undefined) {
-            o.status = overrides[o.id];
-          } else if (o.orderNumber && overrides[o.orderNumber] !== undefined) {
-            o.status = overrides[o.orderNumber];
-          }
-        });
-
         const start = (pageNumber - 1) * pageSize;
         const paged = stored.slice(start, start + pageSize);
-
         return of({
           items: paged,
           pageNumber,
@@ -686,6 +700,9 @@ export class AdminApiService {
       found.status = status;
       this.saveStoredMockOrders(orders);
     }
+
+    // Sync status change to shared cloud store
+    this.sharedOrderSyncService.updateOrderStatus(orderId, status).subscribe({ error: () => {} });
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));
@@ -712,6 +729,9 @@ export class AdminApiService {
       found.status = OrderStatus.Refunded;
       this.saveStoredMockOrders(orders);
     }
+
+    // Sync refund status to shared cloud store
+    this.sharedOrderSyncService.updateOrderStatus(orderId, OrderStatus.Refunded).subscribe({ error: () => {} });
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));

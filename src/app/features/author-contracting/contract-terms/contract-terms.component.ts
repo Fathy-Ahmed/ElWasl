@@ -10,6 +10,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ContentService, TermStepItem } from '../../../core/services/content.service';
 import { LocalizedTextPipe } from '../../../shared/pipes/localized-text.pipe';
 
+import { SharedOrderSyncService } from '../../../core/services/shared-order-sync.service';
+
 @Component({
   selector: 'app-contract-terms',
   standalone: true,
@@ -30,6 +32,7 @@ export class ContractTermsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly contentService = inject(ContentService);
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
 
   requestForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
@@ -89,16 +92,7 @@ export class ContractTermsComponent implements OnInit {
       status: 'under_review'
     };
 
-    try {
-      const stored = localStorage.getItem('elwasl_contract_requests');
-      const list = stored ? JSON.parse(stored) : [];
-      list.unshift(newRequest);
-      localStorage.setItem('elwasl_contract_requests', JSON.stringify(list));
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch {}
+    this.sharedOrderSyncService.saveContract(newRequest).subscribe({ error: () => {} });
 
     setTimeout(() => {
       this.isSubmitting.set(false);

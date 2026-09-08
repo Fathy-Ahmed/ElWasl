@@ -23,9 +23,9 @@ export enum PaymentProvider {
 }
 
 export enum ProductType {
-  Book = 1,
+  Book = 0,
   Audiobook = 2,
-  Game = 3
+  Game = 0
 }
 
 export interface ProblemDetails {

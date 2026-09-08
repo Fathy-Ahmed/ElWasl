@@ -10,8 +10,9 @@ import { ChartCardWrapperComponent } from '../../shared/components/chart-card-wr
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { AdminApiService } from '../../../../core/services/admin-api.service';
 import { AdminNotificationService } from '../../../../core/services/admin-notification.service';
+import { SharedOrderSyncService } from '../../../../core/services/shared-order-sync.service';
 import { OrderStatus } from '../../../../core/models/api.models';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, catchError } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -33,6 +34,7 @@ import { forkJoin } from 'rxjs';
 export class DashboardPageComponent implements OnInit {
   private readonly adminApiService = inject(AdminApiService);
   private readonly adminNotificationService = inject(AdminNotificationService);
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
 
   // KPI Stats
   readonly stats = signal([
@@ -62,6 +64,7 @@ export class DashboardPageComponent implements OnInit {
     this.loadDashboardData();
 
     if (typeof window !== 'undefined') {
+      setInterval(() => this.loadDashboardData(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => {
@@ -70,6 +73,11 @@ export class DashboardPageComponent implements OnInit {
         };
       } catch {}
     }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadDashboardData();
   }
 
   @HostListener('window:storage')
@@ -83,7 +91,9 @@ export class DashboardPageComponent implements OnInit {
       orders: this.adminApiService.getOrders(1, 100),
       books: this.adminApiService.getBooks('', 1, 100),
       games: this.adminApiService.getGames('', 1, 100),
-      audiobooks: this.adminApiService.getAudiobooks('', 1, 100)
+      audiobooks: this.adminApiService.getAudiobooks('', 1, 100),
+      contracts: this.sharedOrderSyncService.getContracts().pipe(catchError(() => of([]))),
+      messages: this.sharedOrderSyncService.getMessages().pipe(catchError(() => of([])))
     }).subscribe({
       next: (res) => {
         // Calculate Revenue and Orders count
@@ -132,24 +142,18 @@ export class DashboardPageComponent implements OnInit {
         this.lowStockItems.set(lowStock);
 
         // Load real pending actions
-        this.loadPendingActions(ordersList);
+        this.loadPendingActions(ordersList, res.contracts, res.messages);
         this.adminNotificationService.refresh();
       }
     });
   }
 
-  private loadPendingActions(ordersList: any[]): void {
+  private loadPendingActions(ordersList: any[], contractsList?: any[], messagesList?: any[]): void {
     const pending: any[] = [];
 
     let listToCheck = ordersList;
     if (!listToCheck || listToCheck.length === 0) {
-      try {
-        const raw = localStorage.getItem('elwasl_admin_mock_orders');
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) listToCheck = parsed;
-        }
-      } catch {}
+      listToCheck = this.sharedOrderSyncService.getLocalOrders();
     }
     if (!Array.isArray(listToCheck)) listToCheck = [];
 
@@ -169,50 +173,36 @@ export class DashboardPageComponent implements OnInit {
     });
 
     // 2. Pending contracts
-    try {
-      const contractsRaw = localStorage.getItem('elwasl_contract_requests');
-      if (contractsRaw) {
-        const contracts = JSON.parse(contractsRaw);
-        if (Array.isArray(contracts)) {
-          contracts.forEach(c => {
-            const s = String(c.status || '').toLowerCase();
-            if (s === 'pending' || s === 'under_review' || s === '') {
-              pending.push({
-                id: c.id,
-                title: `طلب تعاقد مسودة: ${c.bookTitle || 'عمل جديد'} - ${c.authorName || 'مؤلف'}`,
-                type: 'Contract Request',
-                route: '/admin/contract-requests',
-                date: (c.date || c.createdAt || '').slice(0, 10),
-                icon: 'rate_review'
-              });
-            }
-          });
-        }
+    let contracts = (contractsList && contractsList.length > 0) ? contractsList : this.sharedOrderSyncService.getLocalContracts();
+    contracts.forEach(c => {
+      const s = String(c.status || '').toLowerCase();
+      if (s === 'pending' || s === 'under_review' || s === '') {
+        pending.push({
+          id: c.id,
+          title: `طلب تعاقد مسودة: ${c.bookTitle || 'عمل جديد'} - ${c.authorName || 'مؤلف'}`,
+          type: 'Contract Request',
+          route: '/admin/contract-requests',
+          date: (c.date || c.createdAt || '').slice(0, 10),
+          icon: 'rate_review'
+        });
       }
-    } catch {}
+    });
 
     // 3. Pending contact messages
-    try {
-      const messagesRaw = localStorage.getItem('elwasl_contact_messages');
-      if (messagesRaw) {
-        const messages = JSON.parse(messagesRaw);
-        if (Array.isArray(messages)) {
-          messages.forEach(m => {
-            const s = String(m.status || '').toLowerCase();
-            if (s === 'pending' || s === '') {
-              pending.push({
-                id: m.id,
-                title: `رسالة تواصل: ${m.subject || 'استفسار'} - ${m.senderName || 'عميل'}`,
-                type: 'Contact Message',
-                route: '/admin/contact-messages',
-                date: (m.date || m.createdAt || '').slice(0, 10),
-                icon: 'forum'
-              });
-            }
-          });
-        }
+    let messages = (messagesList && messagesList.length > 0) ? messagesList : this.sharedOrderSyncService.getLocalMessages();
+    messages.forEach(m => {
+      const s = String(m.status || '').toLowerCase();
+      if (s === 'pending' || s === '') {
+        pending.push({
+          id: m.id,
+          title: `رسالة تواصل: ${m.subject || 'استفسار'} - ${m.senderName || 'عميل'}`,
+          type: 'Contact Message',
+          route: '/admin/contact-messages',
+          date: (m.date || m.createdAt || '').slice(0, 10),
+          icon: 'forum'
+        });
       }
-    } catch {}
+    });
 
     // Sort by date descending and take latest 6
     pending.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

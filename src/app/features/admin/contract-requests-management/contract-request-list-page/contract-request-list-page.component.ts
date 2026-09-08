@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedOrderSyncService } from '../../../../core/services/shared-order-sync.service';
 
 @Component({
   selector: 'app-contract-request-list-page',
@@ -26,11 +27,23 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styles: []
 })
 export class ContractRequestListPageComponent implements OnInit {
-  private readonly CONTRACTS_KEY = 'elwasl_contract_requests';
-
-  constructor(private snackBar: MatSnackBar) {}
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
+  private readonly snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
+    this.loadRequests();
+
+    if (typeof window !== 'undefined') {
+      setInterval(() => this.loadRequests(), 25000);
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => this.loadRequests();
+      } catch {}
+    }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus(): void {
     this.loadRequests();
   }
 
@@ -66,32 +79,19 @@ export class ContractRequestListPageComponent implements OnInit {
       { id: 'cr-102', authorName: 'منى غانم', bookTitle: 'رحلة البحث عن الذات', date: '2026-06-19', status: 'delivered' }
     ];
 
-    try {
-      const raw = localStorage.getItem(this.CONTRACTS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const ids = new Set(parsed.map(p => p.id));
-          const combined = [
-            ...parsed,
-            ...defaultRequests.filter(d => !ids.has(d.id))
-          ];
-          this.contractRequests.set(combined);
-          return;
-        }
+    this.sharedOrderSyncService.getContracts().subscribe({
+      next: (contracts) => {
+        const ids = new Set(contracts.map(p => p.id));
+        const combined = [
+          ...contracts,
+          ...defaultRequests.filter(d => !ids.has(d.id))
+        ];
+        this.contractRequests.set(combined);
+      },
+      error: () => {
+        this.contractRequests.set(defaultRequests);
       }
-    } catch {}
-
-    this.contractRequests.set(defaultRequests);
-  }
-
-  private saveRequests(requests: any[]): void {
-    try {
-      localStorage.setItem(this.CONTRACTS_KEY, JSON.stringify(requests));
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch {}
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
@@ -111,10 +111,9 @@ export class ContractRequestListPageComponent implements OnInit {
     }
 
     if (newStatus) {
+      this.sharedOrderSyncService.updateContractStatus(requestId, newStatus).subscribe();
       this.contractRequests.update(current => {
-        const updated = current.map(cr => cr.id === requestId ? { ...cr, status: newStatus } : cr);
-        this.saveRequests(updated);
-        return updated;
+        return current.map(cr => cr.id === requestId ? { ...cr, status: newStatus } : cr);
       });
       this.snackBar.open(message, 'إغلاق / Close', { duration: 3000 });
     }

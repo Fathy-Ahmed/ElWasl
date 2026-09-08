@@ -56,11 +56,17 @@ export class OrderListPageComponent implements OnInit {
     this.loadOrders();
 
     if (typeof window !== 'undefined') {
+      setInterval(() => this.loadOrders(), 20000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => this.loadOrders();
       } catch {}
     }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadOrders();
   }
 
   @HostListener('window:storage')

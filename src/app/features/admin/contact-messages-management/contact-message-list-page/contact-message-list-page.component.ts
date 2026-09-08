@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedOrderSyncService } from '../../../../core/services/shared-order-sync.service';
 
 @Component({
   selector: 'app-contact-message-list-page',
@@ -26,9 +27,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styles: []
 })
 export class ContactMessageListPageComponent implements OnInit {
-  private readonly MESSAGES_KEY = 'elwasl_contact_messages';
-
-  constructor(private snackBar: MatSnackBar) {}
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly breadcrumbs = [
     { label: 'الرئيسية / Admin', route: '/admin' },
@@ -52,6 +52,19 @@ export class ContactMessageListPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMessages();
+
+    if (typeof window !== 'undefined') {
+      setInterval(() => this.loadMessages(), 25000);
+      try {
+        const channel = new BroadcastChannel('elwasl_orders_channel');
+        channel.onmessage = () => this.loadMessages();
+      } catch {}
+    }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadMessages();
   }
 
   @HostListener('window:storage')
@@ -65,38 +78,27 @@ export class ContactMessageListPageComponent implements OnInit {
       { id: 'cm-102', senderName: 'كريم رأفت', email: 'karim@gmail.com', subject: 'اقتراح باقات روايات جديدة', type: 'اقتراح / Suggestion', status: 'delivered', date: '2026-06-20' }
     ];
 
-    try {
-      const raw = localStorage.getItem(this.MESSAGES_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const ids = new Set(parsed.map(p => p.id));
-          const combined = [
-            ...parsed,
-            ...defaults.filter(d => !ids.has(d.id))
-          ];
-          this.messages.set(combined);
-          return;
-        }
+    this.sharedOrderSyncService.getMessages().subscribe({
+      next: (msgs) => {
+        const ids = new Set(msgs.map(p => p.id));
+        const combined = [
+          ...msgs,
+          ...defaults.filter(d => !ids.has(d.id))
+        ];
+        this.messages.set(combined);
+      },
+      error: () => {
+        this.messages.set(defaults);
       }
-    } catch {}
-
-    localStorage.setItem(this.MESSAGES_KEY, JSON.stringify(defaults));
-    this.messages.set(defaults);
+    });
   }
 
   handleAction(event: { action: string; row: any }): void {
     const msgId = event.row.id;
     if (event.action === 'resolve') {
+      this.sharedOrderSyncService.updateMessageStatus(msgId, 'delivered').subscribe();
       this.messages.update(current => {
-        const updated = current.map(m => m.id === msgId ? { ...m, status: 'delivered' } : m);
-        try {
-          localStorage.setItem(this.MESSAGES_KEY, JSON.stringify(updated));
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new Event('storage'));
-          }
-        } catch {}
-        return updated;
+        return current.map(m => m.id === msgId ? { ...m, status: 'delivered' } : m);
       });
       this.snackBar.open(`تم وضع علامة مقروء ومحلول على الرسالة ${msgId} / Message resolved`, 'إغلاق / Close', { duration: 3000 });
     }

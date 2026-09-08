@@ -1,5 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { OrderStatus } from '../models/api.models';
+import { SharedOrderSyncService } from './shared-order-sync.service';
+import { forkJoin, of, catchError } from 'rxjs';
 
 export interface AdminNotification {
   id: string;
@@ -16,6 +18,8 @@ export interface AdminNotification {
   providedIn: 'root'
 })
 export class AdminNotificationService {
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
+
   private readonly ORDERS_KEY = 'elwasl_admin_mock_orders';
   private readonly CONTRACTS_KEY = 'elwasl_contract_requests';
   private readonly MESSAGES_KEY = 'elwasl_contact_messages';
@@ -32,14 +36,30 @@ export class AdminNotificationService {
 
   constructor() {
     this.refresh();
+    this.syncWithCloud();
 
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', () => this.refresh());
+      window.addEventListener('focus', () => this.syncWithCloud());
+      setInterval(() => this.syncWithCloud(), 20000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
-        channel.onmessage = () => this.refresh();
+        channel.onmessage = () => {
+          this.refresh();
+          this.syncWithCloud();
+        };
       } catch {}
     }
+  }
+
+  syncWithCloud(): void {
+    forkJoin({
+      orders: this.sharedOrderSyncService.getOrders().pipe(catchError(() => of([]))),
+      contracts: this.sharedOrderSyncService.getContracts().pipe(catchError(() => of([]))),
+      messages: this.sharedOrderSyncService.getMessages().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: () => this.refresh()
+    });
   }
 
   refresh(): void {

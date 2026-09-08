@@ -9,6 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { SharedOrderSyncService } from '../../../core/services/shared-order-sync.service';
+
 @Component({
   selector: 'app-contact-form',
   standalone: true,
@@ -28,6 +30,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ContactFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
 
   contactForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
@@ -65,16 +68,7 @@ export class ContactFormComponent implements OnInit {
       status: 'pending'
     };
 
-    try {
-      const stored = localStorage.getItem('elwasl_contact_messages');
-      const list = stored ? JSON.parse(stored) : [];
-      list.unshift(newMsg);
-      localStorage.setItem('elwasl_contact_messages', JSON.stringify(list));
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch {}
+    this.sharedOrderSyncService.saveMessage(newMsg).subscribe({ error: () => {} });
 
     setTimeout(() => {
       this.isSubmitting.set(false);

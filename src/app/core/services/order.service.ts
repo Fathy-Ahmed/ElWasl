@@ -11,6 +11,7 @@ import {
   OrderStatus
 } from '../models/api.models';
 import { AdminNotificationService } from './admin-notification.service';
+import { SharedOrderSyncService } from './shared-order-sync.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ import { AdminNotificationService } from './admin-notification.service';
 export class OrderService {
   private readonly http = inject(HttpClient);
   private readonly adminNotificationService = inject(AdminNotificationService);
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
   private readonly ordersUrl = `${API_CONFIG.baseUrl}/api/v1/Orders`;
   private readonly paymentsUrl = `${API_CONFIG.baseUrl}/api/v1/Payments`;
   private readonly entitlementsUrl = `${API_CONFIG.baseUrl}/api/v1/Entitlements`;
@@ -63,6 +65,9 @@ export class OrderService {
 
     // 3. Save to User / Recent orders storage
     this.saveToUserOrders(localOrder);
+
+    // 4. Save to shared cloud store for multi-device cross-browser sync
+    this.sharedOrderSyncService.saveOrder(localOrder).subscribe({ error: () => {} });
 
     // Refresh notifications immediately
     this.adminNotificationService.refresh();

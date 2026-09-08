@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 import { AdminDataTableComponent, TableColumn } from '../../shared/components/admin-data-table/admin-data-table.component';
+import { SharedOrderSyncService } from '../../../../core/services/shared-order-sync.service';
 
 @Component({
   selector: 'app-payment-list-page',
@@ -23,6 +24,7 @@ import { AdminDataTableComponent, TableColumn } from '../../shared/components/ad
   styles: []
 })
 export class PaymentListPageComponent implements OnInit {
+  private readonly sharedOrderSyncService = inject(SharedOrderSyncService);
   private readonly PAYMENTS_KEY = 'elwasl_admin_mock_payments';
 
   readonly breadcrumbs = [
@@ -45,11 +47,17 @@ export class PaymentListPageComponent implements OnInit {
     this.loadPayments();
 
     if (typeof window !== 'undefined') {
+      setInterval(() => this.loadPayments(), 25000);
       try {
         const channel = new BroadcastChannel('elwasl_orders_channel');
         channel.onmessage = () => this.loadPayments();
       } catch {}
     }
+  }
+
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadPayments();
   }
 
   @HostListener('window:storage')
@@ -58,23 +66,35 @@ export class PaymentListPageComponent implements OnInit {
   }
 
   loadPayments(): void {
-    try {
-      const raw = localStorage.getItem(this.PAYMENTS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.payments.set(parsed);
-          return;
-        }
-      }
-    } catch {}
+    this.sharedOrderSyncService.getOrders().subscribe({
+      next: () => this.refreshPaymentsList(),
+      error: () => this.refreshPaymentsList()
+    });
+  }
 
-    // Seed defaults if empty
+  private refreshPaymentsList(): void {
     const initial = [
       { transactionId: 'txn-cod-100203', orderId: 'ORD-20260621-5164', customerName: 'Hana Taha', amount: 80, gateway: 'Cash on Delivery', status: 'pending' },
       { transactionId: 'txn-card-100201', orderId: 'ORD-20260620-1102', customerName: 'Ahmed Fathy', amount: 350, gateway: 'Stripe', status: 'completed' },
       { transactionId: 'txn-card-100202', orderId: 'ord-f8e2d4', customerName: 'Sara Ali', amount: 199, gateway: 'Paymob', status: 'pending' }
     ];
+
+    try {
+      const raw = localStorage.getItem(this.PAYMENTS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const ids = new Set(parsed.map((p: any) => p.orderId || p.transactionId));
+          const combined = [
+            ...parsed,
+            ...initial.filter(i => !ids.has(i.orderId))
+          ];
+          this.payments.set(combined);
+          return;
+        }
+      }
+    } catch {}
+
     localStorage.setItem(this.PAYMENTS_KEY, JSON.stringify(initial));
     this.payments.set(initial);
   }
