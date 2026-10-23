@@ -1,6 +1,5 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
 import { LocaleService } from '../i18n/locale.service';
 
 export interface CartItem {
@@ -19,7 +18,6 @@ export interface CartItem {
 export class CartService {
   private readonly snackBar = inject(MatSnackBar);
   private readonly localeService = inject(LocaleService);
-  private readonly router = inject(Router);
   private activeUserId: string | null = null;
 
   // Signal-based cart state
@@ -48,30 +46,6 @@ export class CartService {
   });
 
   addToCart(item: Omit<CartItem, 'quantity'>): boolean {
-    if (!this.activeUserId) {
-      const lang = this.localeService.currentLocale();
-      let message = 'Please log in first to add products to your cart';
-      let actionLabel = 'Login';
-      
-      if (lang === 'ar') {
-        message = 'يرجى تسجيل الدخول أولاً لتتمكن من إضافة المنتجات إلى السلة';
-        actionLabel = 'تسجيل الدخول';
-      } else if (lang === 'fr') {
-        message = 'Veuillez d\'abord vous connecter pour ajouter des produits au panier';
-        actionLabel = 'Connexion';
-      }
-
-      this.snackBar.open(message, actionLabel, {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-        panelClass: ['warning-snackbar']
-      }).onAction().subscribe(() => {
-        this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
-      });
-      return false;
-    }
-
     this.items.update(currentItems => {
       const existing = currentItems.find(i => i.productId === item.productId && i.productType === item.productType);
       let updated: CartItem[];

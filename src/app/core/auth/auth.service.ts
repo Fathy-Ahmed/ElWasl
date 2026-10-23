@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of, shareReplay } from 'rxjs';
+import { Observable, tap, catchError, of, shareReplay, switchMap, map } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { 
   AuthResponse, 
@@ -89,10 +89,8 @@ export class AuthService {
         this.currentUser.set(user);
         localStorage.setItem('user', JSON.stringify(user));
       }),
-      // Immediately fetch complete profile info to obtain User ID
-      tap(() => {
-        this.fetchProfile().subscribe();
-      })
+      // Load the profile before login completes so the guest cart is merged before checkout resumes.
+      switchMap(res => this.fetchProfile().pipe(map(() => res)))
     );
   }
 

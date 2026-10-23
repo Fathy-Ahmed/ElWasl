@@ -39,7 +39,7 @@
       </button>
 
       <div class="auth-footer">
-        <p>{{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }} <a routerLink="/auth/login"><strong>{{ 'NAV.LOGIN' | translate }}</strong></a></p>
+        <p>{{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }} <a [routerLink]="['/auth/login']" [queryParams]="{ returnUrl: returnUrl }"><strong>{{ 'NAV.LOGIN' | translate }}</strong></a></p>
       </div>
     </form>
   </div>

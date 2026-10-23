@@ -37,7 +37,7 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   readonly isSubmitting = signal<boolean>(false);
   readonly hidePassword = signal<boolean>(true);
-  private returnUrl: string = '/';
+  returnUrl: string = '/';
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
