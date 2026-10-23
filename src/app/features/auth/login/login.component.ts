@@ -66,7 +66,7 @@ export class LoginComponent implements OnInit {
       next: () => {
         this.isSubmitting.set(false);
         this.snackBar.open('تم تسجيل الدخول بنجاح / Logged in successfully', 'إغلاق / Close', { duration: 2000 });
-        this.router.navigateByUrl(this.returnUrl);
+        this.router.navigateByUrl(this.authService.isAdmin() ? '/admin/dashboard' : this.returnUrl);
       },
       error: (err) => {
         this.isSubmitting.set(false);
